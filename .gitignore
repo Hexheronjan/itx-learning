@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js & Turbo build outputs
+.next/
+out/
+build/
+dist/
+.turbo/
+
+# Environment and Secrets
+.env
+.env*.local
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS & Temp
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+audit.mjs

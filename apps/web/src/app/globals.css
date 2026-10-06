@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-surface3: var(--surface3);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-dim: var(--text-dim);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-light: var(--brand-light);
+  --color-accent: var(--accent);
+  --color-error: var(--error);
+  --color-success: var(--success);
+}
+
+/* -------------------------------------------------------------------------
+   NALARA DESIGN TOKENS (Sourced directly from DESIGN.md)
+   ------------------------------------------------------------------------- */
+:root, :root[data-theme="emerald"] {
+  --bg: #0A0F0D;
+  --surface: #111814;
+  --surface2: #182219;
+  --surface3: #1E2B22;
+  --text: #E8F5F0;
+  --text-muted: #7A9E8E;
+  --text-dim: #3D5C4E;
+  --border: rgba(22, 168, 128, 0.15);
+  --brand: #16A880;
+  --brand-light: #1FC99A;
+  --brand-dark: #0E8A68;
+  --brand-rgb: 22, 168, 128;
+  --accent: #F59E0B;
+  --error: #F87171;
+  --success: #4ADE80;
+  --glow-primary: rgba(22, 168, 128, 0.12);
+  --glow-secondary: rgba(245, 158, 11, 0.06);
+  --backdrop: rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] {
+  --bg: #FAFAF9;
+  --surface: #FFFFFF;
+  --surface2: #F3F4F6;
+  --surface3: #E5E7EB;
+  --text: #171717;
+  --text-muted: #525252;
+  --text-dim: #A3A3A3;
+  --border: rgba(0, 0, 0, 0.08);
+  --brand: #16A880;
+  --brand-light: #1FC99A;
+  --brand-dark: #0E8A68;
+  --brand-rgb: 22, 168, 128;
+  --accent: #F59E0B;
+  --error: #EF4444;
+  --success: #22C55E;
+  --glow-primary: rgba(22, 168, 128, 0.08);
+  --glow-secondary: rgba(245, 158, 11, 0.04);
+  --backdrop: rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="royal"] {
+  --bg: #0A0E1A;
+  --surface: #10162B;
+  --surface2: #19213D;
+  --surface3: #222C50;
+  --text: #E0E7FF;
+  --text-muted: #94A3B8;
+  --text-dim: #475569;
+  --border: rgba(99, 102, 241, 0.2);
+  --brand: #6366F1;
+  --brand-light: #818CF8;
+  --brand-dark: #4F46E5;
+  --brand-rgb: 99, 102, 241;
+  --accent: #F59E0B;
+  --error: #FB7185;
+  --success: #4ADE80;
+  --glow-primary: rgba(99, 102, 241, 0.15);
+  --glow-secondary: rgba(245, 158, 11, 0.06);
+  --backdrop: rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="midnight"] {
+  --bg: #030303;
+  --surface: #0A0A0A;
+  --surface2: #121212;
+  --surface3: #1A1A1A;
+  --text: #F5F3FF;
+  --text-muted: #A78BFA;
+  --text-dim: #5B21B6;
+  --border: rgba(139, 92, 246, 0.25);
+  --brand: #8B5CF6;
+  --brand-light: #A78BFA;
+  --brand-dark: #7C3AED;
+  --brand-rgb: 139, 92, 246;
+  --accent: #F59E0B;
+  --error: #F43F5E;
+  --success: #4ADE80;
+  --glow-primary: rgba(139, 92, 246, 0.15);
+  --glow-secondary: rgba(245, 158, 11, 0.06);
+  --backdrop: rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="sunset"] {
+  --bg: #0F0D0C;
+  --surface: #161412;
+  --surface2: #211D1A;
+  --surface3: #2C2723;
+  --text: #FFF7ED;
+  --text-muted: #FDBA74;
+  --text-dim: #9A3412;
+  --border: rgba(249, 115, 22, 0.2);
+  --brand: #F97316;
+  --brand-light: #FB923C;
+  --brand-dark: #EA580C;
+  --brand-rgb: 249, 115, 22;
+  --accent: #F59E0B;
+  --error: #F87171;
+  --success: #4ADE80;
+  --glow-primary: rgba(249, 115, 22, 0.15);
+  --glow-secondary: rgba(245, 158, 11, 0.06);
+  --backdrop: rgba(0, 0, 0, 0.6);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-dm-sans), sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  opacity: 0.4;
+  border-radius: 99px;
+}
+
+.font-serif {
+  font-family: var(--font-fraunces), serif;
+}

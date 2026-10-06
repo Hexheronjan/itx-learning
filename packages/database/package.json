@@ -1,0 +1,7 @@
+{
+  "name": "@nalara/database",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "echo \"Database migrations ready\""
+  }
+}
