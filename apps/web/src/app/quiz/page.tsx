@@ -29,6 +29,8 @@ import {
   FileQuestion,
   Clock,
   ShieldCheck,
+  Loader2,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, GlowCard } from "@/components/ui/Card";
@@ -592,8 +594,14 @@ function StudentPortalContent() {
     feedback: string;
     hintLevel1?: string;
     misconceptionCode?: string;
+    correctAnswer?: string;
+    stepByStepSolution?: string;
     newMastery?: number;
   } | null>(null);
+
+  const [lastSubmittedWrongAnswer, setLastSubmittedWrongAnswer] = useState<string | null>(null);
+  const [aiThinkFirstHint, setAiThinkFirstHint] = useState<string | null>(null);
+  const [isLoadingAiHint, setIsLoadingAiHint] = useState(false);
 
   const [masteryScore, setMasteryScore] = useState(68);
   const [streak, setStreak] = useState(0);
@@ -687,6 +695,9 @@ function StudentPortalContent() {
     setResult(null);
     setShowAiHint(false);
     setSelectedOptionForExplanation(null);
+    setLastSubmittedWrongAnswer(null);
+    setAiThinkFirstHint(null);
+    setIsLoadingAiHint(false);
     setSessionAttempts([]);
     setActiveStep("quiz");
   };
@@ -694,6 +705,40 @@ function StudentPortalContent() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
+  };
+
+  const handleToggleAiHint = async () => {
+    if (showAiHint) {
+      setShowAiHint(false);
+      return;
+    }
+
+    setShowAiHint(true);
+    if (!aiThinkFirstHint) {
+      setIsLoadingAiHint(true);
+      try {
+        const res = await fetch("/api/diagnostic", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "hint",
+            questionText: currentQ.questionText,
+            conceptName: currentQ.conceptName,
+            gradeLevel: selectedGrade?.title || "SMA Kelas X",
+          }),
+        });
+        const data = await res.json();
+        if (data?.hint) {
+          setAiThinkFirstHint(data.hint);
+        } else {
+          setAiThinkFirstHint(`Fokuslah pada konsep dasar ${currentQ.conceptName}. Uraikan setiap langkah pengerjaan secara terpisah sebelum menarik kesimpulan akhir.`);
+        }
+      } catch {
+        setAiThinkFirstHint(`Fokuslah pada konsep dasar ${currentQ.conceptName}. Uraikan setiap langkah pengerjaan secara terpisah sebelum menarik kesimpulan akhir.`);
+      } finally {
+        setIsLoadingAiHint(false);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -707,6 +752,7 @@ function StudentPortalContent() {
     const isCorrect = cleanAns.toLowerCase() === currentQ.correctAnswer.toLowerCase();
 
     if (isCorrect) {
+      setLastSubmittedWrongAnswer(null);
       const updatedMastery = Math.min(100, masteryScore + 12);
       setMasteryScore(updatedMastery);
       setStreak((prev) => prev + 1);
@@ -727,20 +773,25 @@ function StudentPortalContent() {
         status: "correct",
         feedback: "Luar biasa! Pilihan jawaban Anda tepat dan konsep telah dikuasai.",
         newMastery: updatedMastery,
+        correctAnswer: currentQ.correctAnswer,
+        stepByStepSolution: currentQ.explanationText,
       });
       setIsSubmitting(false);
     } else {
-      // Wrong Answer -> Trigger Think First Mode & Misconception Analysis
+      // Wrong Answer -> AI Diagnostics, Step-by-step Solution & Correct Answer
+      setLastSubmittedWrongAnswer(cleanAns);
       try {
         const res = await fetch("/api/diagnostic", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            action: "diagnose",
             questionText: currentQ.questionText,
             correctAnswer: currentQ.correctAnswer,
             studentAnswer: cleanAns,
             conceptName: currentQ.conceptName,
             currentMastery: masteryScore,
+            gradeLevel: selectedGrade?.title || "SMA Kelas X",
           }),
         });
 
@@ -748,8 +799,10 @@ function StudentPortalContent() {
         const analysis = data?.analysis?.output;
 
         const knownPattern = currentQ.knownWrongPatterns[cleanAns];
-        const misconceptionCode = knownPattern?.misconceptionCode || analysis?.misconception_code || "CONCEPTUAL_MISMATCH";
-        const hint = knownPattern?.hint || analysis?.hint_level_1 || "Coba periksa kembali langkah logika pengerjaan Anda.";
+        const misconceptionCode = analysis?.misconception_code || knownPattern?.misconceptionCode || "CONCEPTUAL_MISMATCH";
+        const hint = analysis?.hint_level_1 || knownPattern?.hint || "Jawaban belum sesuai kaidah materi.";
+        const stepByStep = analysis?.step_by_step_solution || currentQ.explanationText || "Pahami kembali kaidah materi untuk menyelesaikan soal ini.";
+        const correctAns = analysis?.correct_answer || currentQ.correctAnswer;
 
         // Record attempt with misconception
         setSessionAttempts((prev) => [
@@ -766,13 +819,15 @@ function StudentPortalContent() {
         ]);
 
         setResult({
-          status: "think_first",
-          feedback: "Jawaban belum tepat. AI Think First Mode diaktifkan untuk membimbing nalar Anda.",
+          status: "incorrect",
+          feedback: "Jawaban belum tepat. Pelajari cara kerja dan pembahasan berikut:",
           hintLevel1: hint,
           misconceptionCode: misconceptionCode,
+          correctAnswer: correctAns,
+          stepByStepSolution: stepByStep,
         });
       } catch {
-        const fallbackHint = currentQ.knownWrongPatterns[cleanAns]?.hint || "Periksa kembali aturan dasar materi ini sebelum menarik kesimpulan.";
+        const fallbackHint = currentQ.knownWrongPatterns[cleanAns]?.hint || "Periksa kembali aturan dasar materi ini.";
         setSessionAttempts((prev) => [
           ...prev,
           {
@@ -787,10 +842,12 @@ function StudentPortalContent() {
         ]);
 
         setResult({
-          status: "think_first",
-          feedback: "Jawaban belum tepat.",
+          status: "incorrect",
+          feedback: "Jawaban belum tepat. Pelajari cara kerja dan pembahasan berikut:",
           hintLevel1: fallbackHint,
           misconceptionCode: "GENERAL_RETRY",
+          correctAnswer: currentQ.correctAnswer,
+          stepByStepSolution: currentQ.explanationText || "Pahami kembali kaidah materi ini secara mendalam.",
         });
       } finally {
         setIsSubmitting(false);
@@ -851,6 +908,9 @@ function StudentPortalContent() {
     setUserAnswer("");
     setShowAiHint(false);
     setSelectedOptionForExplanation(null);
+    setLastSubmittedWrongAnswer(null);
+    setAiThinkFirstHint(null);
+    setIsLoadingAiHint(false);
     setCurrentIdx((prev) => prev + 1);
   };
 
@@ -860,6 +920,9 @@ function StudentPortalContent() {
     setResult(null);
     setShowAiHint(false);
     setSelectedOptionForExplanation(null);
+    setLastSubmittedWrongAnswer(null);
+    setAiThinkFirstHint(null);
+    setIsLoadingAiHint(false);
     setSessionAttempts([]);
     setActiveStep("quiz");
   };
@@ -1413,31 +1476,34 @@ function StudentPortalContent() {
             {currentQ.type === "mcq" && currentQ.options ? (
               <div className="space-y-3 pt-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-1">
-                  {result ? "Klik Opsi Jawaban untuk Melihat Analisis & Penjelasan:" : "Pilih Salah Satu Jawaban:"}
+                  {result ? "Analisis Jawaban & Kunci Pembahasan:" : "Pilih Salah Satu Jawaban:"}
                 </label>
 
                 {currentQ.options.map((opt, idx) => {
                   const isSelected = userAnswer === opt;
                   const isCorrectAnswer = opt === currentQ.correctAnswer;
-                  const hasSubmitted = !!result;
+                  const hasAnswered = !!result;
 
                   let optionCardStyle = "border-border bg-surface2 text-muted hover:text-text hover:border-brand/40";
-                  if (hasSubmitted) {
+                  if (hasAnswered) {
                     if (isCorrectAnswer) {
-                      optionCardStyle = "border-emerald-500/80 bg-emerald-950/20 text-emerald-300 font-bold ring-1 ring-emerald-500/40";
-                    } else if (isSelected && !isCorrectAnswer) {
-                      optionCardStyle = "border-amber-500/80 bg-amber-950/20 text-amber-300 font-bold ring-1 ring-amber-500/40";
+                      optionCardStyle = "border-emerald-500/80 bg-emerald-950/25 text-emerald-300 font-bold ring-1 ring-emerald-500/40 opacity-100";
+                    } else if (isSelected) {
+                      optionCardStyle = "border-rose-500/80 bg-rose-950/25 text-rose-300 font-bold ring-1 ring-rose-500/40 opacity-90";
+                    } else {
+                      optionCardStyle = "border-border/40 bg-surface2/30 text-muted/50 opacity-40 cursor-not-allowed";
                     }
                   } else if (isSelected) {
-                    optionCardStyle = "border-brand bg-brand/10 text-text font-bold ring-1 ring-brand";
+                    optionCardStyle = "border-brand bg-brand/10 text-text font-bold ring-2 ring-brand";
                   }
 
                   return (
                     <div key={idx} className="space-y-2">
                       <button
                         type="button"
+                        disabled={isSubmitting || hasAnswered}
                         onClick={() => {
-                          if (!hasSubmitted) {
+                          if (!hasAnswered) {
                             setUserAnswer(opt);
                           }
                           setSelectedOptionForExplanation(opt);
@@ -1452,24 +1518,26 @@ function StudentPortalContent() {
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0 ml-2">
-                          {hasSubmitted && isCorrectAnswer && (
+                          {hasAnswered && isCorrectAnswer && (
                             <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1 border border-emerald-500/40">
                               <CheckCircle2 size={12} /> Kunci Jawaban Benar
                             </span>
                           )}
-                          {hasSubmitted && isSelected && !isCorrectAnswer && (
-                            <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold flex items-center gap-1 border border-amber-500/40">
-                              <AlertTriangle size={12} /> Jawaban Kamu (Keliru)
+                          {hasAnswered && isSelected && !isCorrectAnswer && (
+                            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold flex items-center gap-1 border border-rose-500/40">
+                              <AlertTriangle size={12} /> Jawaban Kamu (Salah)
                             </span>
                           )}
-                          {!hasSubmitted && isSelected && (
-                            <Check size={16} className="text-brand shrink-0" />
+                          {!hasAnswered && isSelected && (
+                            <span className="px-2 py-0.5 rounded-full bg-brand/20 text-brand text-[10px] font-bold flex items-center gap-1 border border-brand/40">
+                              <Check size={12} className="text-brand shrink-0" /> Dipilih
+                            </span>
                           )}
                         </div>
                       </button>
 
                       {/* On-Demand Explanation on click when result is visible */}
-                      {hasSubmitted && selectedOptionForExplanation === opt && currentQ.optionDetails && (
+                      {hasAnswered && selectedOptionForExplanation === opt && currentQ.optionDetails && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
@@ -1497,8 +1565,8 @@ function StudentPortalContent() {
                   placeholder="Ketik angka hasil pengerjaan..."
                   value={userAnswer}
                   onChange={(e) => setUserAnswer(e.target.value)}
-                  disabled={isSubmitting || result?.status === "correct"}
-                  className="w-full p-4 rounded-xl outline-none text-lg font-bold border border-border focus:border-brand transition-all"
+                  disabled={isSubmitting || !!result}
+                  className="w-full p-4 rounded-xl outline-none text-lg font-bold border border-border focus:border-brand transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   style={{ background: "var(--surface2)", color: "var(--text)" }}
                 />
               </div>
@@ -1508,14 +1576,14 @@ function StudentPortalContent() {
             <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-border">
               <button
                 type="button"
-                onClick={() => setShowAiHint(!showAiHint)}
+                onClick={handleToggleAiHint}
                 className="px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all flex items-center gap-2"
               >
                 <Lightbulb size={16} />
                 <span>{showAiHint ? "Tutup Petunjuk AI" : "Minta Bimbingan Nalar AI (Think First)"}</span>
               </button>
 
-              {result?.status !== "correct" ? (
+              {!result ? (
                 <Button
                   onClick={handleSubmit}
                   variant="primary"
@@ -1543,13 +1611,18 @@ function StudentPortalContent() {
               >
                 <div className="flex items-center gap-2 text-brand font-bold">
                   <Compass size={16} />
-                  <span>Petunjuk Penalaran Mandiri (Think First):</span>
+                  <span>Petunjuk Penalaran Mandiri (Think First AI):</span>
                 </div>
-                <p className="text-text leading-relaxed">
-                  💡 <em>
-                    "Fokuslah pada konsep dasar <strong>{currentQ.conceptName}</strong>. Uraikan setiap langkah pengerjaan secara terpisah sebelum menarik kesimpulan akhir."
-                  </em>
-                </p>
+                {isLoadingAiHint ? (
+                  <div className="flex items-center gap-2 text-muted py-1">
+                    <Loader2 size={14} className="animate-spin text-brand" />
+                    <span>Sedang merumuskan bimbingan nalar dengan AI...</span>
+                  </div>
+                ) : (
+                  <p className="text-text leading-relaxed">
+                    💡 <em>"{aiThinkFirstHint || `Fokuslah pada konsep dasar ${currentQ.conceptName}. Uraikan setiap langkah pengerjaan secara terpisah sebelum menarik kesimpulan akhir.`}"</em>
+                  </p>
+                )}
               </motion.div>
             )}
 
@@ -1563,32 +1636,62 @@ function StudentPortalContent() {
                   className="pt-2"
                 >
                   {result.status === "correct" ? (
-                    <div className="p-5 rounded-xl border border-brand/40 bg-brand/10 space-y-2">
+                    <div className="p-5 rounded-xl border border-brand/40 bg-brand/10 space-y-3">
                       <div className="flex items-center gap-2 text-brand font-bold text-sm">
                         <CheckCircle2 size={18} />
                         <span>Jawaban Tepat! Penguasaan Materi Meningkat.</span>
                       </div>
                       <p className="text-xs text-muted">{result.feedback}</p>
                       {currentQ.explanationText && (
-                        <div className="mt-2 p-3 rounded-lg bg-surface border border-border text-xs text-text">
+                        <div className="p-3.5 rounded-lg bg-surface border border-border text-xs text-text leading-relaxed">
                           📖 <strong>Pembahasan:</strong> {currentQ.explanationText}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="p-5 rounded-xl border border-amber-500/40 bg-amber-500/10 space-y-3">
-                      <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
-                        <AlertTriangle size={18} />
-                        <span>Jawaban Belum Tepat — Evaluasi Nalar:</span>
+                    <div className="p-5 rounded-xl border border-rose-500/40 bg-rose-500/10 space-y-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+                          <XCircle size={18} />
+                          <span>Jawaban Belum Tepat — Evaluasi & Cara Kerja:</span>
+                        </div>
+                        {result.misconceptionCode && (
+                          <span className="inline-block px-2.5 py-0.5 rounded-full bg-surface text-[11px] font-mono text-accent border border-border">
+                            Pola Miskonsepsi: {result.misconceptionCode}
+                          </span>
+                        )}
                       </div>
-                      {result.misconceptionCode && (
-                        <span className="inline-block px-2.5 py-0.5 rounded-full bg-surface text-[11px] font-mono text-accent border border-border">
-                          Pola Miskonsepsi: {result.misconceptionCode}
+
+                      {/* Kotak Jawaban Benar */}
+                      <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/40 flex items-center justify-between gap-3 text-xs">
+                        <div>
+                          <span className="text-emerald-400 font-bold block uppercase tracking-wider text-[10px]">
+                            Kunci Jawaban yang Benar:
+                          </span>
+                          <span className="text-emerald-300 font-extrabold text-sm sm:text-base">
+                            {result.correctAnswer || currentQ.correctAnswer}
+                          </span>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-500/40 flex items-center gap-1.5 shrink-0">
+                          <CheckCircle2 size={13} /> Kunci Jawaban
                         </span>
-                      )}
+                      </div>
+
+                      {/* Cara Kerja & Langkah Penyelesaian AI */}
+                      <div className="p-4 rounded-xl bg-surface border border-border space-y-2 text-xs">
+                        <div className="flex items-center gap-2 text-brand font-bold text-xs sm:text-sm">
+                          <BrainCircuit size={16} />
+                          <span>Cara Kerja & Langkah Penyelesaian (AI):</span>
+                        </div>
+                        <p className="text-text leading-relaxed whitespace-pre-line text-xs sm:text-sm">
+                          {result.stepByStepSolution || currentQ.explanationText || "Pahami kembali kaidah materi untuk menyelesaikan soal ini."}
+                        </p>
+                      </div>
+
+                      {/* Catatan Evaluasi Nalar jika ada */}
                       {result.hintLevel1 && (
-                        <div className="p-3 rounded-lg bg-surface border border-border text-xs text-text leading-relaxed">
-                          💡 <strong>Bimbingan AI:</strong> {result.hintLevel1}
+                        <div className="p-3 rounded-lg bg-surface/60 border border-border/80 text-xs text-muted leading-relaxed">
+                          💡 <strong>Catatan Evaluasi Nalar:</strong> {result.hintLevel1}
                         </div>
                       )}
                     </div>

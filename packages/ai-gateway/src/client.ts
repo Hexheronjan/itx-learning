@@ -19,7 +19,7 @@ export class GeminiClient {
 
   constructor(apiKey?: string, model?: string) {
     this.apiKey = apiKey || process.env.LLM_API_KEY || "";
-    this.model = model || process.env.LLM_MODEL || "gemini-flash-latest";
+    this.model = model || process.env.LLM_MODEL || "gemini-flash-lite-latest";
   }
 
   async analyzeStudentAnswer(request: AiAnalysisRequest): Promise<LLMAnalysisResult> {
@@ -27,7 +27,7 @@ export class GeminiClient {
 
     if (!this.apiKey) {
       return {
-        output: generateRuleFallback(request.conceptName),
+        output: generateRuleFallback(request.conceptName, request.correctAnswer),
         source: "rule_fallback",
         model: "rule_engine",
         latencyMs: 1,
@@ -36,90 +36,158 @@ export class GeminiClient {
     }
 
     const promptText = buildAnalysisPrompt(request);
+    const candidateModels = [this.model, "gemini-flash-lite-latest", "gemini-3.1-flash-lite"].filter(
+      (m, i, arr) => Boolean(m) && arr.indexOf(m) === i
+    );
 
-    // Call Gemini API with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), THRESHOLDS.AI.MAX_TIMEOUT_MS);
+    let lastError: string | undefined;
 
-    try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
+    for (const currentModel of candidateModels) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), THRESHOLDS.AI.MAX_TIMEOUT_MS);
 
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": this.apiKey,
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT }],
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent`;
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": this.apiKey,
           },
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: promptText }],
+          signal: controller.signal,
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: SYSTEM_PROMPT }],
             },
-          ],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: "application/json",
-          },
-        }),
-      });
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: promptText }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.1,
+              responseMimeType: "application/json",
+            },
+          }),
+        });
 
-      clearTimeout(timeoutId);
-      const latencyMs = Date.now() - startTime;
+        clearTimeout(timeoutId);
 
-      if (!res.ok) {
-        const errorBody = await res.text();
+        if (!res.ok) {
+          const errorBody = await res.text();
+          lastError = `Gemini (${currentModel}) error (${res.status}): ${errorBody.slice(0, 150)}`;
+          continue;
+        }
+
+        const data = await res.json();
+        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const tokensUsed = data?.usageMetadata?.totalTokenCount || 0;
+
+        const validated = validateAndParseAiOutput(rawText);
+
+        if (!validated.success || !validated.data) {
+          lastError = validated.error;
+          continue;
+        }
+
         return {
-          output: generateRuleFallback(request.conceptName),
-          source: "rule_fallback",
-          model: this.model,
-          latencyMs,
-          error: `Gemini API error (${res.status}): ${errorBody.slice(0, 200)}`,
-        };
-      }
-
-      const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      const tokensUsed = data?.usageMetadata?.totalTokenCount || 0;
-
-      const validated = validateAndParseAiOutput(rawText);
-
-      if (!validated.success || !validated.data) {
-        return {
-          output: generateRuleFallback(request.conceptName),
-          source: "rule_fallback",
-          model: this.model,
-          latencyMs,
+          output: validated.data,
+          source: "ai",
+          model: currentModel,
+          latencyMs: Date.now() - startTime,
           tokensUsed,
           rawResponse: rawText,
-          error: validated.error,
         };
+      } catch (err: unknown) {
+        clearTimeout(timeoutId);
+        const isAbort = err instanceof Error && err.name === "AbortError";
+        lastError = isAbort ? `Timeout after ${THRESHOLDS.AI.MAX_TIMEOUT_MS}ms` : (err as Error).message;
       }
+    }
 
-      return {
-        output: validated.data,
-        source: "ai",
-        model: this.model,
-        latencyMs,
-        tokensUsed,
-        rawResponse: rawText,
-      };
-    } catch (err: unknown) {
-      clearTimeout(timeoutId);
-      const latencyMs = Date.now() - startTime;
-      const isAbort = err instanceof Error && err.name === "AbortError";
+    return {
+      output: generateRuleFallback(request.conceptName, request.correctAnswer),
+      source: "rule_fallback",
+      model: "rule_engine",
+      latencyMs: Date.now() - startTime,
+      error: lastError,
+    };
+  }
 
+  async generateThinkFirstHint(params: {
+    questionText: string;
+    conceptName: string;
+    gradeLevel?: string;
+  }): Promise<{ hint: string; source: "ai" | "fallback" }> {
+    if (!this.apiKey) {
       return {
-        output: generateRuleFallback(request.conceptName),
-        source: "rule_fallback",
-        model: this.model,
-        latencyMs,
-        error: isAbort ? `Timeout after ${THRESHOLDS.AI.MAX_TIMEOUT_MS}ms` : (err as Error).message,
+        hint: `Fokuslah pada konsep dasar ${params.conceptName}. Uraikan setiap langkah pengerjaan secara terpisah sebelum menarik kesimpulan akhir.`,
+        source: "fallback",
       };
     }
+
+    const candidateModels = [this.model, "gemini-flash-lite-latest", "gemini-3.1-flash-lite"].filter(
+      (m, i, arr) => Boolean(m) && arr.indexOf(m) === i
+    );
+
+    const sysPrompt = `Anda adalah Tutor Cerdas Socratic NALARA (Personalized AI Learning Intelligence).
+Tugas Anda: Berikan petunjuk nalar (Think First Socratic guidance) singkat (1-2 kalimat) yang memancing cara berpikir mandiri siswa untuk memecahkan soal berikut.
+ATURAN KETAT:
+1. JANGAN PERNAH membocorkan kunci jawaban atau opsi yang benar!
+2. Fokus membimbing siswa mengingat definisi, aturan logika, atau langkah awal yang relevan.
+3. Gunakan bahasa Indonesia yang ramah, jelas, dan memotivasi.
+4. Output WAJIB berupa JSON murni:
+{
+  "hint": "Petunjuk penalaran nalar..."
+}`;
+
+    const userPrompt = `Soal: "${params.questionText}"\nKonsep: "${params.conceptName}"\nJenjang: "${params.gradeLevel || "SMA"}"`;
+
+    for (const currentModel of candidateModels) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent`;
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": this.apiKey,
+          },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: sysPrompt }] },
+            contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+            },
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          let cleaned = rawText.trim();
+          if (cleaned.startsWith("```json")) {
+            cleaned = cleaned.replace(/^```json\s*/, "").replace(/```\s*$/, "");
+          } else if (cleaned.startsWith("```")) {
+            cleaned = cleaned.replace(/^```\s*/, "").replace(/```\s*$/, "");
+          }
+          const parsed = JSON.parse(cleaned);
+          if (parsed?.hint) {
+            return { hint: parsed.hint, source: "ai" };
+          }
+        }
+      } catch {
+        // try next model
+      }
+    }
+
+    return {
+      hint: `Fokuslah pada konsep dasar ${params.conceptName}. Uraikan setiap langkah pengerjaan secara terpisah sebelum menarik kesimpulan akhir.`,
+      source: "fallback",
+    };
   }
 }
+

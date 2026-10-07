@@ -55,12 +55,14 @@ export function validateAndParseAiOutput(rawText: string): {
 /**
  * Deterministic rule-based fallback when AI fails or times out
  */
-export function generateRuleFallback(conceptName: string): AiAnalysisOutput {
+export function generateRuleFallback(conceptName: string, correctAnswer?: string): AiAnalysisOutput {
   return {
     error_type: "conceptual",
     misconception_code: "GENERAL_CONCEPTUAL_MISUNDERSTANDING",
     confidence: 1.0,
-    hint_level_1: `Coba periksa kembali definisi dan langkah dasar pada konsep ${conceptName}. Apa langkah pertama yang seharusnya dilakukan?`,
+    correct_answer: correctAnswer,
+    step_by_step_solution: `Pahami kembali konsep ${conceptName}. Uraikan setiap langkah pengerjaan secara bertahap dan terapkan kaidah materi untuk menyelesaikan soal dengan tepat.`,
+    hint_level_1: `Periksa kembali kaidah konsep pada materi ${conceptName}.`,
     recommended_action: "REVIEW_BASIC_DEFINITION",
   };
 }

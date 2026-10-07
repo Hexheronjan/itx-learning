@@ -4,7 +4,9 @@ export const AiAnalysisOutputSchema = z.object({
   error_type: z.enum(["conceptual", "procedural", "calculation", "none"]),
   misconception_code: z.string().min(1).max(100).nullable().optional(),
   confidence: z.number().min(0).max(1),
-  hint_level_1: z.string().min(1).max(500),
+  hint_level_1: z.string().min(1).max(1000).optional(),
+  step_by_step_solution: z.string().optional(),
+  correct_answer: z.string().optional(),
   recommended_action: z.string().min(1).max(100),
 });
 export type AiAnalysisOutput = z.infer<typeof AiAnalysisOutputSchema>;
