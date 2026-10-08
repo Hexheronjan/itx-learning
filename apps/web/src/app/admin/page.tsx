@@ -1694,8 +1694,8 @@ export default function AdminDashboardPage() {
                     <th className="pb-3 px-3">NISN</th>
                     <th className="pb-3 px-3">Email Akun</th>
                     <th className="pb-3 px-3">Rombel / Kelas</th>
-                    <th className="pb-3 px-3">Target Belajar</th>
-                    <th className="pb-3 px-3 text-right">Aksi</th>
+                    <th className="pb-3 px-3">Status Sekolah</th>
+                    <th className="pb-3 px-3 text-right">Aksi Kelulusan &amp; Akun</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
@@ -1710,9 +1710,39 @@ export default function AdminDashboardPage() {
                         <Badge variant="neutral" className="text-[10px]">{s.classGroup}</Badge>
                       </td>
                       <td className="py-3.5 px-3">
-                        <Badge variant="accent" className="text-[10px]">{s.targetProgram}</Badge>
+                        <Badge variant="success" className="text-[10px]">🟢 Aktif</Badge>
                       </td>
-                      <td className="py-3.5 px-3 text-right">
+                      <td className="py-3.5 px-3 text-right flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={async () => {
+                            if (confirm(`Set status siswa ${s.name} (${s.email}) menjadi LULUS / ALUMNI? Akses masuk kelas akan dinonaktifkan.`)) {
+                              try {
+                                const res = await fetch("/api/admin/toggle-student-status", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    studentId: s.id,
+                                    email: s.email,
+                                    academicStatus: "graduated",
+                                  }),
+                                });
+                                const data = await res.json();
+                                if (res.ok) {
+                                  setStatusMsg(`Siswa ${s.name} berhasil di-set LULUS / ALUMNI. Akses kelas di-block.`);
+                                } else {
+                                  alert(`Gagal: ${data.error}`);
+                                }
+                              } catch (err) {
+                                alert("Error updating status");
+                              }
+                            }
+                          }}
+                          className="text-[11px] py-1 border-amber-500/40 text-amber-400 font-bold hover:bg-amber-950/20"
+                        >
+                          🎓 Tandai Lulus
+                        </Button>
                         <button
                           onClick={() => handleDeleteStudent(s.id)}
                           className="text-muted hover:text-error transition-colors p-1.5 rounded-lg"

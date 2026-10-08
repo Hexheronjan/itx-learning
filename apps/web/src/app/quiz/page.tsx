@@ -524,6 +524,31 @@ function StudentPortalContent() {
   const [selectedSubject, setSelectedSubject] = useState<SubjectOption | null>(CURRICULUM_PROGRAMS[0].subjects[0]);
   const [activeStep, setActiveStep] = useState<"choose_grade" | "choose_subject" | "confirm_start" | "quiz" | "completed">("choose_grade");
 
+  // Student Graduation & Profile State
+  const [isGraduated, setIsGraduated] = useState(false);
+  const [studentProfileName, setStudentProfileName] = useState("Andi Pratama");
+  const [studentClassGroup, setStudentClassGroup] = useState("Kelas XI-A");
+
+  // Load Supabase Session and Check Graduation Status
+  React.useEffect(() => {
+    async function loadStudentSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user) {
+        const u = data.session.user;
+        const meta = u.user_metadata || {};
+        
+        if (meta.full_name) setStudentProfileName(meta.full_name);
+        if (meta.class_group || meta.classGroup) setStudentClassGroup(meta.class_group || meta.classGroup);
+
+        const status = meta.academic_status || (meta.is_graduated ? "graduated" : "active");
+        if (status === "graduated" || meta.is_graduated === true) {
+          setIsGraduated(true);
+        }
+      }
+    }
+    loadStudentSession();
+  }, []);
+
   // Confirmation Modal State
   const [pendingSubject, setPendingSubject] = useState<SubjectOption | null>(null);
   const [completedQuizzes, setCompletedQuizzes] = useState<Record<string, boolean>>({});
@@ -932,6 +957,44 @@ function StudentPortalContent() {
   const correctCount = sessionAttempts.filter((a) => a.isCorrect).length;
   const wrongAttempts = sessionAttempts.filter((a) => !a.isCorrect);
   const accuracyPercentage = totalSessionQuestions > 0 ? Math.round((correctCount / totalSessionQuestions) * 100) : 100;
+
+  if (isGraduated) {
+    return (
+      <div className="min-h-screen p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto flex flex-col items-center justify-center space-y-6 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-4xl shadow-xl animate-bounce">
+          🎓
+        </div>
+        <div className="space-y-2">
+          <Badge variant="accent" className="text-xs uppercase font-bold px-3 py-1">
+            Status Siswa: LULUS / ALUMNI
+          </Badge>
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-serif text-text">
+            Selamat Atas Kelulusan Anda, {studentProfileName}! 🎉
+          </h1>
+          <p className="text-muted max-w-xl text-sm leading-relaxed mx-auto">
+            Masa pembelajaran Anda di sekolah telah selesai. Akses ke portal kelas &amp; pengerjaan kuis kognitif telah dinonaktifkan secara otomatis. Terima kasih atas dedikasi dan semangat belajar Anda di platform NALARA.
+          </p>
+        </div>
+
+        <Card className="p-6 border-border space-y-3 text-left w-full max-w-md bg-surface2">
+          <div className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-400" />
+            <span>Informasi Akun Alumni</span>
+          </div>
+          <div className="text-xs space-y-1 text-muted">
+            <p><strong>Nama:</strong> {studentProfileName}</p>
+            <p><strong>Email:</strong> {studentEmail}</p>
+            <p><strong>Kelas Terakhir:</strong> {studentClassGroup}</p>
+            <p><strong>Status Akses Portal:</strong> <span className="text-amber-400 font-bold">Non-Aktif (Alumni Lulus)</span></p>
+          </div>
+        </Card>
+
+        <Button variant="secondary" onClick={handleLogout} className="text-xs font-bold">
+          <LogOut size={14} /> Keluar Dari Akun (Sign Out)
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-8">

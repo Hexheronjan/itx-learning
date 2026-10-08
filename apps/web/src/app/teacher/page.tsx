@@ -1344,22 +1344,146 @@ function TeacherDashboardContent() {
       )}
 
       {/* ========================================================================= */}
-      {/* MENU 5: DAFTAR SISWA KELAS                                                */}
+      {/* MENU 5: DAFTAR SISWA KELAS & TAMBAH SISWA (WALI KELAS & GURU)              */}
       {/* ========================================================================= */}
       {activeMenu === "students" && (
-        <Card className="p-6 space-y-4 border-border">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <Card className="p-6 space-y-6 border-border">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
             <div>
               <h3 className="text-base font-bold font-serif text-text flex items-center gap-2">
                 <Users size={18} className="text-brand" />
                 <span>Daftar Siswa Rombel — {currentClassName} ({classStudents.length} Siswa)</span>
               </h3>
               <p className="text-xs text-muted">
-                Daftar siswa yang terdaftar secara resmi di kelas binaan Anda.
+                Wali Kelas &amp; Guru dapat mendaftarkan siswa baru secara manual atau mengimpor data massal dari file Excel/CSV.
               </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md transition-all">
+                <Layers size={14} />
+                <span>📥 Import Excel / CSV</span>
+                <input
+                  type="file"
+                  accept=".csv, .txt, .xlsx"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    const text = await file.text();
+                    const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+
+                    let successCount = 0;
+                    // Skip header line if present
+                    const dataLines = lines[0].toLowerCase().includes("nama") ? lines.slice(1) : lines;
+
+                    for (const line of dataLines) {
+                      const cols = line.split(/[,;\t]/).map((c) => c.trim().replace(/^["']|["']$/g, ""));
+                      if (cols.length >= 2) {
+                        const name = cols[0];
+                        const email = cols[1];
+                        const nisn = cols[2] || `008${Date.now().toString().slice(-6)}`;
+                        const pass = cols[3] || "password123";
+
+                        try {
+                          await fetch("/api/admin/create-student", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              name,
+                              email,
+                              nisn,
+                              password: pass,
+                              classGroup: currentClassName,
+                              gradeLevel: "Kelas XI (Kelas 2 SMA)",
+                            }),
+                          });
+                          successCount++;
+                        } catch (err) {
+                          console.error("Failed importing row:", line, err);
+                        }
+                      }
+                    }
+
+                    setRemedialToast(`Berhasil mengimpor ${successCount} data siswa dari file ${file.name}!`);
+                  }}
+                />
+              </label>
+
+              <Button
+                variant="primary"
+                onClick={() => setShowAddQuestionForm(!showAddQuestionForm)}
+                className="text-xs font-bold shadow-md"
+              >
+                <PlusCircle size={14} />
+                <span>+ Tambah Siswa Manual</span>
+              </Button>
             </div>
           </div>
 
+          {/* Form Tambah Siswa Manual oleh Wali Kelas */}
+          {showAddQuestionForm && (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const name = (form.elements.namedItem("stdName") as HTMLInputElement).value;
+                const email = (form.elements.namedItem("stdEmail") as HTMLInputElement).value;
+                const nisn = (form.elements.namedItem("stdNisn") as HTMLInputElement).value || `008${Date.now().toString().slice(-6)}`;
+                const pass = (form.elements.namedItem("stdPass") as HTMLInputElement).value || "password123";
+
+                if (!name || !email) return;
+
+                try {
+                  const res = await fetch("/api/admin/create-student", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name,
+                      email,
+                      nisn,
+                      password: pass,
+                      classGroup: currentClassName,
+                      gradeLevel: "Kelas XI (Kelas 2 SMA)",
+                    }),
+                  });
+
+                  if (res.ok) {
+                    setRemedialToast(`Siswa ${name} (${email}) berhasil didaftarkan ke ${currentClassName}!`);
+                    setShowAddQuestionForm(false);
+                  } else {
+                    const data = await res.json();
+                    alert(`Gagal: ${data.error}`);
+                  }
+                } catch (err) {
+                  alert("Gagal terhubung ke server");
+                }
+              }}
+              className="p-5 rounded-2xl bg-surface2 border border-brand/40 space-y-4"
+            >
+              <h4 className="text-xs font-bold text-brand uppercase tracking-wider flex items-center gap-2">
+                <UserCheck size={16} />
+                <span>Input Data Siswa Baru Manual ({currentClassName})</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <Input name="stdName" label="Nama Lengkap Siswa" placeholder="Contoh: Muhammad Rizky" required />
+                <Input name="stdEmail" label="Email Siswa" placeholder="rizky@sekolah.sch.id" type="email" required />
+                <Input name="stdNisn" label="NISN" placeholder="0081928371" />
+                <Input name="stdPass" label="Password Default" defaultValue="password123" />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="secondary" onClick={() => setShowAddQuestionForm(false)} className="text-xs">
+                  Batal
+                </Button>
+                <Button type="submit" variant="primary" className="text-xs font-bold">
+                  Simpan Akun Siswa
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* Table Daftar Siswa */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
@@ -1367,7 +1491,8 @@ function TeacherDashboardContent() {
                   <th className="pb-3 px-3">Nama Lengkap</th>
                   <th className="pb-3 px-3">Email Siswa</th>
                   <th className="pb-3 px-3">Kelas &amp; Rombel</th>
-                  <th className="pb-3 px-3">Status Terakhir</th>
+                  <th className="pb-3 px-3">Status Sekolah</th>
+                  <th className="pb-3 px-3 text-right">Aksi Kelulusan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -1380,7 +1505,38 @@ function TeacherDashboardContent() {
                     <td className="py-3.5 px-3">
                       <Badge variant="brand" className="text-[10px]">{s.classGroup}</Badge>
                     </td>
-                    <td className="py-3.5 px-3 text-muted">{s.lastActive || "Aktif"}</td>
+                    <td className="py-3.5 px-3">
+                      <Badge variant="success" className="text-[10px]">🟢 Aktif Belajar</Badge>
+                    </td>
+                    <td className="py-3.5 px-3 text-right">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={async () => {
+                          if (confirm(`Apakah Anda yakin ingin menandai siswa ${s.name} sebagai LULUS / ALUMNI? Akses kelas siswa ini akan diberhentikan.`)) {
+                            try {
+                              const res = await fetch("/api/admin/toggle-student-status", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  studentId: s.id,
+                                  email: s.email,
+                                  academicStatus: "graduated",
+                                }),
+                              });
+                              if (res.ok) {
+                                setRemedialToast(`Siswa ${s.name} telah di-set sebagai LULUS / ALUMNI! Akses masuk kelas di-block.`);
+                              }
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }
+                        }}
+                        className="text-[11px] font-bold text-amber-400 border-amber-500/30 hover:bg-amber-950/20"
+                      >
+                        🎓 Tandai Lulus / Alumni
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
