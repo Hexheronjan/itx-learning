@@ -515,12 +515,48 @@ interface QuestionAttemptRecord {
 
 function StudentPortalContent() {
   const searchParams = useSearchParams();
-  const studentEmail = searchParams.get("user") || "andi@sekolah.sch.id";
+
+  // Student Session & Metadata State
+  const [studentEmail, setStudentEmail] = useState<string>("andi@sekolah.sch.id");
+  const [studentName, setStudentName] = useState<string>("Andi Pratama");
+  const [studentClassGroup, setStudentClassGroup] = useState<string>("Kelas XI-A");
+  const [studentGradeTitle, setStudentGradeTitle] = useState<string>("SMA Kelas 11 (Fase F)");
 
   // Navigation / Selection State
   const [selectedGrade, setSelectedGrade] = useState<GradeProgram | null>(CURRICULUM_PROGRAMS[0]);
   const [selectedSubject, setSelectedSubject] = useState<SubjectOption | null>(CURRICULUM_PROGRAMS[0].subjects[0]);
-  const [activeStep, setActiveStep] = useState<"choose_grade" | "choose_subject" | "confirm_start" | "quiz" | "completed">("choose_grade");
+  const [activeStep, setActiveStep] = useState<"choose_grade" | "choose_subject" | "confirm_start" | "quiz" | "completed">("choose_subject");
+
+  // Load Authentic Supabase Session & Profile Meta
+  React.useEffect(() => {
+    async function loadSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user) {
+        const u = data.session.user;
+        const meta = u.user_metadata || {};
+        const email = u.email || "andi@sekolah.sch.id";
+        setStudentEmail(email);
+
+        const fullName = meta.full_name || (email.includes("andi") ? "Andi Pratama" : email.split("@")[0]);
+        const classGroup = meta.class_group || "Kelas XI-A";
+        const gradeTitle = meta.grade_title || "SMA Kelas 11 (Fase F)";
+
+        setStudentName(fullName);
+        setStudentClassGroup(classGroup);
+        setStudentGradeTitle(gradeTitle);
+
+        // Auto-match Grade Program based on student metadata
+        const matched = CURRICULUM_PROGRAMS.find((p) =>
+          p.id.includes("11") || p.title.toLowerCase().includes("11") || p.id === meta.grade_level
+        ) || CURRICULUM_PROGRAMS[0];
+
+        setSelectedGrade(matched);
+        setSelectedSubject(matched.subjects[0]);
+        setActiveStep("choose_subject"); // Direct landing on subject hub!
+      }
+    }
+    loadSession();
+  }, []);
 
   // Confirmation Modal State
   const [pendingSubject, setPendingSubject] = useState<SubjectOption | null>(null);
@@ -885,11 +921,13 @@ function StudentPortalContent() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold font-serif text-text">Portal Belajar Siswa</h1>
-              <Badge variant="brand" className="text-[10px]">NALARA Adaptive</Badge>
+              <h1 className="text-xl font-bold font-serif text-text">{studentName}</h1>
+              <Badge variant="brand" className="text-[10px]">{studentClassGroup}</Badge>
             </div>
-            <p className="text-xs text-muted flex items-center gap-1">
-              Akun: <strong className="text-text">{studentEmail}</strong>
+            <p className="text-xs text-muted flex items-center gap-2">
+              <span>{studentGradeTitle}</span>
+              <span>•</span>
+              <span className="text-text">{studentEmail}</span>
             </p>
           </div>
         </div>
@@ -903,21 +941,21 @@ function StudentPortalContent() {
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=scholarships`)}
+            onClick={() => (window.location.href = `/future-path?tab=scholarships`)}
             className="text-xs border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold hover:bg-emerald-500/20 shadow-sm"
           >
             <GraduationCap size={15} />
-            <span>🎓 Cari Beasiswa Kuliah</span>
+            <span>🎓 Beasiswa</span>
           </Button>
 
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=jobs`)}
+            onClick={() => (window.location.href = `/future-path?tab=jobs`)}
             className="text-xs border-brand/40 bg-brand/10 text-brand font-bold hover:bg-brand/20 shadow-sm"
           >
             <Sparkles size={14} />
-            <span>💼 Cari Loker &amp; Minat</span>
+            <span>💼 Karir</span>
           </Button>
 
           <Button
@@ -927,7 +965,7 @@ function StudentPortalContent() {
             className="text-xs border-brand/30 text-brand"
           >
             <BarChart3 size={14} />
-            <span>Rapor Rekap</span>
+            <span>Rapor</span>
           </Button>
 
           <Button size="sm" variant="secondary" onClick={handleLogout} className="text-error border-error/30 hover:bg-error/10">

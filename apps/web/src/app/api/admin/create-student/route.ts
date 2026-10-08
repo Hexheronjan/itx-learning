@@ -34,6 +34,8 @@ export async function POST(req: Request) {
           role: "student",
           gradeLevel,
           classGroup,
+          grade_level: gradeLevel,
+          class_group: classGroup,
           targetProgram,
         },
       });

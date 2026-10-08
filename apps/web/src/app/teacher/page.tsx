@@ -194,15 +194,55 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
 
 function TeacherQuestionsContent() {
   const searchParams = useSearchParams();
-  const loggedEmail = searchParams.get("user") || "guru@sekolah.sch.id";
 
-  const isBrio = loggedEmail.toLowerCase().includes("brio");
-  const teacherName = isBrio ? "Brio Pratama, S.Pd" : "Dra. Sri Wahyuni";
-  const defaultSubject = isBrio ? "Bahasa Indonesia" : "Matematika";
-  const defaultGrade = isBrio ? "Kelas XI (Kelas 2 SMA)" : "Kelas X (Kelas 1 SMA)";
+  // Teacher Profile Session State
+  const [loggedEmail, setLoggedEmail] = useState("guru@sekolah.sch.id");
+  const [teacherName, setTeacherName] = useState("Dra. Sri Wahyuni");
+  const [teacherType, setTeacherType] = useState<"subject" | "homeroom" | "both">("both");
+  const [defaultSubject, setDefaultSubject] = useState("Matematika");
+  const [homeroomClass, setHomeroomClass] = useState("Kelas XI-A");
+  const [defaultGrade, setDefaultGrade] = useState("Kelas X & XI");
+
+  // Mode Switcher: "subject" (Guru Mapel) or "homeroom" (Wali Kelas)
+  const [viewMode, setViewMode] = useState<"subject" | "homeroom">("homeroom");
 
   // Dashboard Active Tab: 'analytics' (Pantauan Siswa) or 'bank' (Bank Soal)
   const [activeTab, setActiveTab] = useState<"analytics" | "bank">("analytics");
+
+  // Load Session from Supabase
+  useEffect(() => {
+    async function loadTeacherSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user) {
+        const u = data.session.user;
+        const meta = u.user_metadata || {};
+        const email = u.email || "guru@sekolah.sch.id";
+        setLoggedEmail(email);
+
+        const isBrio = email.toLowerCase().includes("brio") || meta.full_name?.includes("Brio");
+        const name = meta.full_name || (isBrio ? "Brio Pratama, S.Pd" : "Dra. Sri Wahyuni");
+        const type = meta.teacher_type || (isBrio ? "both" : "subject");
+        const subj = meta.subject || (isBrio ? "Bahasa Indonesia" : "Matematika");
+        const hrClass = meta.homeroom_class || "Kelas XI-A";
+        const grade = meta.grade_level || "Kelas XI (Kelas 2 SMA)";
+
+        setTeacherName(name);
+        setTeacherType(type);
+        setDefaultSubject(subj);
+        setHomeroomClass(hrClass);
+        setDefaultGrade(grade);
+
+        if (type === "homeroom" || type === "both" || isBrio) {
+          setViewMode("homeroom");
+        } else {
+          setViewMode("subject");
+        }
+      }
+    }
+    loadTeacherSession();
+  }, []);
+
+  const isBrio = loggedEmail.toLowerCase().includes("brio");
 
   // Questions & Form State
   const [questions, setQuestions] = useState<QuestionItem[]>(INITIAL_QUESTIONS);
@@ -211,7 +251,7 @@ function TeacherQuestionsContent() {
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState("Semua");
 
   // Students Performance State & Class Filter
-  const [selectedClassFilter, setSelectedClassFilter] = useState<string>(isBrio ? "Kelas XI" : "Kelas X");
+  const [selectedClassFilter, setSelectedClassFilter] = useState<string>("Kelas XI-A");
   const [students, setStudents] = useState<StudentPerformance[]>(INITIAL_STUDENTS_DATA);
   const [studentSearch, setStudentSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "needs_attention" | "practicing" | "mastered">("all");
@@ -407,37 +447,71 @@ function TeacherQuestionsContent() {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-      {/* 1. Header Bar */}
-      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl border border-border shadow-md" style={{ background: "var(--surface)" }}>
+      {/* 1. Header Bar with Dual Role Switcher */}
+      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-2xl border border-border shadow-md" style={{ background: "var(--surface)" }}>
         <div className="flex items-center gap-3">
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg bg-brand text-bg"
-          >
-            👨‍🏫
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg bg-brand text-bg">
+            {viewMode === "homeroom" ? "🏫" : "👨‍🏫"}
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl font-bold font-serif text-text">
                 Portal Guru — {teacherName}
               </h1>
-              <Badge variant="brand" className="text-[10px] uppercase font-bold">
-                {defaultSubject}
-              </Badge>
+              {viewMode === "homeroom" ? (
+                <Badge variant="accent" className="text-[10px] uppercase font-bold">
+                  Wali Kelas {homeroomClass}
+                </Badge>
+              ) : (
+                <Badge variant="brand" className="text-[10px] uppercase font-bold">
+                  Guru Mapel {defaultSubject}
+                </Badge>
+              )}
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Live Real-Time
               </span>
             </div>
             <p className="text-xs text-muted">
-              Akun Guru Terverifikasi ({loggedEmail}) • {defaultGrade}
+              Akun Guru ({loggedEmail}) • {defaultGrade}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Mode Switcher Pill Buttons */}
+        <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+          {(teacherType === "both" || teacherType === "homeroom" || isBrio) && (
+            <div className="flex items-center p-1 rounded-xl bg-surface2 border border-border text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setViewMode("homeroom")}
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
+                  viewMode === "homeroom"
+                    ? "bg-accent text-white shadow-md font-bold"
+                    : "text-muted hover:text-text"
+                }`}
+              >
+                <School size={14} />
+                <span>Mode Wali Kelas</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("subject")}
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
+                  viewMode === "subject"
+                    ? "bg-brand text-bg shadow-md font-bold"
+                    : "text-muted hover:text-text"
+                }`}
+              >
+                <BookOpen size={14} />
+                <span>Mode Guru Mapel</span>
+              </button>
+            </div>
+          )}
+
           <Button size="sm" variant="secondary" onClick={handleLogout} className="text-error border-error/30 hover:bg-error/10 text-xs">
             <LogOut size={14} />
-            <span>Keluar (Sign Out)</span>
+            <span className="hidden sm:inline">Keluar</span>
           </Button>
         </div>
       </header>
@@ -597,13 +671,112 @@ function TeacherQuestionsContent() {
             </div>
           </GlowCard>
 
+          {/* Homeroom Cross-Subject Summary Card when in Homeroom Mode */}
+          {viewMode === "homeroom" && (
+            <GlowCard className="p-6 space-y-4 border-accent/40 bg-accent/5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+                <div>
+                  <h3 className="text-lg font-bold font-serif text-text flex items-center gap-2">
+                    <School size={20} className="text-accent" />
+                    <span>Rekapitulasi Nilai Lintas Mata Pelajaran — Wali Kelas {homeroomClass}</span>
+                  </h3>
+                  <p className="text-xs text-muted">
+                    Setiap nilai di bawah ini mengagregasi performa pengerjaan kuis siswa pada seluruh mata pelajaran di sekolah.
+                  </p>
+                </div>
+                <Badge variant="accent" className="text-xs font-bold">
+                  Dashboard Wali Kelas
+                </Badge>
+              </div>
+
+              {/* Cross-Subject Matrix Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-border text-muted uppercase tracking-wider font-semibold">
+                      <th className="pb-3 px-3">Siswa (Kelas XI-A)</th>
+                      <th className="pb-3 px-3 text-center">📐 Matematika</th>
+                      <th className="pb-3 px-3 text-center">📖 B. Indonesia</th>
+                      <th className="pb-3 px-3 text-center">⚡ Fisika</th>
+                      <th className="pb-3 px-3 text-center">🧪 Kimia</th>
+                      <th className="pb-3 px-3 text-center">📈 Ekonomi</th>
+                      <th className="pb-3 px-3 text-center">Status Risiko</th>
+                      <th className="pb-3 px-3 text-right">Aksi Wali Kelas</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    <tr className="hover:bg-surface2/50 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-text text-sm">Andi Pratama</div>
+                        <div className="text-[10px] text-muted">andi@sekolah.sch.id</div>
+                      </td>
+                      <td className="py-3 px-3 text-center font-bold text-emerald-400">92%</td>
+                      <td className="py-3 px-3 text-center font-bold text-emerald-400">95%</td>
+                      <td className="py-3 px-3 text-center font-bold text-emerald-400">88%</td>
+                      <td className="py-3 px-3 text-center font-bold text-emerald-400">85%</td>
+                      <td className="py-3 px-3 text-center font-bold text-emerald-400">90%</td>
+                      <td className="py-3 px-3 text-center">
+                        <Badge variant="brand" className="text-[10px]">🟢 Aman (Prestasi)</Badge>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <Button size="sm" variant="secondary" onClick={() => setRemedialToast("Catatan apresiasi Wali Kelas terkirim ke Andi Pratama")} className="text-[11px] py-1 border-brand/40 text-brand font-semibold">
+                          <Send size={12} /> Catatan Wali Kelas
+                        </Button>
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-surface2/50 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-text text-sm">Doni Setiawan</div>
+                        <div className="text-[10px] text-muted">doni.s@sekolah.sch.id</div>
+                      </td>
+                      <td className="py-3 px-3 text-center font-bold text-amber-400">55%</td>
+                      <td className="py-3 px-3 text-center font-bold text-red-400">44%</td>
+                      <td className="py-3 px-3 text-center font-bold text-amber-400">60%</td>
+                      <td className="py-3 px-3 text-center font-bold text-red-400">48%</td>
+                      <td className="py-3 px-3 text-center font-bold text-amber-400">62%</td>
+                      <td className="py-3 px-3 text-center">
+                        <Badge variant="error" className="text-[10px] font-bold">🔴 Risiko Tinggi (B. Indo &amp; Kimia)</Badge>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <Button size="sm" variant="secondary" onClick={() => setRemedialToast("Surat Panggilan Pembimbingan terkirim ke Orang Tua Doni Setiawan")} className="text-[11px] py-1 border-red-500/40 text-red-400 font-semibold hover:bg-red-950/30">
+                          <AlertTriangle size={12} /> Undang Orang Tua
+                        </Button>
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-surface2/50 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-text text-sm">Siti Nurhaliza</div>
+                        <div className="text-[10px] text-muted">siti.n@sekolah.sch.id</div>
+                      </td>
+                      <td className="py-3 px-3 text-center font-bold text-red-400">48%</td>
+                      <td className="py-3 px-3 text-center font-bold text-emerald-400">82%</td>
+                      <td className="py-3 px-3 text-center font-bold text-amber-400">56%</td>
+                      <td className="py-3 px-3 text-center font-bold text-amber-400">60%</td>
+                      <td className="py-3 px-3 text-center font-bold text-emerald-400">78%</td>
+                      <td className="py-3 px-3 text-center">
+                        <Badge variant="accent" className="text-[10px] font-bold">🟡 Perlu Penguatan (Matematika)</Badge>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <Button size="sm" variant="secondary" onClick={() => setRemedialToast("Rekomendasi remedial Matematika terkirim ke Siti Nurhaliza")} className="text-[11px] py-1 border-amber-500/40 text-amber-300 font-semibold">
+                          <Send size={12} /> Konsultasi Guru Mapel
+                        </Button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </GlowCard>
+          )}
+
           {/* Student Progress Monitoring Table */}
           <Card className="p-6 space-y-4 border-border">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg font-bold font-serif text-text flex items-center gap-2">
                   <UserCheck size={18} className="text-brand" />
-                  <span>Daftar Jawaban &amp; Tingkat Akurasi Siswa</span>
+                  <span>Daftar Jawaban &amp; Tingkat Akurasi Siswa ({viewMode === "homeroom" ? "Rekapitulasi Kelas XI-A" : defaultSubject})</span>
                 </h3>
                 <p className="text-xs text-muted">
                   Pantau setiap siswa yang telah mengerjakan soal, tingkat kebenaran, dan miskonsepsi yang dialaminya.

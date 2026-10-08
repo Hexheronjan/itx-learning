@@ -8,6 +8,8 @@ export async function POST(req: Request) {
       name,
       email,
       password = "password123",
+      teacherType = "subject", // "subject" | "homeroom" | "both"
+      homeroomClass = "Kelas XI-A",
       subject = "Matematika",
       gradeLevel = "Kelas X",
       nip = "-",
@@ -32,8 +34,12 @@ export async function POST(req: Request) {
         user_metadata: {
           full_name: name,
           role: "teacher",
+          teacher_type: teacherType,
           subject,
-          gradeLevel,
+          homeroom_class: homeroomClass,
+          grade_level: gradeLevel,
+          class_assigned: classAssigned,
+          nip,
         },
       });
 

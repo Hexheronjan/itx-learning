@@ -46,20 +46,17 @@ export default function LoginPage() {
       }
 
       if (data?.user) {
+        const userMetadata = data.user.user_metadata || {};
+        const userRole = userMetadata.role;
         const userEmail = (data.user.email || "").toLowerCase();
-        const userRole = data.user.user_metadata?.role;
 
-        // 2. Automatic Role Detection & Redirection
+        // 2. Automatic Role Detection & Redirection based on user_metadata
         if (userRole === "admin" || userEmail.includes("admin")) {
-          window.location.href = `/admin?user=${encodeURIComponent(userEmail)}`;
-        } else if (
-          userRole === "teacher" ||
-          userEmail.includes("guru") ||
-          userEmail.includes("brio")
-        ) {
-          window.location.href = `/teacher?user=${encodeURIComponent(userEmail)}`;
+          window.location.href = `/admin`;
+        } else if (userRole === "teacher" || userEmail.includes("guru") || userEmail.includes("brio")) {
+          window.location.href = `/teacher`;
         } else {
-          window.location.href = `/quiz?user=${encodeURIComponent(userEmail)}`;
+          window.location.href = `/quiz`;
         }
       }
     } catch {
@@ -131,7 +128,7 @@ export default function LoginPage() {
               Belajar Presisi, Temukan Potensi Sejati.
             </h1>
             <p className="text-base text-muted leading-relaxed">
-              Platform e-learning adaptif dengan bimbingan Think First, deteksi miskonsepsi konsep prasyarat, dan integrasi penuh untuk Siswa, Guru Mapel, serta Admin Sekolah.
+              Platform e-learning adaptif dengan bimbingan Think First, deteksi miskonsepsi konsep prasyarat, serta integrasi khusus Siswa, Guru Mapel, Wali Kelas, dan Admin Sekolah.
             </p>
           </div>
 
@@ -147,9 +144,9 @@ export default function LoginPage() {
             <Card className="p-4 space-y-1 border-border/80">
               <div className="flex items-center gap-2 text-accent">
                 <Award size={18} />
-                <span className="font-bold text-xs uppercase tracking-wider">Digital Twin</span>
+                <span className="font-bold text-xs uppercase tracking-wider">Wali Kelas Hub</span>
               </div>
-              <p className="text-xs text-muted">Mastery per konsep terpantau secara real-time.</p>
+              <p className="text-xs text-muted">Rekapitulasi lintas mata pelajaran untuk Wali Kelas.</p>
             </Card>
           </div>
         </motion.div>
@@ -209,27 +206,34 @@ export default function LoginPage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-1.5 pt-1">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("andi@sekolah.sch.id")}
                   className="px-2 py-1.5 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-center"
                 >
-                  Siswa (Andi)
+                  🎓 Siswa (Andi)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillQuickPreset("guru@sekolah.sch.id")}
+                  className="px-2 py-1.5 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-center"
+                >
+                  📐 Guru Mapel
                 </button>
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("brio@gmail.com")}
                   className="px-2 py-1.5 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-center"
                 >
-                  Guru (Brio)
+                  🏫 Wali Kelas
                 </button>
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("admin@sekolah.sch.id")}
                   className="px-2 py-1.5 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-center"
                 >
-                  Admin Sekolah
+                  🛡️ Admin
                 </button>
               </div>
 
