@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" data-theme="emerald" className={`${dmSans.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen antialiased selection:bg-brand/20">
+      <body className="min-h-screen antialiased selection:bg-brand/20 overflow-x-hidden">
         {/* Ambient Glows from DESIGN.md */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
           <div

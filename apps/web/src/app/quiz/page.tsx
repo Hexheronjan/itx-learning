@@ -1754,15 +1754,15 @@ function StudentPortalContent() {
             <p className="text-xs text-muted flex items-center gap-1.5 mt-0.5">
               <span>Portal Belajar Siswa</span>
               <span>•</span>
-              <span className="font-mono text-muted">{studentEmail}</span>
+              <span className="font-mono text-muted truncate max-w-[170px] sm:max-w-none" title={studentEmail}>{studentEmail}</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-surface2 text-xs">
-            <Award size={16} className="text-brand" />
-            <span>Mastery Score: <strong className="text-brand">{masteryScore}%</strong></span>
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-border bg-surface2 text-xs">
+            <Award size={15} className="text-brand shrink-0" />
+            <span className="whitespace-nowrap">Mastery: <strong className="text-brand">{masteryScore}%</strong></span>
           </div>
 
           {/* Menu Beasiswa & Loker terbuka untuk siswa SMA (Kelas 11, Kelas 12, dan Alumni) */}
@@ -1772,20 +1772,22 @@ function StudentPortalContent() {
                 size="sm"
                 variant="secondary"
                 onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=scholarships`)}
-                className="text-xs border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold hover:bg-emerald-500/20 shadow-sm"
+                className="text-xs border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold hover:bg-emerald-500/20 shadow-sm px-2.5 sm:px-3"
               >
-                <GraduationCap size={15} />
-                <span>🎓 Cari Beasiswa Kuliah</span>
+                <GraduationCap size={15} className="shrink-0" />
+                <span className="hidden sm:inline">🎓 Cari Beasiswa Kuliah</span>
+                <span className="sm:hidden">🎓 Beasiswa</span>
               </Button>
 
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=jobs`)}
-                className="text-xs border-brand/40 bg-brand/10 text-brand font-bold hover:bg-brand/20 shadow-sm"
+                className="text-xs border-brand/40 bg-brand/10 text-brand font-bold hover:bg-brand/20 shadow-sm px-2.5 sm:px-3"
               >
-                <Sparkles size={14} />
-                <span>💼 Cari Loker &amp; Minat</span>
+                <Sparkles size={14} className="shrink-0" />
+                <span className="hidden sm:inline">💼 Cari Loker &amp; Minat</span>
+                <span className="sm:hidden">💼 Loker</span>
               </Button>
             </>
           )}
@@ -1794,15 +1796,16 @@ function StudentPortalContent() {
             size="sm"
             variant="secondary"
             onClick={() => setActiveStep("completed")}
-            className="text-xs border-brand/30 text-brand"
+            className="text-xs border-brand/30 text-brand px-2.5 sm:px-3"
           >
-            <BarChart3 size={14} />
-            <span>Rapor Rekap</span>
+            <BarChart3 size={14} className="shrink-0" />
+            <span className="hidden sm:inline">Rapor Rekap</span>
+            <span className="sm:hidden">Rapor</span>
           </Button>
 
-          <Button size="sm" variant="secondary" onClick={handleLogout} className="text-error border-error/30 hover:bg-error/10">
-            <LogOut size={14} />
-            <span className="hidden sm:inline">Keluar</span>
+          <Button size="sm" variant="secondary" onClick={handleLogout} className="text-error border-error/30 hover:bg-error/10 px-2.5 sm:px-3">
+            <LogOut size={14} className="shrink-0" />
+            <span>Keluar</span>
           </Button>
         </div>
       </header>
@@ -2639,28 +2642,28 @@ function StudentPortalContent() {
                           }
                           setSelectedOptionForExplanation(opt);
                         }}
-                        className={`w-full p-4 rounded-xl border text-left text-xs sm:text-sm font-medium transition-all flex items-center justify-between ${optionCardStyle}`}
+                        className={`w-full p-3.5 sm:p-4 rounded-xl border text-left text-xs sm:text-sm font-medium transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 items-start ${optionCardStyle}`}
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-lg bg-surface border border-border flex items-center justify-center font-mono text-xs shrink-0">
+                        <div className="flex items-start sm:items-center gap-2.5 flex-1 min-w-0">
+                          <span className="w-6 h-6 rounded-lg bg-surface border border-border flex items-center justify-center font-mono text-xs shrink-0 mt-0.5 sm:mt-0">
                             {String.fromCharCode(65 + idx)}
                           </span>
-                          <span>{opt}</span>
+                          <span className="leading-relaxed break-words">{opt}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <div className="flex items-center gap-2 shrink-0 sm:ml-2 self-start sm:self-auto">
                           {hasAnswered && isCorrectAnswer && (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1 border border-emerald-500/40">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1 border border-emerald-500/40 whitespace-nowrap">
                               <CheckCircle2 size={12} /> Kunci Jawaban Benar
                             </span>
                           )}
                           {hasAnswered && isSelected && !isCorrectAnswer && (
-                            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold flex items-center gap-1 border border-rose-500/40">
+                            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold flex items-center gap-1 border border-rose-500/40 whitespace-nowrap">
                               <AlertTriangle size={12} /> Jawaban Kamu (Salah)
                             </span>
                           )}
                           {!hasAnswered && isSelected && (
-                            <span className="px-2 py-0.5 rounded-full bg-brand/20 text-brand text-[10px] font-bold flex items-center gap-1 border border-brand/40">
+                            <span className="px-2 py-0.5 rounded-full bg-brand/20 text-brand text-[10px] font-bold flex items-center gap-1 border border-brand/40 whitespace-nowrap">
                               <Check size={12} className="text-brand shrink-0" /> Dipilih
                             </span>
                           )}
@@ -2704,14 +2707,15 @@ function StudentPortalContent() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-border">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-border">
               <button
                 type="button"
                 onClick={handleToggleAiHint}
-                className="px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all flex items-center gap-2"
+                className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all flex items-center justify-center gap-2"
               >
-                <Lightbulb size={16} />
-                <span>{showAiHint ? "Tutup Petunjuk AI" : "Minta Bimbingan Nalar AI (Think First)"}</span>
+                <Lightbulb size={16} className="shrink-0" />
+                <span className="hidden sm:inline">{showAiHint ? "Tutup Petunjuk AI" : "Minta Bimbingan Nalar AI (Think First)"}</span>
+                <span className="sm:hidden">{showAiHint ? "Tutup Bimbingan AI" : "Bimbingan AI (Think First)"}</span>
               </button>
 
               {!result ? (
@@ -2720,15 +2724,15 @@ function StudentPortalContent() {
                   variant="primary"
                   loading={isSubmitting}
                   disabled={!userAnswer.trim()}
-                  className="font-bold px-6"
+                  className="w-full sm:w-auto font-bold px-6 py-2.5 flex items-center justify-center gap-2"
                 >
                   <span>Kirim Jawaban</span>
                   <Send size={15} />
                 </Button>
               ) : (
-                <Button onClick={handleNextQuestion} variant="primary" className="font-bold px-6">
-                  <span>{isLastQuestion ? "Selesaikan & Lihat Hasil Evaluasi" : "Lanjut ke Soal Berikutnya"}</span>
-                  <ArrowRight size={15} />
+                <Button onClick={handleNextQuestion} variant="primary" className="w-full sm:w-auto font-bold px-6 py-2.5 flex items-center justify-center gap-2">
+                  <span className="text-center">{isLastQuestion ? "Selesaikan & Lihat Hasil Evaluasi" : "Lanjut ke Soal Berikutnya"}</span>
+                  <ArrowRight size={15} className="shrink-0" />
                 </Button>
               )}
             </div>

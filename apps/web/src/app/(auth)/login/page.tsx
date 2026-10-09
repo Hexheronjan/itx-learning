@@ -188,7 +188,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="lg:col-span-6 space-y-4"
         >
-          <Card className="p-6 sm:p-8 space-y-6 border-border/80 shadow-2xl">
+          <Card className="p-4 sm:p-8 space-y-6 border-border/80 shadow-2xl">
             <div>
               <h2 className="text-2xl font-bold font-serif text-text">Sign In</h2>
               <p className="text-xs text-muted mt-1">Masukkan email dan password akun Anda untuk masuk ke sistem.</p>

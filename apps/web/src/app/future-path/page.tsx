@@ -648,71 +648,75 @@ function FuturePathContent() {
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
       {/* 1. Header Bar with Professional Gradient & Actions */}
       <header
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-3xl border border-border shadow-lg relative overflow-hidden backdrop-blur-xl"
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-3xl border border-border shadow-lg relative overflow-hidden backdrop-blur-xl"
         style={{ background: "linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%)" }}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Button
             size="sm"
             variant="secondary"
             onClick={() => (window.location.href = `/quiz?user=${encodeURIComponent(studentEmail)}`)}
-            className="text-xs font-bold gap-2 px-3.5 py-2 shadow-sm rounded-xl hover:scale-105 transition-all"
+            className="text-xs font-bold gap-2 px-3 py-2 sm:px-3.5 shadow-sm rounded-xl hover:scale-105 transition-all shrink-0"
           >
             <ArrowLeft size={16} />
-            <span>Kuis &amp; Latihan</span>
+            <span className="hidden xs:inline">Kuis &amp; Latihan</span>
+            <span className="xs:hidden">Kuis</span>
           </Button>
 
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="text-2xl font-black font-serif text-brand tracking-tight">NALARA</span>
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-brand/15 text-brand border border-brand/30 flex items-center gap-1.5 shadow-sm">
-                <Sparkles size={13} />
-                <span>Pusat Karir &amp; Beasiswa Masa Depan</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xl sm:text-2xl font-black font-serif text-brand tracking-tight">NALARA</span>
+              <span className="text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-brand/15 text-brand border border-brand/30 flex items-center gap-1.5 shadow-sm">
+                <Sparkles size={12} />
+                <span>Pusat Karir &amp; Beasiswa</span>
               </span>
             </div>
             <p className="text-xs text-muted mt-1">
-              Halo, <span className="font-bold text-text">{studentName}</span>! Eksplorasi beasiswa aktif, lowongan kerja, serta pemetaan rencana &amp; tracer kelulusan.
+              Halo, <span className="font-bold text-text">{studentName}</span>! Eksplorasi beasiswa aktif, lowongan kerja, serta formulir tracer study.
             </p>
           </div>
         </div>
 
         {/* Global Tab Switcher & Direct Posting Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
-          <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-surface border border-border shadow-inner">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
+          <div className="flex items-center gap-1 p-1 rounded-2xl bg-surface border border-border shadow-inner overflow-x-auto max-w-full no-scrollbar">
             <button
               onClick={() => setActiveTab("scholarships")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
                 activeTab === "scholarships"
                   ? "bg-brand text-bg shadow-md scale-[1.02]"
                   : "text-muted hover:text-text hover:bg-surface2"
               }`}
             >
-              <GraduationCap size={16} />
-              <span>Cari Beasiswa ({scholarships.length})</span>
+              <GraduationCap size={15} />
+              <span className="hidden sm:inline">Cari Beasiswa ({scholarships.length})</span>
+              <span className="sm:hidden">Beasiswa ({scholarships.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab("jobs")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
                 activeTab === "jobs"
                   ? "bg-brand text-bg shadow-md scale-[1.02]"
                   : "text-muted hover:text-text hover:bg-surface2"
               }`}
             >
-              <Briefcase size={16} />
-              <span>Lowongan Kerja ({jobs.length})</span>
+              <Briefcase size={15} />
+              <span className="hidden sm:inline">Lowongan Kerja ({jobs.length})</span>
+              <span className="sm:hidden">Loker ({jobs.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab("tracer")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
                 activeTab === "tracer"
                   ? "bg-brand text-bg shadow-md scale-[1.02]"
                   : "text-muted hover:text-text hover:bg-surface2"
               }`}
             >
-              <Target size={16} />
-              <span>📋 Tracer &amp; Rencana Kelulusan</span>
+              <Target size={15} />
+              <span className="hidden sm:inline">📋 Tracer &amp; Rencana</span>
+              <span className="sm:hidden">📋 Tracer</span>
             </button>
           </div>
 

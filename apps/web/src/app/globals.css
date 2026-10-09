@@ -19,6 +19,11 @@
 /* -------------------------------------------------------------------------
    NALARA DESIGN TOKENS (Sourced directly from DESIGN.md)
    ------------------------------------------------------------------------- */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 :root, :root[data-theme="emerald"] {
   --bg: #0A0F0D;
   --surface: #111814;

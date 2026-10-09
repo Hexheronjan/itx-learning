@@ -290,39 +290,39 @@ export function DigitalBookVisual() {
 
       {/* Chip 1: Top Left - Diagnosis Konsep */}
       <div
-        className="animate-float-chip-1 absolute top-2 sm:top-6 -left-2 sm:left-4 z-20 flex items-center gap-2 px-3.5 py-2 rounded-2xl border border-brand/40 shadow-xl backdrop-blur-md"
+        className="animate-float-chip-1 absolute top-2 sm:top-6 left-1 sm:left-4 z-20 flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl border border-brand/40 shadow-xl backdrop-blur-md"
         style={{
           background: "rgba(var(--surface-rgb, 17, 24, 20), 0.85)",
           boxShadow: "0 10px 25px -5px rgba(var(--brand-rgb), 0.25)",
         }}
       >
-        <div className="w-6 h-6 rounded-xl bg-brand/20 text-brand flex items-center justify-center shrink-0">
-          <Target size={13} />
+        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-xl bg-brand/20 text-brand flex items-center justify-center shrink-0">
+          <Target size={12} className="sm:w-[13px] sm:h-[13px]" />
         </div>
         <div className="flex flex-col">
-          <span className="text-[11px] font-bold text-text leading-tight whitespace-nowrap">
+          <span className="text-[10px] sm:text-[11px] font-bold text-text leading-tight whitespace-nowrap">
             Diagnosis Konsep
           </span>
-          <span className="text-[9px] text-muted whitespace-nowrap">Akurasi 98.4%</span>
+          <span className="text-[8px] sm:text-[9px] text-muted whitespace-nowrap">Akurasi 98.4%</span>
         </div>
       </div>
 
       {/* Chip 2: Right Middle - Think First Mode */}
       <div
-        className="animate-float-chip-2 absolute top-1/2 -translate-y-1/2 -right-2 sm:-right-4 z-20 flex items-center gap-2 px-3.5 py-2 rounded-2xl border border-amber-500/40 shadow-xl backdrop-blur-md"
+        className="animate-float-chip-2 absolute top-1/2 -translate-y-1/2 right-1 sm:right-2 z-20 flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl border border-amber-500/40 shadow-xl backdrop-blur-md"
         style={{
           background: "rgba(var(--surface-rgb, 17, 24, 20), 0.85)",
           boxShadow: "0 10px 25px -5px rgba(245, 158, 11, 0.22)",
         }}
       >
-        <div className="w-6 h-6 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
-          <Lightbulb size={13} />
+        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+          <Lightbulb size={12} className="sm:w-[13px] sm:h-[13px]" />
         </div>
         <div className="flex flex-col">
-          <span className="text-[11px] font-bold text-text leading-tight whitespace-nowrap">
+          <span className="text-[10px] sm:text-[11px] font-bold text-text leading-tight whitespace-nowrap">
             Think First Mode
           </span>
-          <span className="text-[9px] text-amber-300/90 whitespace-nowrap">Tanpa Bocor Kunci</span>
+          <span className="text-[8px] sm:text-[9px] text-amber-300/90 whitespace-nowrap">Tanpa Bocor Kunci</span>
         </div>
       </div>
 

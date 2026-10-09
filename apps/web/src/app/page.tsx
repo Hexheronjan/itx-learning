@@ -460,13 +460,13 @@ export default function LandingPage() {
             </div>
 
             {/* Micro Stats Row with count-up animation */}
-            <div className="pt-5 border-t border-border/80 grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="pt-5 border-t border-border/80 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <div className="space-y-0.5">
                 <div className="text-xl sm:text-2xl text-brand font-bold">
                   <StatCounter target={1250} suffix="+" />
                 </div>
                 <div className="text-[11px] font-bold text-text">Siswa Pilot</div>
-                <div className="text-[10px] text-text-muted hidden sm:block">Aktif belajar</div>
+                <div className="text-[10px] text-text-muted">Aktif belajar</div>
               </div>
 
               <div className="space-y-0.5">
@@ -474,7 +474,7 @@ export default function LandingPage() {
                   <StatCounter target={18} suffix="+" />
                 </div>
                 <div className="text-[11px] font-bold text-text">Mata Pelajaran</div>
-                <div className="text-[10px] text-text-muted hidden sm:block">SMA &amp; Kedinasan</div>
+                <div className="text-[10px] text-text-muted">SMA &amp; Kedinasan</div>
               </div>
 
               <div className="space-y-0.5">
@@ -482,10 +482,10 @@ export default function LandingPage() {
                   <StatCounter target={98.4} suffix="%" decimals={1} />
                 </div>
                 <div className="text-[11px] font-bold text-text">Akurasi Diagnosis</div>
-                <div className="text-[10px] text-text-muted hidden sm:block">Deteksi miskonsepsi</div>
+                <div className="text-[10px] text-text-muted">Deteksi miskonsepsi</div>
               </div>
 
-              <div className="space-y-0.5 hidden sm:block">
+              <div className="space-y-0.5">
                 <div className="text-xl sm:text-2xl text-amber-400 font-bold">
                   <StatCounter target={100} suffix="%" />
                 </div>
@@ -667,7 +667,7 @@ export default function LandingPage() {
               </div>
 
               {/* Comparison Pill Badge */}
-              <div className="pt-2 flex items-center justify-between text-[11px] text-text-muted border-t border-border/60">
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px] text-text-muted border-t border-border/60">
                 <span className="flex items-center gap-1 text-red-400 font-medium">
                   <X size={13} /> Bimbel Biasa: Bocorkan Kunci Langsung
                 </span>
@@ -852,7 +852,7 @@ export default function LandingPage() {
           className="flex gap-5 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-3 pt-1"
         >
           {/* Card 1: SMA Reguler */}
-          <div className="min-w-[280px] sm:min-w-[330px] md:min-w-[360px] snap-center shrink-0">
+          <div className="w-[82vw] sm:w-[330px] md:w-[360px] max-w-[360px] snap-center shrink-0">
             <Card className="h-full p-5 sm:p-6 space-y-4 border-border/80 hover:border-brand/40 transition-all flex flex-col justify-between shadow-md">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-brand/10 text-brand">
@@ -880,7 +880,7 @@ export default function LandingPage() {
           </div>
 
           {/* Card 2: UTBK / SNBT */}
-          <div className="min-w-[280px] sm:min-w-[330px] md:min-w-[360px] snap-center shrink-0">
+          <div className="w-[82vw] sm:w-[330px] md:w-[360px] max-w-[360px] snap-center shrink-0">
             <Card className="h-full p-5 sm:p-6 space-y-4 border-border/80 hover:border-accent/40 transition-all flex flex-col justify-between shadow-md">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-accent/10 text-accent">
@@ -908,7 +908,7 @@ export default function LandingPage() {
           </div>
 
           {/* Card 3: Sekolah Kedinasan */}
-          <div className="min-w-[280px] sm:min-w-[330px] md:min-w-[360px] snap-center shrink-0">
+          <div className="w-[82vw] sm:w-[330px] md:w-[360px] max-w-[360px] snap-center shrink-0">
             <Card className="h-full p-5 sm:p-6 space-y-4 border-border/80 hover:border-brand/40 transition-all flex flex-col justify-between shadow-md">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-brand/10 text-brand">
