@@ -147,3 +147,140 @@ body {
 .font-serif {
   font-family: var(--font-fraunces), serif;
 }
+
+/* -------------------------------------------------------------------------
+   GPU-ACCELERATED KEYFRAME ANIMATIONS & PERFORMANCE UTILITIES
+   ------------------------------------------------------------------------- */
+@keyframes float-1 {
+  0%, 100% {
+    transform: translateY(0px) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-0.5deg);
+  }
+}
+
+@keyframes float-2 {
+  0%, 100% {
+    transform: translateY(0px) rotate(2.5deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(3.8deg);
+  }
+}
+
+@keyframes float-3 {
+  0%, 100% {
+    transform: translateY(0px) rotate(-4.5deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-3.5deg);
+  }
+}
+
+@keyframes float-chip-1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(4px, -10px, 0);
+  }
+}
+
+@keyframes float-chip-2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-6px, -12px, 0);
+  }
+}
+
+@keyframes float-chip-3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(5px, -9px, 0);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-float-1 {
+  animation: float-1 5.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-2 {
+  animation: float-2 6.4s ease-in-out 0.8s infinite;
+  will-change: transform;
+}
+
+.animate-float-3 {
+  animation: float-3 5.8s ease-in-out 1.5s infinite;
+  will-change: transform;
+}
+
+.animate-float-chip-1 {
+  animation: float-chip-1 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-chip-2 {
+  animation: float-chip-2 5.5s ease-in-out 0.6s infinite;
+  will-change: transform;
+}
+
+.animate-float-chip-3 {
+  animation: float-chip-3 4.8s ease-in-out 1.2s infinite;
+  will-change: transform;
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Hide scrollbar for clean horizontal snap carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Accessibility: Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3,
+  .animate-float-chip-1,
+  .animate-float-chip-2,
+  .animate-float-chip-3,
+  .animate-marquee {
+    animation: none !important;
+  }
+}

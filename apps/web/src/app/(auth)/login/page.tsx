@@ -47,7 +47,34 @@ export default function LoginPage() {
 
       if (data?.user) {
         const userEmail = (data.user.email || "").toLowerCase();
-        const userRole = data.user.user_metadata?.role;
+        const userRole =
+          data.user.user_metadata?.role ||
+          (userEmail.includes("admin")
+            ? "admin"
+            : userEmail.includes("guru") || userEmail.includes("brio")
+            ? "teacher"
+            : "student");
+
+        // Set auth cookies for middleware detection
+        if (typeof document !== "undefined") {
+          document.cookie = `sb-auth-token=${data.session?.access_token || "auth-active"}; path=/; max-age=604800; SameSite=Lax`;
+          document.cookie = `sb-user-role=${userRole}; path=/; max-age=604800; SameSite=Lax`;
+          document.cookie = `sb-user-email=${encodeURIComponent(userEmail)}; path=/; max-age=604800; SameSite=Lax`;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectPath = urlParams.get("redirect");
+
+        if (redirectPath && redirectPath.startsWith("/")) {
+          if (redirectPath.startsWith("/admin") && userRole !== "admin") {
+            // Not authorized for admin, continue to default role target
+          } else if (redirectPath.startsWith("/teacher") && userRole === "student") {
+            // Not authorized for teacher, continue to default
+          } else {
+            window.location.href = `${redirectPath}${redirectPath.includes("?") ? "&" : "?"}user=${encodeURIComponent(userEmail)}`;
+            return;
+          }
+        }
 
         // 2. Automatic Role Detection & Redirection
         if (userRole === "admin" || userEmail.includes("admin")) {
@@ -131,7 +158,7 @@ export default function LoginPage() {
               Belajar Presisi, Temukan Potensi Sejati.
             </h1>
             <p className="text-base text-muted leading-relaxed">
-              Platform e-learning adaptif dengan bimbingan Think First, deteksi miskonsepsi konsep prasyarat, dan integrasi penuh untuk Siswa, Guru Mapel, serta Admin Sekolah.
+              Platform e-learning adaptif dengan bimbingan Think First, deteksi miskonsepsi konsep prasyarat, dan integrasi penuh untuk Siswa, Guru Mapel, Wali Kelas, serta Admin Sekolah.
             </p>
           </div>
 
@@ -204,32 +231,55 @@ export default function LoginPage() {
                 </span>
                 {seedSuccess && (
                   <span className="text-[10px] text-brand font-semibold flex items-center gap-1">
-                    <CheckCircle2 size={12} /> Akun Siap
+                    <CheckCircle2 size={12} /> 4 Akun Siap
                   </span>
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-1.5 pt-1">
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("andi@sekolah.sch.id")}
-                  className="px-2 py-1.5 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-center"
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
                 >
-                  Siswa (Andi)
+                  <span>🎓</span>
+                  <div className="truncate">
+                    <div className="font-semibold text-text truncate">Siswa (Andi)</div>
+                    <div className="text-[10px] text-muted truncate">Kelas XI-A</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillQuickPreset("guru@sekolah.sch.id")}
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
+                >
+                  <span>📐</span>
+                  <div className="truncate">
+                    <div className="font-semibold text-text truncate">Guru Mapel</div>
+                    <div className="text-[10px] text-muted truncate">Dra. Sri (Mat)</div>
+                  </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("brio@gmail.com")}
-                  className="px-2 py-1.5 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-center"
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
                 >
-                  Guru (Brio)
+                  <span>🏫</span>
+                  <div className="truncate">
+                    <div className="font-semibold text-text truncate">Wali Kelas</div>
+                    <div className="text-[10px] text-muted truncate">Pak Brio (XI-A)</div>
+                  </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("admin@sekolah.sch.id")}
-                  className="px-2 py-1.5 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-center"
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
                 >
-                  Admin Sekolah
+                  <span>🛡️</span>
+                  <div className="truncate">
+                    <div className="font-semibold text-text truncate">Admin</div>
+                    <div className="text-[10px] text-muted truncate">Administrator</div>
+                  </div>
                 </button>
               </div>
 

@@ -30,10 +30,20 @@ import {
   SlidersHorizontal,
   BookmarkCheck,
   Check,
+  Target,
+  School,
+  FileCheck,
+  HelpCircle,
+  AlertCircle,
 } from "lucide-react";
 import { Card, GlowCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import {
+  getStoredTracerRecords,
+  updateOrAddTracerRecord,
+  TracerRecord,
+} from "@/lib/tracer-study";
 
 // Types
 interface Scholarship {
@@ -273,16 +283,75 @@ function FuturePathContent() {
   const searchParams = useSearchParams();
   const studentEmail = searchParams.get("user") || "andi@sekolah.sch.id";
 
-  // Navigation: "scholarships" | "jobs"
-  const initialTab = searchParams.get("tab") === "jobs" ? "jobs" : "scholarships";
-  const [activeTab, setActiveTab] = useState<"scholarships" | "jobs">(initialTab);
+  // Navigation: "scholarships" | "jobs" | "tracer"
+  const initialTab = searchParams.get("tab") === "jobs" ? "jobs" : searchParams.get("tab") === "tracer" ? "tracer" : "scholarships";
+  const [activeTab, setActiveTab] = useState<"scholarships" | "jobs" | "tracer">(initialTab);
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam === "jobs" || tabParam === "scholarships") {
-      setActiveTab(tabParam);
+    if (tabParam === "jobs" || tabParam === "scholarships" || tabParam === "tracer") {
+      setActiveTab(tabParam as "scholarships" | "jobs" | "tracer");
     }
   }, [searchParams]);
+
+  // Tracer Study & Career Tracking State
+  const [tracerData, setTracerData] = useState<TracerRecord | null>(null);
+  const [plannedPathway, setPlannedPathway] = useState<"Kuliah" | "Kedinasan" | "Bekerja" | "Wirausaha">("Kuliah");
+  const [plannedTarget, setPlannedTarget] = useState("Universitas Indonesia (UI) - Teknik Informatika");
+  const [realizationStatus, setRealizationStatus] = useState<"Kuliah" | "Kedinasan" | "Bekerja" | "Wirausaha" | "Mencari Kerja">("Kuliah");
+  const [realizationDetail, setRealizationDetail] = useState("Sedang bimbingan intensif persiapan SNBT & UTBK");
+  const [isSavingTracer, setIsSavingTracer] = useState(false);
+  const [tracerSuccessMsg, setTracerSuccessMsg] = useState<string | null>(null);
+  const [isStudentGraduated, setIsStudentGraduated] = useState(false);
+  const [studentGrade, setStudentGrade] = useState("Kelas 2 (Kelas XI)");
+  const [studentClass, setStudentClass] = useState("Kelas XI-A");
+
+  // Sync Tracer Data on Mount
+  useEffect(() => {
+    try {
+      const records = getStoredTracerRecords();
+      const current = records.find((r) => r.email.toLowerCase() === studentEmail.toLowerCase());
+      if (current) {
+        setTracerData(current);
+        setPlannedPathway(current.plannedPathway);
+        setPlannedTarget(current.plannedTarget);
+        setRealizationStatus(current.realizationStatus);
+        setRealizationDetail(current.realizationDetail);
+        setIsStudentGraduated(current.academicStatus === "graduated");
+        if (current.classOrigin) setStudentClass(current.classOrigin);
+      }
+
+      // Check graduated status in local storage
+      const rawGrad = localStorage.getItem("nalara_graduated_students");
+      if (rawGrad) {
+        const grads: string[] = JSON.parse(rawGrad);
+        if (grads.includes(studentEmail.toLowerCase())) {
+          setIsStudentGraduated(true);
+        }
+      }
+
+      // Check student grade level from registered students list
+      const rawReg = localStorage.getItem("nalara_registered_students");
+      if (rawReg) {
+        const list: any[] = JSON.parse(rawReg);
+        const found = list.find((s) => s.email?.toLowerCase() === studentEmail.toLowerCase());
+        if (found) {
+          if (found.gradeLevel) setStudentGrade(found.gradeLevel);
+          if (found.classGroup) setStudentClass(found.classGroup);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [studentEmail]);
+
+  const isFinalYearOrGraduated =
+    studentGrade.toLowerCase().includes("12") ||
+    studentGrade.toLowerCase().includes("xii") ||
+    studentGrade.toLowerCase().includes("kelas 3") ||
+    studentClass.toLowerCase().includes("xii") ||
+    studentClass.toLowerCase().includes("3-") ||
+    isStudentGraduated;
 
   // Scholarships State
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
@@ -518,6 +587,49 @@ function FuturePathContent() {
     }
   };
 
+  const handleSaveTracer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingTracer(true);
+    setTracerSuccessMsg(null);
+    try {
+      const res = await fetch("/api/student/update-tracer-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: studentEmail,
+          name: studentName,
+          plannedPathway,
+          plannedTarget,
+          realizationStatus,
+          realizationDetail,
+          verificationStatus: "verified",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal menyimpan data");
+
+      const updated = updateOrAddTracerRecord({
+        email: studentEmail,
+        studentName,
+        plannedPathway,
+        plannedTarget,
+        realizationStatus,
+        realizationDetail,
+        verificationStatus: "verified",
+      });
+      const myRecord = updated.find((r) => r.email.toLowerCase() === studentEmail.toLowerCase());
+      if (myRecord) setTracerData(myRecord);
+
+      setTracerSuccessMsg("🎉 Data formulir rencana & realisasi kelulusan (Tracer Study) berhasil diperbarui dan tersimpan!");
+      setTimeout(() => setTracerSuccessMsg(null), 5000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal menyimpan data";
+      alert(msg);
+    } finally {
+      setIsSavingTracer(false);
+    }
+  };
+
   const studentName = studentEmail.toLowerCase().includes("andi")
     ? "Andi Pratama"
     : studentEmail.split("@")[0].replace(".", " ");
@@ -559,7 +671,7 @@ function FuturePathContent() {
               </span>
             </div>
             <p className="text-xs text-muted mt-1">
-              Halo, <span className="font-bold text-text">{studentName}</span>! Eksplorasi {scholarships.length} beasiswa aktif &amp; {jobs.length} lowongan kerja real-time tanpa batas.
+              Halo, <span className="font-bold text-text">{studentName}</span>! Eksplorasi beasiswa aktif, lowongan kerja, serta pemetaan rencana &amp; tracer kelulusan.
             </p>
           </div>
         </div>
@@ -590,6 +702,18 @@ function FuturePathContent() {
               <Briefcase size={16} />
               <span>Lowongan Kerja ({jobs.length})</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab("tracer")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === "tracer"
+                  ? "bg-brand text-bg shadow-md scale-[1.02]"
+                  : "text-muted hover:text-text hover:bg-surface2"
+              }`}
+            >
+              <Target size={16} />
+              <span>📋 Tracer &amp; Rencana Kelulusan</span>
+            </button>
           </div>
 
           {/* Direct Input Action Button */}
@@ -616,6 +740,16 @@ function FuturePathContent() {
           )}
         </div>
       </header>
+
+      {/* Grade Level Notice for Underclassmen (Kelas 10 & 11) */}
+      {!isFinalYearOrGraduated && (
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start sm:items-center gap-3 shadow-sm">
+          <span className="text-xl shrink-0">ℹ️</span>
+          <div className="leading-relaxed">
+            <strong>Catatan Kurikulum ({studentClass} - {studentGrade}):</strong> Akses pencarian Beasiswa Kuliah &amp; Lowongan Kerja difokuskan intensif saat Anda memasuki <strong>Tingkat Akhir (Kelas 12)</strong> atau setelah <strong>Lulus (Alumni)</strong>. Saat ini Anda dapat mengisi pemetaan cita-cita awal pada tab <strong>Tracer &amp; Rencana Kelulusan</strong>.
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* TAB 1: SCHOLARSHIPS REAL-TIME INTELLIGENCE (PROFESSIONAL EDTECH BENTO)    */}
@@ -1249,6 +1383,251 @@ function FuturePathContent() {
                 )}
               </div>
             )}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 3: TRACER STUDY & PEMETAAN RENCANA KELULUSAN                          */}
+      {/* ========================================================================= */}
+      {activeTab === "tracer" && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+          {/* Header Banner */}
+          <GlowCard className="p-6 sm:p-8 border-brand/30 bg-surface relative overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-3xl">
+                <div className="flex items-center gap-2 text-brand font-bold text-xs uppercase tracking-wider">
+                  <Target size={16} />
+                  <span>Sistem Penelusuran Karir &amp; Tracer Study NALARA</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold font-serif text-text leading-tight">
+                  Formulir Pemetaan Rencana &amp; Realisasi Kelulusan Siswa
+                </h2>
+                <p className="text-xs sm:text-sm text-muted leading-relaxed">
+                  Data ini digunakan oleh <strong>Wali Kelas</strong>, <strong>Guru Bimbingan Konseling (BK)</strong>, dan <strong>Admin Sekolah</strong> untuk memantau transisi siswa: mulai dari rencana sebelum lulus hingga ketercapaian pasca-kelulusan (Kuliah, Kedinasan, Bekerja, atau Wirausaha).
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-surface2 border border-border text-xs space-y-1.5 shrink-0">
+                <div className="text-muted">Status Akun Siswa:</div>
+                <div className="font-bold text-text flex items-center gap-2">
+                  {isStudentGraduated ? (
+                    <span className="text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30 flex items-center gap-1.5">
+                      <span>🎓</span> Alumni / Lulus
+                    </span>
+                  ) : (
+                    <span className="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" /> Aktif Belajar
+                    </span>
+                  )}
+                </div>
+                <div className="text-[11px] text-muted font-mono">{studentEmail}</div>
+              </div>
+            </div>
+          </GlowCard>
+
+          {/* Success Notification */}
+          {tracerSuccessMsg && (
+            <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-2.5 shadow-lg animate-in fade-in">
+              <CheckCircle2 size={18} />
+              <span>{tracerSuccessMsg}</span>
+            </div>
+          )}
+
+          {/* Two Column Bento Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Col 1 & 2: Interactive Form */}
+            <div className="lg:col-span-2">
+              <Card className="p-6 sm:p-8 space-y-6 border-border bg-surface">
+                <div className="border-b border-border pb-4">
+                  <h3 className="text-lg font-bold font-serif text-text flex items-center gap-2">
+                    <FileCheck size={20} className="text-brand" />
+                    <span>Formulir Pengisian &amp; Pemutakhiran Status</span>
+                  </h3>
+                  <p className="text-xs text-muted mt-1">
+                    Isi rencana sebelum lulus dan perbarui status Anda secara berkala jika sudah ada pengumuman seleksi atau pekerjaan.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveTracer} className="space-y-6">
+                  {/* Bagian 1: Rencana Sebelum Lulus */}
+                  <div className="p-5 rounded-2xl bg-surface2/60 border border-border/80 space-y-4">
+                    <div className="flex items-center gap-2 text-brand font-bold text-xs">
+                      <span className="w-5 h-5 rounded-full bg-brand/20 flex items-center justify-center text-xs">1</span>
+                      <span>Tahap Pra-Kelulusan: Rencana &amp; Peminatan Masa Depan</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-text mb-1.5">
+                          Jalur Rencana Pilihan *
+                        </label>
+                        <select
+                          value={plannedPathway}
+                          onChange={(e) => setPlannedPathway(e.target.value as any)}
+                          className="w-full p-2.5 rounded-xl border border-border bg-surface text-xs font-medium text-text outline-none focus:border-brand"
+                        >
+                          <option value="Kuliah">🎓 Kuliah (PTN / PTS)</option>
+                          <option value="Kedinasan">🏛️ Sekolah Kedinasan (SEKDIN)</option>
+                          <option value="Bekerja">💼 Bekerja (Industri / DUDI)</option>
+                          <option value="Wirausaha">🚀 Wirausaha / Bisnis Mandiri</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-text mb-1.5">
+                          Target Utama Kampus / Instansi / Bidang *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={plannedTarget}
+                          onChange={(e) => setPlannedTarget(e.target.value)}
+                          placeholder="Contoh: UI Teknik Informatika / PKN STAN / Astra"
+                          className="w-full p-2.5 rounded-xl border border-border bg-surface text-xs text-text outline-none focus:border-brand"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted leading-relaxed">
+                      💡 Pilihan ini membantu sekolah memfasilitasi program bimbingan UTBK/SNBT, tryout SKD Kedinasan, atau bursa kerja khusus (BKK).
+                    </p>
+                  </div>
+
+                  {/* Bagian 2: Realisasi Pasca-Kelulusan (Tracer Study) */}
+                  <div className="p-5 rounded-2xl bg-surface2/60 border border-border/80 space-y-4">
+                    <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">2</span>
+                      <span>Tahap Pasca-Kelulusan: Realisasi Status Terkini (Tracer Study)</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-text mb-1.5">
+                          Status Realisasi Saat Ini *
+                        </label>
+                        <select
+                          value={realizationStatus}
+                          onChange={(e) => setRealizationStatus(e.target.value as any)}
+                          className="w-full p-2.5 rounded-xl border border-border bg-surface text-xs font-medium text-text outline-none focus:border-brand"
+                        >
+                          <option value="Kuliah">🎓 Diterima Kuliah (PTN / PTS)</option>
+                          <option value="Kedinasan">🏛️ Diterima Sekolah Kedinasan (SEKDIN)</option>
+                          <option value="Bekerja">💼 Sudah Bekerja (Karyawan / Kontrak)</option>
+                          <option value="Wirausaha">🚀 Wirausaha / Membuka Usaha</option>
+                          <option value="Mencari Kerja">⏳ Belum Bekerja / Masih Mencari Loker</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-text mb-1.5">
+                          Keterangan / Nama Instansi / Perusahaan *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={realizationDetail}
+                          onChange={(e) => setRealizationDetail(e.target.value)}
+                          placeholder="Contoh: Lolos SNBT UI Informatika / Praja IPDN / PT Telkom"
+                          className="w-full p-2.5 rounded-xl border border-border bg-surface text-xs text-text outline-none focus:border-brand"
+                        />
+                      </div>
+                    </div>
+
+                    {realizationStatus === "Mencari Kerja" && (
+                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+                        ℹ️ <strong>Tips NALARA:</strong> Anda dapat mengecek tab <strong>Lowongan Kerja</strong> di atas untuk langsung melamar ke mitra perusahaan terverifikasi.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      loading={isSavingTracer}
+                      className="text-xs font-bold px-6 py-2.5 rounded-xl shadow-lg"
+                    >
+                      <CheckCircle2 size={16} />
+                      <span>Simpan &amp; Perbarui Data Tracer Study</span>
+                    </Button>
+                  </div>
+                </form>
+              </Card>
+            </div>
+
+            {/* Col 3: Student Live Overview Card */}
+            <div className="space-y-4">
+              <Card className="p-6 space-y-4 border-border bg-surface">
+                <h4 className="text-sm font-bold font-serif text-text flex items-center gap-2 border-b border-border pb-3">
+                  <School size={16} className="text-brand" />
+                  <span>Ringkasan Profil Tracer Anda</span>
+                </h4>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                    <span className="text-muted">Nama Siswa:</span>
+                    <strong className="text-text">{studentName}</strong>
+                  </div>
+
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                    <span className="text-muted">Rencana Awal:</span>
+                    <span className="px-2 py-0.5 rounded-md bg-brand/15 text-brand font-semibold text-[11px]">
+                      {plannedPathway}
+                    </span>
+                  </div>
+
+                  <div className="border-b border-border/60 pb-2 space-y-1">
+                    <span className="text-muted text-[11px]">Target Rencana:</span>
+                    <div className="font-medium text-text text-[11px] bg-surface2 p-2 rounded-lg">
+                      {plannedTarget || "-"}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                    <span className="text-muted">Realisasi Terkini:</span>
+                    <span className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${
+                      realizationStatus === "Kuliah"
+                        ? "bg-blue-500/15 text-blue-400"
+                        : realizationStatus === "Kedinasan"
+                        ? "bg-purple-500/15 text-purple-400"
+                        : realizationStatus === "Bekerja"
+                        ? "bg-emerald-500/15 text-emerald-400"
+                        : realizationStatus === "Wirausaha"
+                        ? "bg-amber-500/15 text-amber-400"
+                        : "bg-red-500/15 text-red-400"
+                    }`}>
+                      {realizationStatus}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-muted text-[11px]">Instansi / Keterangan:</span>
+                    <div className="font-medium text-text text-[11px] bg-surface2 p-2 rounded-lg">
+                      {realizationDetail || "-"}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-border flex items-center justify-between text-[11px]">
+                    <span className="text-muted">Verifikasi Sekolah:</span>
+                    <span className="text-emerald-400 font-bold flex items-center gap-1">
+                      <CheckCircle2 size={12} />
+                      <span>Terverifikasi</span>
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Informational Guidance Card */}
+              <div className="p-4 rounded-2xl bg-brand/10 border border-brand/30 space-y-2 text-xs text-muted">
+                <div className="font-bold text-text flex items-center gap-1.5">
+                  <HelpCircle size={14} className="text-brand" />
+                  <span>Bagaimana Sekolah Memfilter Data?</span>
+                </div>
+                <p className="text-[11px] leading-relaxed">
+                  Wali Kelas dan Admin memiliki dashboard pemantauan dengan filter khusus untuk mengelompokkan siswa yang <strong>Keterima Kuliah</strong>, <strong>Keterima Kedinasan</strong>, <strong>Bekerja</strong>, atau yang <strong>Belum Bekerja</strong> sehingga sekolah dapat menyalurkan bantuan bimbingan tepat sasaran.
+                </p>
+              </div>
+            </div>
           </div>
         </motion.div>
       )}

@@ -28,6 +28,9 @@ import {
   ToggleRight,
   X,
   Filter,
+  Rocket,
+  CheckSquare,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, GlowCard } from "@/components/ui/Card";
@@ -48,6 +51,11 @@ import {
   DEFAULT_SUBJECTS,
   DEFAULT_ASSIGNMENTS,
 } from "@/lib/assignment-service";
+import {
+  getStoredTracerRecords,
+  saveStoredTracerRecords,
+  TracerRecord,
+} from "@/lib/tracer-study";
 
 interface TeacherData {
   id: string;
@@ -70,6 +78,7 @@ interface StudentData {
   classGroup: string;
   targetProgram: string;
   password?: string;
+  status?: "active" | "graduated";
 }
 
 const INITIAL_TEACHERS: TeacherData[] = [
@@ -173,7 +182,7 @@ const INITIAL_STUDENTS: StudentData[] = [
 ];
 
 export default function AdminDashboardPage() {
-  const [adminTab, setAdminTab] = useState<"assignments" | "teachers" | "classes" | "subjects" | "students">("assignments");
+  const [adminTab, setAdminTab] = useState<"assignments" | "teachers" | "classes" | "subjects" | "students" | "tracer">("assignments");
 
   // Dynamic Data States from Storage & APIs
   const [classes, setClasses] = useState<ClassroomItem[]>(DEFAULT_CLASSES);
@@ -183,6 +192,13 @@ export default function AdminDashboardPage() {
   // Teachers & Students State
   const [teachers, setTeachers] = useState<TeacherData[]>(INITIAL_TEACHERS);
   const [students, setStudents] = useState<StudentData[]>(INITIAL_STUDENTS);
+
+  // Tracer Study Admin State
+  const [tracerRecords, setTracerRecords] = useState<TracerRecord[]>([]);
+  const [tracerFilterStatus, setTracerFilterStatus] = useState<string>("all");
+  const [tracerSearch, setTracerSearch] = useState<string>("");
+  const [editingTracerRecord, setEditingTracerRecord] = useState<TracerRecord | null>(null);
+  const [isUpdatingTracer, setIsUpdatingTracer] = useState(false);
 
   // Assignment Management States
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false);
@@ -237,6 +253,10 @@ export default function AdminDashboardPage() {
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // Admin Student Multi-select & Bulk Action State
+  const [selectedAdminStudentEmails, setSelectedAdminStudentEmails] = useState<string[]>([]);
+  const [isProcessingAdminBulk, setIsProcessingAdminBulk] = useState(false);
+
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   // Initialize and Sync from Storage
@@ -245,12 +265,19 @@ export default function AdminDashboardPage() {
       setClasses(getStoredClasses());
       setSubjects(getStoredSubjects());
       setAssignments(getStoredAssignments());
+      setTracerRecords(getStoredTracerRecords());
 
       try {
         const rawT = localStorage.getItem("nalara_registered_teachers");
         if (rawT) setTeachers(JSON.parse(rawT));
         const rawS = localStorage.getItem("nalara_registered_students");
-        if (rawS) setStudents(JSON.parse(rawS));
+        const gradEmails: string[] = JSON.parse(localStorage.getItem("nalara_graduated_students") || "[]");
+        const baseStudents: StudentData[] = rawS ? JSON.parse(rawS) : INITIAL_STUDENTS;
+        const syncedStudents = baseStudents.map((s) => ({
+          ...s,
+          status: gradEmails.includes(s.email.toLowerCase()) ? ("graduated" as const) : s.status || ("active" as const),
+        }));
+        setStudents(syncedStudents);
       } catch (err) {
         console.error("Storage read error:", err);
       }
@@ -272,6 +299,11 @@ export default function AdminDashboardPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    if (typeof document !== "undefined") {
+      document.cookie = "sb-auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "sb-user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "sb-user-email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
     window.location.href = "/login";
   };
 
@@ -597,6 +629,226 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleToggleStudentStatus = async (s: StudentData) => {
+    const nextStatus = s.status === "graduated" ? "active" : "graduated";
+    try {
+      const res = await fetch("/api/admin/toggle-student-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: s.id,
+          email: s.email,
+          status: nextStatus,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mengubah status kelulusan");
+
+      const updated = students.map((item) =>
+        item.id === s.id || item.email.toLowerCase() === s.email.toLowerCase()
+          ? { ...item, status: nextStatus as "active" | "graduated" }
+          : item
+      );
+      setStudents(updated);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("nalara_registered_students", JSON.stringify(updated));
+        const gradEmails = updated.filter((item) => item.status === "graduated").map((item) => item.email.toLowerCase());
+        localStorage.setItem("nalara_graduated_students", JSON.stringify(gradEmails));
+      }
+
+      setStatusMsg(
+        nextStatus === "graduated"
+          ? `🎓 Siswa ${s.name} berhasil ditandai Lulus / Alumni! Akses kuis otomatis diblokir.`
+          : `🟢 Siswa ${s.name} berhasil diaktifkan kembali status belajarnya!`
+      );
+      setTimeout(() => setStatusMsg(null), 3500);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error";
+      setStatusMsg(`Error: ${msg}`);
+    }
+  };
+
+  const handleToggleSelectAllAdminStudents = (filteredList: StudentData[]) => {
+    const allFiltered = filteredList.map((s) => s.email.toLowerCase());
+    if (selectedAdminStudentEmails.length === allFiltered.length) {
+      setSelectedAdminStudentEmails([]);
+    } else {
+      setSelectedAdminStudentEmails(allFiltered);
+    }
+  };
+
+  const handleToggleSelectAdminStudent = (email: string) => {
+    const lower = email.toLowerCase();
+    setSelectedAdminStudentEmails((prev) =>
+      prev.includes(lower) ? prev.filter((e) => e !== lower) : [...prev, lower]
+    );
+  };
+
+  // Promote single student from Admin
+  const handlePromoteAdminStudent = async (s: StudentData) => {
+    let nextGrade = "Kelas 2 (Kelas XI)";
+    let nextClass = "Kelas 2-A (XI-A)";
+    let nextStatus: "active" | "graduated" = "active";
+
+    if (
+      s.gradeLevel.includes("Kelas 1") ||
+      s.gradeLevel.includes("Kelas X") ||
+      s.classGroup.includes("1-A") ||
+      s.classGroup.includes("X-A")
+    ) {
+      nextGrade = "Kelas 2 (Kelas XI)";
+      nextClass = "Kelas 2-A (XI-A)";
+    } else if (
+      s.gradeLevel.includes("Kelas 2") ||
+      s.gradeLevel.includes("Kelas XI") ||
+      s.classGroup.includes("2-A") ||
+      s.classGroup.includes("XI-A")
+    ) {
+      nextGrade = "Kelas 3 (Kelas XII)";
+      nextClass = "Kelas 3-A (XII-A)";
+    } else {
+      nextStatus = "graduated";
+    }
+
+    try {
+      const res = await fetch("/api/admin/promote-students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emails: [s.email],
+          action: nextStatus === "graduated" ? "graduate" : "promote",
+          targetGradeLevel: nextGrade,
+          targetClassGroup: nextClass,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal menaikkan kelas siswa");
+
+      const updated = students.map((item) =>
+        item.email.toLowerCase() === s.email.toLowerCase()
+          ? { ...item, gradeLevel: nextGrade, classGroup: nextClass, status: nextStatus }
+          : item
+      );
+      setStudents(updated);
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("nalara_registered_students", JSON.stringify(updated));
+        if (nextStatus === "graduated") {
+          const gradEmails: string[] = JSON.parse(localStorage.getItem("nalara_graduated_students") || "[]");
+          if (!gradEmails.includes(s.email.toLowerCase())) {
+            gradEmails.push(s.email.toLowerCase());
+            localStorage.setItem("nalara_graduated_students", JSON.stringify(gradEmails));
+          }
+        }
+      }
+
+      setStatusMsg(
+        nextStatus === "graduated"
+          ? `🎓 Siswa ${s.name} telah mencapai tingkat akhir dan ditandai Lulus / Alumni!`
+          : `🚀 Siswa ${s.name} berhasil dinaikkan ke ${nextGrade} (${nextClass})!`
+      );
+      setTimeout(() => setStatusMsg(null), 3500);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error";
+      setStatusMsg(`Error: ${msg}`);
+    }
+  };
+
+  // Bulk actions from Admin (Promote, Graduate, Activate)
+  const handleAdminBulkAction = async (action: "promote" | "graduate" | "activate") => {
+    if (selectedAdminStudentEmails.length === 0) return;
+    setIsProcessingAdminBulk(true);
+    setStatusMsg(null);
+
+    try {
+      if (action === "promote") {
+        const res = await fetch("/api/admin/promote-students", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            emails: selectedAdminStudentEmails,
+            action: "promote",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Gagal memproses kenaikan kelas massal");
+
+        const emailSet = new Set(selectedAdminStudentEmails.map((e) => e.toLowerCase()));
+        const updated = students.map((item) => {
+          if (!emailSet.has(item.email.toLowerCase())) return item;
+          let nextGrade = item.gradeLevel;
+          let nextClass = item.classGroup;
+          let nextStatus = item.status || "active";
+
+          if (
+            item.gradeLevel.includes("Kelas 1") ||
+            item.gradeLevel.includes("Kelas X") ||
+            item.classGroup.includes("1-A") ||
+            item.classGroup.includes("X-A")
+          ) {
+            nextGrade = "Kelas 2 (Kelas XI)";
+            nextClass = "Kelas 2-A (XI-A)";
+          } else if (
+            item.gradeLevel.includes("Kelas 2") ||
+            item.gradeLevel.includes("Kelas XI") ||
+            item.classGroup.includes("2-A") ||
+            item.classGroup.includes("XI-A")
+          ) {
+            nextGrade = "Kelas 3 (Kelas XII)";
+            nextClass = "Kelas 3-A (XII-A)";
+          } else {
+            nextStatus = "graduated";
+          }
+          return { ...item, gradeLevel: nextGrade, classGroup: nextClass, status: nextStatus };
+        });
+
+        setStudents(updated);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("nalara_registered_students", JSON.stringify(updated));
+          const gradEmails = updated.filter((item) => item.status === "graduated").map((item) => item.email.toLowerCase());
+          localStorage.setItem("nalara_graduated_students", JSON.stringify(gradEmails));
+        }
+
+        setStatusMsg(`🚀 Berhasil menaikkan kelas untuk ${selectedAdminStudentEmails.length} siswa terpilih!`);
+      } else {
+        const targetStatus: "active" | "graduated" = action === "graduate" ? "graduated" : "active";
+        for (const email of selectedAdminStudentEmails) {
+          await fetch("/api/admin/toggle-student-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, status: targetStatus }),
+          });
+        }
+
+        const emailSet = new Set(selectedAdminStudentEmails.map((e) => e.toLowerCase()));
+        const updated = students.map((item) =>
+          emailSet.has(item.email.toLowerCase()) ? { ...item, status: targetStatus } : item
+        );
+        setStudents(updated);
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("nalara_registered_students", JSON.stringify(updated));
+          const gradEmails = updated.filter((item) => item.status === "graduated").map((item) => item.email.toLowerCase());
+          localStorage.setItem("nalara_graduated_students", JSON.stringify(gradEmails));
+        }
+
+        setStatusMsg(
+          targetStatus === "graduated"
+            ? `🎓 Berhasil menandai ${selectedAdminStudentEmails.length} siswa sebagai Lulus / Alumni!`
+            : `🟢 Berhasil mengaktifkan kembali status belajar ${selectedAdminStudentEmails.length} siswa!`
+        );
+      }
+
+      setSelectedAdminStudentEmails([]);
+      setTimeout(() => setStatusMsg(null), 3500);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error";
+      setStatusMsg(`Error: ${msg}`);
+    } finally {
+      setIsProcessingAdminBulk(false);
+    }
+  };
+
   // CSV Parser
   const handleParseCsv = (text: string) => {
     setCsvRawText(text);
@@ -769,6 +1021,74 @@ export default function AdminDashboardPage() {
       s.gradeLevel.toLowerCase().includes(studentSearch.toLowerCase())
   );
 
+  const filteredTracerRecords = tracerRecords.filter((r) => {
+    const matchFilter = tracerFilterStatus === "all" || r.realizationStatus === tracerFilterStatus;
+    const matchSearch =
+      r.studentName.toLowerCase().includes(tracerSearch.toLowerCase()) ||
+      r.email.toLowerCase().includes(tracerSearch.toLowerCase()) ||
+      r.nisn.toLowerCase().includes(tracerSearch.toLowerCase()) ||
+      r.realizationDetail.toLowerCase().includes(tracerSearch.toLowerCase()) ||
+      r.plannedTarget.toLowerCase().includes(tracerSearch.toLowerCase());
+    return matchFilter && matchSearch;
+  });
+
+  const handleAdminUpdateTracer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTracerRecord) return;
+    setIsUpdatingTracer(true);
+    try {
+      const res = await fetch("/api/student/update-tracer-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: editingTracerRecord.email,
+          name: editingTracerRecord.studentName,
+          plannedPathway: editingTracerRecord.plannedPathway,
+          plannedTarget: editingTracerRecord.plannedTarget,
+          realizationStatus: editingTracerRecord.realizationStatus,
+          realizationDetail: editingTracerRecord.realizationDetail,
+          verificationStatus: editingTracerRecord.verificationStatus,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mengupdate");
+
+      const updated = tracerRecords.map((t) =>
+        t.email.toLowerCase() === editingTracerRecord.email.toLowerCase()
+          ? { ...editingTracerRecord, updatedAt: new Date().toISOString() }
+          : t
+      );
+      setTracerRecords(updated);
+      saveStoredTracerRecords(updated);
+      setStatusMsg(`🎉 Berhasil memperbarui status tracer study untuk ${editingTracerRecord.studentName}!`);
+      setEditingTracerRecord(null);
+      setTimeout(() => setStatusMsg(null), 4000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal mengupdate";
+      setStatusMsg(`Error Update Tracer: ${msg}`);
+    } finally {
+      setIsUpdatingTracer(false);
+    }
+  };
+
+  const handleDownloadTracerCsv = () => {
+    const header = "Nama Siswa;NISN;Email;Kelas Asal;Status Akademik;Rencana Sebelum Lulus;Target Rencana;Realisasi Terkini;Detail Instansi/Kampus;Status Verifikasi;Terakhir Diperbarui\n";
+    const rows = tracerRecords
+      .map(
+        (r) =>
+          `"${r.studentName}";"${r.nisn}";"${r.email}";"${r.classOrigin}";"${r.academicStatus}";"${r.plannedPathway}";"${r.plannedTarget}";"${r.realizationStatus}";"${r.realizationDetail}";"${r.verificationStatus}";"${r.updatedAt}"`
+      )
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + header + rows], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "laporan_tracer_study_nalara.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
       {/* 1. Admin Header */}
@@ -872,6 +1192,18 @@ export default function AdminDashboardPage() {
         >
           <GraduationCap size={16} />
           <span>🎓 Data Siswa ({students.length})</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab("tracer")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all ${
+            adminTab === "tracer"
+              ? "bg-brand text-bg shadow-md"
+              : "text-muted hover:text-text bg-surface2 border border-border"
+          }`}
+        >
+          <Target size={16} />
+          <span>🎯 Tracer Study Alumni ({tracerRecords.length})</span>
         </button>
       </div>
 
@@ -1686,46 +2018,472 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
+            {/* Admin Multi-Select Floating Action Bar */}
+            {selectedAdminStudentEmails.length > 0 && (
+              <div className="p-3.5 rounded-2xl bg-brand/15 border border-brand/40 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md animate-in fade-in duration-200">
+                <div className="flex items-center gap-2 text-xs text-text font-bold">
+                  <CheckSquare size={16} className="text-brand" />
+                  <span>{selectedAdminStudentEmails.length} dari {filteredStudents.length} Siswa Terpilih</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => handleAdminBulkAction("promote")}
+                    loading={isProcessingAdminBulk}
+                    className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 shadow"
+                  >
+                    <Rocket size={13} />
+                    <span>🚀 Naikkan Kelas Terpilih ({selectedAdminStudentEmails.length})</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleAdminBulkAction("graduate")}
+                    loading={isProcessingAdminBulk}
+                    className="text-xs font-bold text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+                  >
+                    <GraduationCap size={13} />
+                    <span>🎓 Tandai Lulus Terpilih</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handleAdminBulkAction("activate")}
+                    loading={isProcessingAdminBulk}
+                    className="text-xs font-bold text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
+                  >
+                    <span>🟢 Aktifkan Terpilih</span>
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAdminStudentEmails([])}
+                    className="text-xs text-muted hover:text-text underline ml-1"
+                  >
+                    Batal Pilih
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-border text-muted uppercase tracking-wider font-semibold">
+                    <th className="pb-3 px-3 w-10 text-center">
+                      <input
+                        type="checkbox"
+                        checked={
+                          filteredStudents.length > 0 &&
+                          selectedAdminStudentEmails.length === filteredStudents.length
+                        }
+                        onChange={() => handleToggleSelectAllAdminStudents(filteredStudents)}
+                        className="w-4 h-4 rounded border-border text-brand focus:ring-brand cursor-pointer"
+                        title="Pilih Semua Siswa"
+                      />
+                    </th>
                     <th className="pb-3 px-3">Nama Siswa</th>
                     <th className="pb-3 px-3">NISN</th>
                     <th className="pb-3 px-3">Email Akun</th>
                     <th className="pb-3 px-3">Rombel / Kelas</th>
                     <th className="pb-3 px-3">Target Belajar</th>
+                    <th className="pb-3 px-3 text-center">Status Akademik</th>
                     <th className="pb-3 px-3 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
-                  {filteredStudents.map((s) => (
-                    <tr key={s.id} className="hover:bg-surface2/50 transition-colors">
-                      <td className="py-3.5 px-3">
-                        <div className="font-bold text-text text-sm">{s.name}</div>
-                      </td>
-                      <td className="py-3.5 px-3 font-mono text-muted">{s.nisn}</td>
-                      <td className="py-3.5 px-3 font-mono text-brand font-medium">{s.email}</td>
-                      <td className="py-3.5 px-3">
-                        <Badge variant="neutral" className="text-[10px]">{s.classGroup}</Badge>
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <Badge variant="accent" className="text-[10px]">{s.targetProgram}</Badge>
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <button
-                          onClick={() => handleDeleteStudent(s.id)}
-                          className="text-muted hover:text-error transition-colors p-1.5 rounded-lg"
-                          title="Hapus Siswa"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredStudents.map((s) => {
+                    const isSelected = selectedAdminStudentEmails.includes(s.email.toLowerCase());
+                    return (
+                      <tr
+                        key={s.id}
+                        className={`transition-colors ${
+                          isSelected ? "bg-brand/10" : "hover:bg-surface2/50"
+                        }`}
+                      >
+                        <td className="py-3.5 px-3 text-center">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleToggleSelectAdminStudent(s.email)}
+                            className="w-4 h-4 rounded border-border text-brand focus:ring-brand cursor-pointer"
+                          />
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <div className="font-bold text-text text-sm">{s.name}</div>
+                        </td>
+                        <td className="py-3.5 px-3 font-mono text-muted">{s.nisn}</td>
+                        <td className="py-3.5 px-3 font-mono text-brand font-medium">{s.email}</td>
+                        <td className="py-3.5 px-3">
+                          <Badge variant="neutral" className="text-[10px]">{s.classGroup}</Badge>
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <Badge variant="accent" className="text-[10px]">{s.targetProgram}</Badge>
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          {s.status === "graduated" ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                              🎓 Lulus / Alumni
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                              🟢 Aktif Belajar
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handlePromoteAdminStudent(s)}
+                              className="px-2.5 py-1 rounded-lg transition-colors text-xs font-bold flex items-center gap-1 bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 border border-blue-500/30"
+                              title="Naikkan kelas siswa ini"
+                            >
+                              <Rocket size={13} />
+                              <span>Naik Kelas</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStudentStatus(s)}
+                              className={`px-2.5 py-1 rounded-lg transition-colors text-xs font-bold flex items-center gap-1 ${
+                                s.status === "graduated"
+                                  ? "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/30"
+                                  : "bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 border border-amber-500/30"
+                              }`}
+                              title={s.status === "graduated" ? "Aktifkan status belajar siswa kembali" : "Tandai siswa telah Lulus / Alumni"}
+                            >
+                              <GraduationCap size={13} />
+                              <span>{s.status === "graduated" ? "Aktifkan" : "Lulus"}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteStudent(s.id)}
+                              className="text-muted hover:text-error transition-colors p-1.5 rounded-lg hover:bg-surface2"
+                              title="Hapus Siswa"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 6: TRACER STUDY & PELACAKAN ALUMNI PASCA-KELULUSAN                     */}
+      {/* ========================================================================= */}
+      {adminTab === "tracer" && (
+        <div className="space-y-6">
+          {/* Header & Export Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold font-serif text-text flex items-center gap-2">
+                <Target size={22} className="text-brand" />
+                <span>Tracer Study &amp; Pelacakan Realisasi Alumni</span>
+              </h2>
+              <p className="text-xs text-muted">
+                Pemetaan komprehensif rencana pra-kelulusan vs realisasi nyata: Kuliah (PTN/PTS), Sekolah Kedinasan (SEKDIN), Bekerja, Wirausaha, dan Penyaluran Kerja.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleDownloadTracerCsv}
+                variant="secondary"
+                className="font-bold border-brand/40 text-brand hover:bg-brand/10 text-xs"
+              >
+                <Download size={14} />
+                <span>Unduh Laporan Tracer (CSV)</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Metric Bento Grid */}
+          {(() => {
+            const total = tracerRecords.length || 1;
+            const kuliah = tracerRecords.filter((r) => r.realizationStatus === "Kuliah").length;
+            const sekdin = tracerRecords.filter((r) => r.realizationStatus === "Kedinasan").length;
+            const kerja = tracerRecords.filter((r) => r.realizationStatus === "Bekerja").length;
+            const usaha = tracerRecords.filter((r) => r.realizationStatus === "Wirausaha").length;
+            const mencari = tracerRecords.filter((r) => r.realizationStatus === "Mencari Kerja").length;
+
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="p-4 rounded-2xl bg-surface border border-border space-y-1">
+                  <div className="text-[11px] font-bold text-muted uppercase">Total Terdata</div>
+                  <div className="text-2xl font-black text-text font-serif">{tracerRecords.length}</div>
+                  <div className="text-[10px] text-muted">Alumni &amp; Siswa Akhir</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-1">
+                  <div className="text-[11px] font-bold text-blue-400 uppercase flex items-center gap-1">
+                    <span>🎓 Kuliah</span>
+                  </div>
+                  <div className="text-2xl font-black text-blue-300 font-serif">{kuliah}</div>
+                  <div className="text-[10px] text-blue-400/80 font-semibold">{Math.round((kuliah / total) * 100)}% dari total</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 space-y-1">
+                  <div className="text-[11px] font-bold text-purple-400 uppercase flex items-center gap-1">
+                    <span>🏛️ Kedinasan</span>
+                  </div>
+                  <div className="text-2xl font-black text-purple-300 font-serif">{sekdin}</div>
+                  <div className="text-[10px] text-purple-400/80 font-semibold">{Math.round((sekdin / total) * 100)}% dari total</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+                  <div className="text-[11px] font-bold text-emerald-400 uppercase flex items-center gap-1">
+                    <span>💼 Bekerja</span>
+                  </div>
+                  <div className="text-2xl font-black text-emerald-300 font-serif">{kerja}</div>
+                  <div className="text-[10px] text-emerald-400/80 font-semibold">{Math.round((kerja / total) * 100)}% dari total</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+                  <div className="text-[11px] font-bold text-amber-400 uppercase flex items-center gap-1">
+                    <span>🚀 Wirausaha</span>
+                  </div>
+                  <div className="text-2xl font-black text-amber-300 font-serif">{usaha}</div>
+                  <div className="text-[10px] text-amber-400/80 font-semibold">{Math.round((usaha / total) * 100)}% dari total</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 space-y-1">
+                  <div className="text-[11px] font-bold text-red-400 uppercase flex items-center gap-1">
+                    <span>⏳ Belum Bekerja</span>
+                  </div>
+                  <div className="text-2xl font-black text-red-300 font-serif">{mencari}</div>
+                  <div className="text-[10px] text-red-400/80 font-semibold">{Math.round((mencari / total) * 100)}% dari total</div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Filter & Search Bar */}
+          <Card className="p-5 space-y-4 border-border bg-surface">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              {/* Category Filter Pills */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                {[
+                  { id: "all", label: "Semua Status" },
+                  { id: "Kuliah", label: "🎓 Diterima Kuliah" },
+                  { id: "Kedinasan", label: "🏛️ Diterima Kedinasan" },
+                  { id: "Bekerja", label: "💼 Sudah Bekerja" },
+                  { id: "Wirausaha", label: "🚀 Wirausaha" },
+                  { id: "Mencari Kerja", label: "⏳ Belum Bekerja / Mencari" },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setTracerFilterStatus(f.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                      tracerFilterStatus === f.id
+                        ? "bg-brand text-bg shadow font-bold"
+                        : "bg-surface2 text-muted hover:text-text border border-border"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                <input
+                  type="text"
+                  placeholder="Cari siswa / kampus / instansi / PT..."
+                  value={tracerSearch}
+                  onChange={(e) => setTracerSearch(e.target.value)}
+                  className="pl-8 pr-3 py-1.5 rounded-xl border border-border bg-surface2 text-xs outline-none focus:border-brand w-64 text-text"
+                />
+              </div>
+            </div>
+
+            {/* Tracer Records Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-border text-muted uppercase tracking-wider font-semibold">
+                    <th className="pb-3 px-3">Nama Siswa &amp; NISN</th>
+                    <th className="pb-3 px-3">Kelas Asal</th>
+                    <th className="pb-3 px-3">Rencana Sebelum Lulus</th>
+                    <th className="pb-3 px-3">Realisasi Terkini</th>
+                    <th className="pb-3 px-3">Detail Instansi / Perusahaan</th>
+                    <th className="pb-3 px-3 text-center">Verifikasi</th>
+                    <th className="pb-3 px-3 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {filteredTracerRecords.map((r) => (
+                    <tr key={r.id} className="hover:bg-surface2/50 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="font-bold text-text text-sm">{r.studentName}</div>
+                        <div className="text-[11px] text-muted font-mono">{r.email} • {r.nisn}</div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <Badge variant="neutral" className="text-[10px]">{r.classOrigin}</Badge>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-text">{r.plannedPathway}</div>
+                        <div className="text-[11px] text-muted truncate max-w-[180px]">{r.plannedTarget}</div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                            r.realizationStatus === "Kuliah"
+                              ? "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                              : r.realizationStatus === "Kedinasan"
+                              ? "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                              : r.realizationStatus === "Bekerja"
+                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                              : r.realizationStatus === "Wirausaha"
+                              ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                              : "bg-red-500/15 text-red-400 border border-red-500/30"
+                          }`}
+                        >
+                          {r.realizationStatus === "Kuliah" && "🎓 Diterima Kuliah"}
+                          {r.realizationStatus === "Kedinasan" && "🏛️ Diterima Kedinasan"}
+                          {r.realizationStatus === "Bekerja" && "💼 Sudah Bekerja"}
+                          {r.realizationStatus === "Wirausaha" && "🚀 Wirausaha"}
+                          {r.realizationStatus === "Mencari Kerja" && "⏳ Belum Bekerja"}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-medium text-text">{r.realizationDetail || "-"}</div>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                          <CheckCircle2 size={12} />
+                          <span>Terverifikasi</span>
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => setEditingTracerRecord(r)}
+                          className="text-xs px-2.5 py-1 rounded-lg"
+                        >
+                          <span>Perbarui Status</span>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredTracerRecords.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-muted italic">
+                        Tidak ada data tracer study yang sesuai dengan filter atau kata kunci.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal Edit Status Tracer oleh Admin */}
+      {editingTracerRecord && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <Card className="w-full max-w-lg p-6 sm:p-8 space-y-5 border-border shadow-2xl bg-surface max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <Target className="text-brand w-5 h-5" />
+                <h3 className="text-base font-bold font-serif text-text">
+                  Perbarui Status Tracer: {editingTracerRecord.studentName}
+                </h3>
+              </div>
+              <button
+                onClick={() => setEditingTracerRecord(null)}
+                className="text-muted hover:text-text p-1"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAdminUpdateTracer} className="space-y-4">
+              <div className="p-3 rounded-xl bg-surface2 border border-border text-xs space-y-1">
+                <div className="text-muted">Email: <span className="font-mono text-brand">{editingTracerRecord.email}</span></div>
+                <div className="text-muted">Kelas Asal: <span className="font-bold text-text">{editingTracerRecord.classOrigin}</span></div>
+                <div className="text-muted">Rencana Awal Siswa: <span className="font-bold text-brand">{editingTracerRecord.plannedPathway} - {editingTracerRecord.plannedTarget}</span></div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase mb-1.5">
+                  Status Realisasi Pasca-Kelulusan *
+                </label>
+                <select
+                  value={editingTracerRecord.realizationStatus}
+                  onChange={(e) =>
+                    setEditingTracerRecord({
+                      ...editingTracerRecord,
+                      realizationStatus: e.target.value as any,
+                    })
+                  }
+                  className="w-full p-2.5 rounded-xl border border-border bg-surface2 text-xs font-medium text-text outline-none focus:border-brand"
+                >
+                  <option value="Kuliah">🎓 Diterima Kuliah (PTN / PTS)</option>
+                  <option value="Kedinasan">🏛️ Diterima Sekolah Kedinasan (SEKDIN)</option>
+                  <option value="Bekerja">💼 Sudah Bekerja</option>
+                  <option value="Wirausaha">🚀 Wirausaha</option>
+                  <option value="Mencari Kerja">⏳ Belum Bekerja / Masih Mencari</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase mb-1.5">
+                  Keterangan / Nama Kampus / Sekolah Kedinasan / Perusahaan *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingTracerRecord.realizationDetail}
+                  onChange={(e) =>
+                    setEditingTracerRecord({
+                      ...editingTracerRecord,
+                      realizationDetail: e.target.value,
+                    })
+                  }
+                  placeholder="Contoh: Diterima di PKN STAN / PT Telkom"
+                  className="w-full p-2.5 rounded-xl border border-border bg-surface2 text-xs text-text outline-none focus:border-brand"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-muted uppercase mb-1.5">
+                  Status Verifikasi Bukti
+                </label>
+                <select
+                  value={editingTracerRecord.verificationStatus}
+                  onChange={(e) =>
+                    setEditingTracerRecord({
+                      ...editingTracerRecord,
+                      verificationStatus: e.target.value as any,
+                    })
+                  }
+                  className="w-full p-2.5 rounded-xl border border-border bg-surface2 text-xs font-medium text-text outline-none focus:border-brand"
+                >
+                  <option value="verified">✅ Terverifikasi (Telah Dicek Bukti Pengumuman/Surat)</option>
+                  <option value="pending">⏳ Menunggu Verifikasi Bukti</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-border">
+                <Button variant="secondary" onClick={() => setEditingTracerRecord(null)}>
+                  Batal
+                </Button>
+                <Button variant="primary" type="submit" loading={isUpdatingTracer}>
+                  <span>Simpan Perubahan</span>
+                  <Check size={16} />
+                </Button>
+              </div>
+            </form>
           </Card>
         </div>
       )}

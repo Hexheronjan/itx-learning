@@ -45,6 +45,8 @@ interface SubjectOption {
   icon: string;
   description: string;
   conceptCount: number;
+  teacherName?: string;
+  teacherRole?: string;
 }
 
 interface GradeProgram {
@@ -70,6 +72,8 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📖",
         description: "Teks Laporan Hasil Observasi (LHO), Anekdot, & Kalimat Definisi",
         conceptCount: 8,
+        teacherName: "Brio Pratama, S.Pd",
+        teacherRole: "Guru Mapel Bahasa Indonesia",
       },
       {
         id: "mat-10",
@@ -77,6 +81,8 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📐",
         description: "Eksponen, Logaritma, Persamaan & Pertidaksamaan Kuadrat",
         conceptCount: 12,
+        teacherName: "Dra. Sri Wahyuni",
+        teacherRole: "Guru Mapel Matematika (Kelas X, XI, XII)",
       },
       {
         id: "ipa-10",
@@ -84,6 +90,8 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🔬",
         description: "Pengukuran, Vektor, Struktur Atom, & Ikatan Kimia",
         conceptCount: 10,
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel IPA & Fisika",
       },
       {
         id: "ips-10",
@@ -91,6 +99,8 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🌍",
         description: "Interaksi Sosial, Kelangkaan Sumber Daya & Pasar",
         conceptCount: 8,
+        teacherName: "Siti Rahayu, S.E, M.Ak",
+        teacherRole: "Guru Mapel IPS & Ekonomi",
       },
     ],
   },
@@ -107,6 +117,8 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📖",
         description: "Teks Eksplanasi, Konjungsi Kausalitas, Proposal & Karya Ilmiah",
         conceptCount: 10,
+        teacherName: "Brio Pratama, S.Pd",
+        teacherRole: "Wali Kelas XI-A & Guru Bahasa Indonesia",
       },
       {
         id: "mat-11",
@@ -114,6 +126,8 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📐",
         description: "Trigonometri, Polinomial, Lingkaran & Matriks",
         conceptCount: 14,
+        teacherName: "Dra. Sri Wahyuni",
+        teacherRole: "Guru Mapel Matematika (Kelas X, XI, XII)",
       },
       {
         id: "kimia-11",
@@ -121,6 +135,8 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🧪",
         description: "Termokimia, Laju Reaksi, Sel & Sistem Organ",
         conceptCount: 12,
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel Kimia & Biologi",
       },
       {
         id: "ekonomi-11",
@@ -128,6 +144,35 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📊",
         description: "Pendapatan Nasional, APBN, & Siklus Akuntansi Jasa",
         conceptCount: 9,
+        teacherName: "Siti Rahayu, S.E, M.Ak",
+        teacherRole: "Guru Mapel Ekonomi & Akuntansi",
+      },
+    ],
+  },
+  {
+    id: "sma-12",
+    title: "SMA Kelas 12 (Fase F Lanjutan)",
+    badge: "Kelas 12",
+    icon: "🎓",
+    description: "Pemantapan Ujian Sekolah & Kesiapan Kelulusan",
+    subjects: [
+      {
+        id: "mat-12",
+        name: "Matematika Lanjutan",
+        icon: "📐",
+        description: "Kalkulus (Turunan & Integral), Dimensi Tiga, Peluang & Statistika",
+        conceptCount: 16,
+        teacherName: "Dra. Sri Wahyuni",
+        teacherRole: "Guru Mapel Matematika (Kelas X, XI, XII)",
+      },
+      {
+        id: "sekdin-12",
+        name: "Persiapan Sekolah Kedinasan & UTBK",
+        icon: "🎯",
+        description: "Tes Intelegensi Umum (TIU), Skolastik & Penalaran Matematika",
+        conceptCount: 12,
+        teacherName: "Bambang Sudarmono, M.Si",
+        teacherRole: "Guru Spesialis Kedinasan & UTBK",
       },
     ],
   },
@@ -519,10 +564,61 @@ function StudentPortalContent() {
   const searchParams = useSearchParams();
   const studentEmail = searchParams.get("user") || "andi@sekolah.sch.id";
 
-  // Navigation / Selection State
-  const [selectedGrade, setSelectedGrade] = useState<GradeProgram | null>(CURRICULUM_PROGRAMS[0]);
-  const [selectedSubject, setSelectedSubject] = useState<SubjectOption | null>(CURRICULUM_PROGRAMS[0].subjects[0]);
-  const [activeStep, setActiveStep] = useState<"choose_grade" | "choose_subject" | "confirm_start" | "quiz" | "completed">("choose_grade");
+  // Navigation / Selection State (Auto-selects Kelas 11 Fase F for instant access)
+  const defaultProgram = CURRICULUM_PROGRAMS.find((p) => p.id === "sma-11") || CURRICULUM_PROGRAMS[1] || CURRICULUM_PROGRAMS[0];
+  const [selectedGrade, setSelectedGrade] = useState<GradeProgram | null>(defaultProgram);
+  const [selectedSubject, setSelectedSubject] = useState<SubjectOption | null>(defaultProgram?.subjects[0] || null);
+  // Default step is immediately choose_subject so student doesn't need to pick grade manually
+  const [activeStep, setActiveStep] = useState<"choose_grade" | "choose_subject" | "confirm_start" | "quiz" | "completed">("choose_subject");
+
+  // Student Profile State (Automated from Auth session metadata)
+  const [studentName, setStudentName] = useState<string>("Andi Pratama");
+  const [studentClass, setStudentClass] = useState<string>("Kelas XI-A");
+  const [studentGrade, setStudentGrade] = useState<string>("SMA Kelas 11 (Fase F)");
+  const [isGraduated, setIsGraduated] = useState<boolean>(false);
+
+  // Read metadata from Supabase session & local storage
+  React.useEffect(() => {
+    const fetchSessionProfile = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data?.user) {
+          const meta = data.user.user_metadata || {};
+          if (meta.full_name) setStudentName(meta.full_name);
+          if (meta.class_name) setStudentClass(meta.class_name);
+          if (meta.grade_level) setStudentGrade(meta.grade_level);
+          if (meta.academic_status === "graduated") {
+            setIsGraduated(true);
+          }
+        }
+      } catch {
+        // Fallback default values remain active
+      }
+
+      // Check local storage graduated list
+      try {
+        const rawGrad = localStorage.getItem("nalara_graduated_students");
+        if (rawGrad) {
+          const parsed = JSON.parse(rawGrad);
+          if (Array.isArray(parsed) && parsed.includes(studentEmail.trim().toLowerCase())) {
+            setIsGraduated(true);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchSessionProfile();
+  }, [studentEmail]);
+
+  // Hanya siswa Kelas 12 (Tingkat Akhir / Mau Lulus) atau yang telah Lulus (Alumni) yang relevan mengakses menu Beasiswa & Loker
+  const isFinalYearOrGraduated =
+    studentGrade.toLowerCase().includes("12") ||
+    studentGrade.toLowerCase().includes("xii") ||
+    studentGrade.toLowerCase().includes("kelas 3") ||
+    studentClass.toLowerCase().includes("xii") ||
+    studentClass.toLowerCase().includes("3-") ||
+    isGraduated;
 
   // Confirmation Modal State
   const [pendingSubject, setPendingSubject] = useState<SubjectOption | null>(null);
@@ -704,6 +800,11 @@ function StudentPortalContent() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    if (typeof document !== "undefined") {
+      document.cookie = "sb-auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "sb-user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "sb-user-email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
     window.location.href = "/login";
   };
 
@@ -933,6 +1034,85 @@ function StudentPortalContent() {
   const wrongAttempts = sessionAttempts.filter((a) => !a.isCorrect);
   const accuracyPercentage = totalSessionQuestions > 0 ? Math.round((correctCount / totalSessionQuestions) * 100) : 100;
 
+  // Blocking screen if student is Graduated / Alumni
+  if (isGraduated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-bg">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-xl w-full p-8 rounded-3xl border border-emerald-500/40 bg-surface shadow-2xl text-center space-y-6"
+        >
+          <div className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center text-4xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-lg">
+            🎓
+          </div>
+
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              Status Resmi: Alumni / Telah Lulus
+            </span>
+            <h1 className="text-3xl font-extrabold font-serif text-text">
+              Selamat Atas Kelulusan Anda!
+            </h1>
+            <p className="text-xs sm:text-sm text-muted leading-relaxed">
+              Akun Anda telah berstatus <strong>Alumni (Graduated)</strong>. Anda telah menyelesaikan seluruh rangkaian kegiatan belajar mengajar aktif di {studentClass}.
+            </p>
+          </div>
+
+          {/* Alumni Profile Summary */}
+          <div className="p-4 rounded-2xl bg-surface2 border border-border text-left space-y-2 text-xs">
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <span className="text-muted">Nama Lengkap Siswa:</span>
+              <strong className="text-text">{studentName}</strong>
+            </div>
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <span className="text-muted">Email Akun:</span>
+              <span className="font-mono text-brand">{studentEmail}</span>
+            </div>
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <span className="text-muted">Kelas Terakhir:</span>
+              <span className="text-text">{studentClass}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Status Portal Pembelajaran:</span>
+              <span className="text-amber-400 font-semibold">🔒 Akses Kuis Dinonaktifkan (Arsip Alumni)</span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs text-left leading-relaxed">
+            ℹ️ Sebagai alumni, Anda tidak lagi ditugaskan untuk mengerjakan kuis dan evaluasi harian kelas. Jika terdapat ketidaksesuaian status kelulusan, silakan hubungi <strong>Wali Kelas</strong> atau <strong>Admin Sekolah</strong>.
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+            <Button
+              variant="primary"
+              onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=tracer`)}
+              className="w-full sm:w-1/2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg"
+            >
+              📋 Isi Tracer Study Kelulusan
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=scholarships`)}
+              className="w-full sm:w-1/4 text-xs border-emerald-500/40 text-emerald-300 font-bold"
+            >
+              🎓 Beasiswa &amp; Loker
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleLogout}
+              className="w-full sm:w-1/4 text-xs font-bold text-red-400 border-red-500/30 hover:bg-red-500/10"
+            >
+              <LogOut size={14} />
+              <span>Sign Out</span>
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-8">
       {/* 1. Header Bar with Student Profile & Logout */}
@@ -947,12 +1127,15 @@ function StudentPortalContent() {
             <Sparkles className="w-5 h-5 text-bg" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold font-serif text-text">Portal Belajar Siswa</h1>
-              <Badge variant="brand" className="text-[10px]">NALARA Adaptive</Badge>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl font-bold font-serif text-text">{studentName}</h1>
+              <Badge variant="brand" className="text-[11px] font-bold">{studentClass}</Badge>
+              <Badge variant="accent" className="text-[11px] font-bold">{studentGrade}</Badge>
             </div>
-            <p className="text-xs text-muted flex items-center gap-1">
-              Akun: <strong className="text-text">{studentEmail}</strong>
+            <p className="text-xs text-muted flex items-center gap-1.5 mt-0.5">
+              <span>Portal Belajar Siswa</span>
+              <span>•</span>
+              <span className="font-mono text-muted">{studentEmail}</span>
             </p>
           </div>
         </div>
@@ -963,25 +1146,30 @@ function StudentPortalContent() {
             <span>Mastery Score: <strong className="text-brand">{masteryScore}%</strong></span>
           </div>
 
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=scholarships`)}
-            className="text-xs border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold hover:bg-emerald-500/20 shadow-sm"
-          >
-            <GraduationCap size={15} />
-            <span>🎓 Cari Beasiswa Kuliah</span>
-          </Button>
+          {/* Menu Beasiswa & Loker hanya tampil jika siswa berada di Kelas 12 (Tingkat Akhir) atau telah Lulus */}
+          {isFinalYearOrGraduated && (
+            <>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=scholarships`)}
+                className="text-xs border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold hover:bg-emerald-500/20 shadow-sm"
+              >
+                <GraduationCap size={15} />
+                <span>🎓 Cari Beasiswa Kuliah</span>
+              </Button>
 
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=jobs`)}
-            className="text-xs border-brand/40 bg-brand/10 text-brand font-bold hover:bg-brand/20 shadow-sm"
-          >
-            <Sparkles size={14} />
-            <span>💼 Cari Loker &amp; Minat</span>
-          </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => (window.location.href = `/future-path?user=${encodeURIComponent(studentEmail)}&tab=jobs`)}
+                className="text-xs border-brand/40 bg-brand/10 text-brand font-bold hover:bg-brand/20 shadow-sm"
+              >
+                <Sparkles size={14} />
+                <span>💼 Cari Loker &amp; Minat</span>
+              </Button>
+            </>
+          )}
 
           <Button
             size="sm"
@@ -1212,6 +1400,21 @@ function StudentPortalContent() {
                 <p className="text-xs text-muted leading-relaxed pt-1">
                   {subj.description}
                 </p>
+
+                {/* Teacher In-Charge Indicator */}
+                {subj.teacherName && (
+                  <div className="pt-1">
+                    <span className="text-[11px] text-muted inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface2 border border-border">
+                      <span>👨‍🏫</span>
+                      <span>Guru Pengampu: <strong className="text-text">{subj.teacherName}</strong></span>
+                      {subj.teacherRole?.includes("Wali") && (
+                        <span className="ml-1 px-1.5 py-0.2 rounded text-[10px] bg-brand/20 text-brand font-bold border border-brand/30">
+                          Wali Kelas XI-A
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                )}
 
                 <div className="pt-2 flex items-center justify-between text-xs font-semibold text-brand border-t border-border/50">
                   <span>Mulai Latihan Soal</span>
