@@ -122,7 +122,7 @@ export interface HomeroomStudentSummary {
   riskDescription: string;
 }
 
-export const HOMEROOM_STUDENTS_DATA: HomeroomStudentSummary[] = [
+const HOMEROOM_STUDENTS_DATA: HomeroomStudentSummary[] = [
   {
     id: "hr-1",
     name: "Andi Pratama",
