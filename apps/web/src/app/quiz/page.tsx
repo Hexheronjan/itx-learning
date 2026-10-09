@@ -31,6 +31,8 @@ import {
   ShieldCheck,
   Loader2,
   XCircle,
+  Search,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, GlowCard } from "@/components/ui/Card";
@@ -45,6 +47,7 @@ interface SubjectOption {
   icon: string;
   description: string;
   conceptCount: number;
+  category?: "umum" | "mipa" | "ips" | "eksternal";
   teacherName?: string;
   teacherRole?: string;
 }
@@ -72,35 +75,119 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📖",
         description: "Teks Laporan Hasil Observasi (LHO), Anekdot, & Kalimat Definisi",
         conceptCount: 8,
+        category: "umum",
         teacherName: "Brio Pratama, S.Pd",
         teacherRole: "Guru Mapel Bahasa Indonesia",
+      },
+      {
+        id: "inggris-10",
+        name: "Bahasa Inggris",
+        icon: "🌐",
+        description: "Descriptive & Narrative Text, Grammar Dasar & Pronunciation",
+        conceptCount: 8,
+        category: "umum",
+        teacherName: "Sarah Annisa, M.Pd",
+        teacherRole: "Guru Mapel Bahasa Inggris",
       },
       {
         id: "mat-10",
         name: "Matematika",
         icon: "📐",
-        description: "Eksponen, Logaritma, Persamaan & Pertidaksamaan Kuadrat",
+        description: "Eksponen, Logaritma, Barisan Deret, Persamaan & Pertidaksamaan",
         conceptCount: 12,
+        category: "umum",
         teacherName: "Dra. Sri Wahyuni",
-        teacherRole: "Guru Mapel Matematika (Kelas X, XI, XII)",
+        teacherRole: "Guru Mapel Matematika",
       },
       {
-        id: "ipa-10",
-        name: "IPA Terpadu (Fisika / Kimia)",
-        icon: "🔬",
-        description: "Pengukuran, Vektor, Struktur Atom, & Ikatan Kimia",
+        id: "ppkn-10",
+        name: "Pendidikan Pancasila",
+        icon: "🇮🇩",
+        description: "Nilai Pancasila, Norma Sosial, & Hak Kewajiban Warga Negara",
+        conceptCount: 7,
+        category: "umum",
+        teacherName: "Drs. M. Subhan",
+        teacherRole: "Guru Mapel PPKn",
+      },
+      {
+        id: "sejarah-10",
+        name: "Sejarah Indonesia",
+        icon: "🏛️",
+        description: "Pengantar Ilmu Sejarah, Manusia, Ruang, Waktu & Historiografi",
+        conceptCount: 7,
+        category: "umum",
+        teacherName: "Dra. Nurhayati",
+        teacherRole: "Guru Mapel Sejarah",
+      },
+      {
+        id: "ipa-fisika-10",
+        name: "Fisika Dasar",
+        icon: "⚡",
+        description: "Hakikat Fisika, Besaran, Satuan, Pengukuran & Energi Terbarukan",
         conceptCount: 10,
+        category: "mipa",
         teacherName: "Dr. Hendra Wijaya, M.Si",
         teacherRole: "Guru Mapel IPA & Fisika",
       },
       {
-        id: "ips-10",
-        name: "IPS Terpadu (Sosiologi / Ekonomi)",
-        icon: "🌍",
-        description: "Interaksi Sosial, Kelangkaan Sumber Daya & Pasar",
+        id: "ipa-kimia-10",
+        name: "Kimia Dasar",
+        icon: "🧪",
+        description: "Struktur Atom, Sistem Periodik Unsur, & Ikatan Kimia",
+        conceptCount: 9,
+        category: "mipa",
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel IPA & Kimia",
+      },
+      {
+        id: "ipa-bio-10",
+        name: "Biologi Dasar",
+        icon: "🧬",
+        description: "Keanekaragaman Hayati, Virus, Bakteri & Ekosistem Lingkungan",
+        conceptCount: 9,
+        category: "mipa",
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel IPA & Biologi",
+      },
+      {
+        id: "infor-10",
+        name: "Informatika",
+        icon: "💻",
+        description: "Berpikir Komputasional, Literasi Digital, Jaringan Komputer",
         conceptCount: 8,
+        category: "mipa",
+        teacherName: "Rian Hidayat, S.Kom, M.T",
+        teacherRole: "Guru Mapel Informatika",
+      },
+      {
+        id: "ips-eko-10",
+        name: "Ekonomi Dasar",
+        icon: "📈",
+        description: "Kelangkaan Sumber Daya, Skala Prioritas, & Mekanisme Pasar",
+        conceptCount: 8,
+        category: "ips",
         teacherName: "Siti Rahayu, S.E, M.Ak",
         teacherRole: "Guru Mapel IPS & Ekonomi",
+      },
+      {
+        id: "ips-sos-10",
+        name: "Sosiologi Dasar",
+        icon: "👥",
+        description: "Fungsi Sosiologi, Identitas Diri, Tindakan & Interaksi Sosial",
+        conceptCount: 8,
+        category: "ips",
+        teacherName: "Ahmad Fauzi, S.Sos, M.Pd",
+        teacherRole: "Guru Mapel IPS & Sosiologi",
+      },
+      {
+        id: "ips-geo-10",
+        name: "Geografi Dasar",
+        icon: "🌍",
+        description: "Konsep Esensial Geografi, Peta, Penginderaan Jauh & SIG",
+        conceptCount: 8,
+        category: "ips",
+        teacherName: "Ahmad Fauzi, S.Sos, M.Pd",
+        teacherRole: "Guru Mapel IPS & Geografi",
       },
     ],
   },
@@ -117,35 +204,129 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📖",
         description: "Teks Eksplanasi, Konjungsi Kausalitas, Proposal & Karya Ilmiah",
         conceptCount: 10,
+        category: "umum",
         teacherName: "Brio Pratama, S.Pd",
         teacherRole: "Wali Kelas XI-A & Guru Bahasa Indonesia",
       },
       {
+        id: "inggris-11",
+        name: "Bahasa Inggris",
+        icon: "🌐",
+        description: "Analytical Exposition, Hortatory, & Contextual English Grammar",
+        conceptCount: 9,
+        category: "umum",
+        teacherName: "Sarah Annisa, M.Pd",
+        teacherRole: "Guru Mapel Bahasa Inggris",
+      },
+      {
         id: "mat-11",
-        name: "Matematika Peminatan & Wajib",
+        name: "Matematika Umum (Wajib)",
         icon: "📐",
-        description: "Trigonometri, Polinomial, Lingkaran & Matriks",
-        conceptCount: 14,
+        description: "Fungsi Komposisi, Matriks, Barisan Deret, & Transformasi Geometri",
+        conceptCount: 12,
+        category: "umum",
         teacherName: "Dra. Sri Wahyuni",
-        teacherRole: "Guru Mapel Matematika (Kelas X, XI, XII)",
+        teacherRole: "Guru Mapel Matematika",
+      },
+      {
+        id: "ppkn-11",
+        name: "Pendidikan Pancasila (PPKn)",
+        icon: "🇮🇩",
+        description: "Hierarki Peraturan Perundang-undangan, Harmoni & HAM",
+        conceptCount: 8,
+        category: "umum",
+        teacherName: "Drs. M. Subhan",
+        teacherRole: "Guru Mapel PPKn",
+      },
+      {
+        id: "sejarah-11",
+        name: "Sejarah Indonesia",
+        icon: "🏛️",
+        description: "Kolonialisme, Pergerakan Nasional, & Kebangkitan Bangsa",
+        conceptCount: 8,
+        category: "umum",
+        teacherName: "Dra. Nurhayati",
+        teacherRole: "Guru Mapel Sejarah",
+      },
+      {
+        id: "mat-lanjut-11",
+        name: "Matematika Tingkat Lanjut",
+        icon: "📊",
+        description: "Polinomial, Teorema Sisa, Trigonometri Analitik & Vektor",
+        conceptCount: 14,
+        category: "mipa",
+        teacherName: "Dra. Sri Wahyuni",
+        teacherRole: "Guru Mapel Matematika Peminatan",
+      },
+      {
+        id: "fisika-11",
+        name: "Fisika",
+        icon: "⚡",
+        description: "Kinematika Vektor, Fluida Statis/Dinamis, Kalor & Termodinamika",
+        conceptCount: 12,
+        category: "mipa",
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel Fisika",
       },
       {
         id: "kimia-11",
-        name: "Kimia & Biologi",
+        name: "Kimia",
         icon: "🧪",
-        description: "Termokimia, Laju Reaksi, Sel & Sistem Organ",
-        conceptCount: 12,
+        description: "Termokimia, Laju Reaksi, Kesetimbangan, Asam Basa & Stoikiometri",
+        conceptCount: 11,
+        category: "mipa",
         teacherName: "Dr. Hendra Wijaya, M.Si",
-        teacherRole: "Guru Mapel Kimia & Biologi",
+        teacherRole: "Guru Mapel Kimia",
+      },
+      {
+        id: "biologi-11",
+        name: "Biologi",
+        icon: "🧬",
+        description: "Struktur & Fungsi Sel, Jaringan Tumbuhan/Hewan, Sistem Sirkulasi",
+        conceptCount: 11,
+        category: "mipa",
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel Biologi",
+      },
+      {
+        id: "informatika-11",
+        name: "Informatika & Komputasi",
+        icon: "💻",
+        description: "Algoritma Pemrograman, Logika Array, & Analisis Data",
+        conceptCount: 10,
+        category: "mipa",
+        teacherName: "Rian Hidayat, S.Kom, M.T",
+        teacherRole: "Guru Mapel Informatika",
       },
       {
         id: "ekonomi-11",
-        name: "Ekonomi & Akuntansi",
-        icon: "📊",
-        description: "Pendapatan Nasional, APBN, & Siklus Akuntansi Jasa",
-        conceptCount: 9,
+        name: "Ekonomi",
+        icon: "📈",
+        description: "Pendapatan Nasional (PDB/PNB), APBN/APBD, Moneter & Fiskal",
+        conceptCount: 10,
+        category: "ips",
         teacherName: "Siti Rahayu, S.E, M.Ak",
-        teacherRole: "Guru Mapel Ekonomi & Akuntansi",
+        teacherRole: "Guru Mapel Ekonomi",
+      },
+      {
+        id: "sosiologi-11",
+        name: "Sosiologi",
+        icon: "👥",
+        description: "Kelompok Sosial, Permasalahan Sosial, Diferensiasi & Konflik",
+        conceptCount: 9,
+        category: "ips",
+        teacherName: "Ahmad Fauzi, S.Sos, M.Pd",
+        teacherRole: "Guru Mapel Sosiologi",
+      },
+      {
+        id: "geografi-11",
+        name: "Geografi",
+        icon: "🌍",
+        description: "Posisi Strategis Poros Maritim, Flora Fauna, & Dinamika Penduduk",
+        conceptCount: 9,
+        category: "ips",
+        teacherName: "Ahmad Fauzi, S.Sos, M.Pd",
+        teacherRole: "Guru Mapel Geografi",
       },
     ],
   },
@@ -162,47 +343,79 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📐",
         description: "Kalkulus (Turunan & Integral), Dimensi Tiga, Peluang & Statistika",
         conceptCount: 16,
+        category: "mipa",
         teacherName: "Dra. Sri Wahyuni",
-        teacherRole: "Guru Mapel Matematika (Kelas X, XI, XII)",
-      },
-      {
-        id: "sekdin-12",
-        name: "Persiapan Sekolah Kedinasan & UTBK",
-        icon: "🎯",
-        description: "Tes Intelegensi Umum (TIU), Skolastik & Penalaran Matematika",
-        conceptCount: 12,
-        teacherName: "Bambang Sudarmono, M.Si",
-        teacherRole: "Guru Spesialis Kedinasan & UTBK",
-      },
-    ],
-  },
-  {
-    id: "sma-12",
-    title: "SMA Kelas 12 (Fase F Lanjutan)",
-    badge: "Kelas 12",
-    icon: "🎓",
-    description: "Pemantapan Ujian Sekolah & Kesiapan Kelulusan",
-    subjects: [
-      {
-        id: "mat-12",
-        name: "Matematika",
-        icon: "📐",
-        description: "Kalkulus (Turunan & Integral), Dimensi Tiga, Peluang & Statistika",
-        conceptCount: 15,
-      },
-      {
-        id: "indo-12",
-        name: "Bahasa Indonesia",
-        icon: "📖",
-        description: "Surat Lamaran Pekerjaan, Artikel Ilmiah, & Kritik Sastra",
-        conceptCount: 8,
+        teacherRole: "Guru Mapel Matematika",
       },
       {
         id: "fisika-12",
         name: "Fisika Lanjutan",
         icon: "⚡",
-        description: "Listrik Dinamis, Medan Magnet, Gelombang Elektromagnetik",
+        description: "Listrik Dinamis, Medan Magnet, Gelombang Elektromagnetik & Relativitas",
+        conceptCount: 12,
+        category: "mipa",
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel Fisika",
+      },
+      {
+        id: "kimia-12",
+        name: "Kimia Lanjutan",
+        icon: "🧪",
+        description: "Sifat Koligatif Larutan, Redoks & Elektrokimia, Kimia Unsur",
         conceptCount: 11,
+        category: "mipa",
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel Kimia",
+      },
+      {
+        id: "biologi-12",
+        name: "Biologi Lanjutan",
+        icon: "🧬",
+        description: "Pertumbuhan & Perkembangan, Metabolisme, Genetika & Bioteknologi",
+        conceptCount: 12,
+        category: "mipa",
+        teacherName: "Dr. Hendra Wijaya, M.Si",
+        teacherRole: "Guru Mapel Biologi",
+      },
+      {
+        id: "indo-12",
+        name: "Bahasa Indonesia",
+        icon: "📖",
+        description: "Surat Lamaran Pekerjaan, Artikel Ilmiah, Kritik Sastra & Esai",
+        conceptCount: 8,
+        category: "umum",
+        teacherName: "Brio Pratama, S.Pd",
+        teacherRole: "Guru Mapel Bahasa Indonesia",
+      },
+      {
+        id: "inggris-12",
+        name: "Bahasa Inggris Lanjutan",
+        icon: "🌐",
+        description: "Job Application, Review Text, Discussion Text & Presentation",
+        conceptCount: 8,
+        category: "umum",
+        teacherName: "Sarah Annisa, M.Pd",
+        teacherRole: "Guru Mapel Bahasa Inggris",
+      },
+      {
+        id: "ekonomi-12",
+        name: "Ekonomi & Akuntansi",
+        icon: "📈",
+        description: "Siklus Akuntansi Perusahaan Jasa & Dagang, Kerjasama Internasional",
+        conceptCount: 10,
+        category: "ips",
+        teacherName: "Siti Rahayu, S.E, M.Ak",
+        teacherRole: "Guru Mapel Ekonomi",
+      },
+      {
+        id: "sosiologi-12",
+        name: "Sosiologi Modern",
+        icon: "👥",
+        description: "Perubahan Sosial, Modernisasi, Globalisasi, & Kearifan Lokal",
+        conceptCount: 8,
+        category: "ips",
+        teacherName: "Ahmad Fauzi, S.Sos, M.Pd",
+        teacherRole: "Guru Mapel Sosiologi",
       },
     ],
   },
@@ -219,6 +432,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📐",
         description: "Aplikasi matematika dalam pemecahan masalah konteks riil",
         conceptCount: 16,
+        category: "eksternal",
       },
       {
         id: "utbk-pu",
@@ -226,6 +440,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🧠",
         description: "Penalaran Induktif, Deduktif, & Penalaran Kuantitatif",
         conceptCount: 14,
+        category: "eksternal",
       },
       {
         id: "utbk-pbm",
@@ -233,6 +448,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "📝",
         description: "Kelogisan kalimat, kepaduan paragraf, & ejaan baku",
         conceptCount: 12,
+        category: "eksternal",
       },
       {
         id: "utbk-lit",
@@ -240,6 +456,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🌐",
         description: "Analisis teks wacana kritis, inferensi, & kosa kata kontekstual",
         conceptCount: 10,
+        category: "eksternal",
       },
     ],
   },
@@ -256,6 +473,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🔢",
         description: "Deret bertingkat, barisan geometri, & pola kombinasi huruf",
         conceptCount: 14,
+        category: "eksternal",
       },
       {
         id: "sekdin-hitung",
@@ -263,6 +481,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "⚡",
         description: "Operasi pecahan, persentase cepat, aljabar linear & perbandingan",
         conceptCount: 16,
+        category: "eksternal",
       },
       {
         id: "sekdin-silogisme",
@@ -270,6 +489,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "⚖️",
         description: "Penarikan kesimpulan modus ponens/tollens & posisi analitis",
         conceptCount: 12,
+        category: "eksternal",
       },
       {
         id: "sekdin-figural",
@@ -277,6 +497,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🧩",
         description: "Rotasi pola 3D, analogi gambar, & serialitas visual",
         conceptCount: 10,
+        category: "eksternal",
       },
       {
         id: "sekdin-twk",
@@ -284,6 +505,7 @@ const CURRICULUM_PROGRAMS: GradeProgram[] = [
         icon: "🇮🇩",
         description: "Pancasila, UUD 1945, Bhinneka Tunggal Ika, & Bela Negara",
         conceptCount: 15,
+        category: "eksternal",
       },
     ],
   },
@@ -463,6 +685,300 @@ const QUESTION_BANK: Record<string, Question[]> = {
       },
     },
   ],
+  "inggris-11": [
+    {
+      id: "q-ing11-1",
+      conceptName: "Analytical Exposition Structure",
+      topic: "Bahasa Inggris XI - Text Genre",
+      questionText: "Which part of an analytical exposition text introduces the topic and clearly states the writer's thesis or point of view?",
+      type: "mcq",
+      options: [
+        "Thesis",
+        "Arguments",
+        "Reiteration",
+        "Orientation",
+      ],
+      optionDetails: {
+        "Thesis": "✓ BENAR: Thesis memperkenalkan topik utama serta sudut pandang/posisi penulis secara tegas.",
+        "Arguments": "✕ SALAH: Arguments menjabarkan fakta dan argumen pendukung bukti.",
+        "Reiteration": "✕ SALAH: Reiteration merupakan penegasan ulang kesimpulan di akhir teks.",
+        "Orientation": "✕ SALAH: Orientation adalah struktur pembuka teks naratif/cerita, bukan teks analitis.",
+      },
+      correctAnswer: "Thesis",
+      explanationText:
+        "Teks eksposisi analitis memiliki tiga struktur utama: (1) Thesis (pengenalan isu dan opini penulis), (2) Arguments (serangkaian argumen pendukung), dan (3) Reiteration (penegasan kembali tesis).",
+      knownWrongPatterns: {
+        "Orientation": {
+          misconceptionCode: "NARRATIVE_TEXT_CONFUSION",
+          hint: "Orientation digunakan dalam teks naratif (cerita/fiksi). Dalam teks Analytical Exposition, pengenalan topik dan argumen awal disebut Thesis.",
+        },
+      },
+    },
+  ],
+  "ppkn-11": [
+    {
+      id: "q-ppkn11-1",
+      conceptName: "Hierarki Peraturan Perundang-undangan",
+      topic: "Pendidikan Pancasila XI - Konstitusi & Tata Hukum",
+      questionText: "Berdasarkan UU No. 12 Tahun 2011 Pasal 7, tata urutan peraturan perundang-undangan yang berada tepat satu tingkat di bawah UUD NRI 1945 adalah...",
+      type: "mcq",
+      options: [
+        "Ketetapan Majelis Permusyawaratan Rakyat (TAP MPR)",
+        "Undang-Undang / Peraturan Pemerintah Pengganti Undang-Undang (UU/Perppu)",
+        "Peraturan Pemerintah (PP)",
+        "Peraturan Presiden (Perpres)",
+      ],
+      optionDetails: {
+        "Ketetapan Majelis Permusyawaratan Rakyat (TAP MPR)": "✓ BENAR: Sesuai Pasal 7 ayat (1) UU No. 12 Tahun 2011, urutan kedua setelah UUD 1945 adalah Ketetapan MPR.",
+        "Undang-Undang / Peraturan Pemerintah Pengganti Undang-Undang (UU/Perppu)": "✕ SALAH: UU/Perppu berada di urutan ketiga setelah TAP MPR.",
+        "Peraturan Pemerintah (PP)": "✕ SALAH: Peraturan Pemerintah berada di urutan keempat.",
+        "Peraturan Presiden (Perpres)": "✕ SALAH: Peraturan Presiden berada di urutan kelima.",
+      },
+      correctAnswer: "Ketetapan Majelis Permusyawaratan Rakyat (TAP MPR)",
+      explanationText:
+        "Hierarki peraturan perundang-undangan di Indonesia: (1) UUD 1945, (2) Ketetapan MPR, (3) UU/Perppu, (4) PP, (5) Perpres, (6) Perda Provinsi, (7) Perda Kab/Kota.",
+      knownWrongPatterns: {
+        "Undang-Undang / Peraturan Pemerintah Pengganti Undang-Undang (UU/Perppu)": {
+          misconceptionCode: "SKIPPED_TAP_MPR_LEVEL",
+          hint: "Ingat kembali perubahan UU 12/2011: TAP MPR tetap masuk dalam hierarki resmi tepat di bawah UUD 1945 dan di atas UU/Perppu.",
+        },
+      },
+    },
+  ],
+  "sejarah-11": [
+    {
+      id: "q-sej11-1",
+      conceptName: "Akar Kebangkitan Nasional",
+      topic: "Sejarah Indonesia XI - Pergerakan Nasional",
+      questionText: "Organisasi pelopor yang didirikan oleh para mahasiswa STOVIA pada 20 Mei 1908 dan menjadi tonggak Hari Kebangkitan Nasional adalah...",
+      type: "mcq",
+      options: [
+        "Budi Utomo",
+        "Sarekat Dagang Islam",
+        "Indische Partij",
+        "Perhimpunan Indonesia",
+      ],
+      optionDetails: {
+        "Budi Utomo": "✓ BENAR: Didirikan oleh dr. Soetomo dan mahasiswa STOVIA atas gagasan dr. Wahidin Sudirohusodo pada 20 Mei 1908.",
+        "Sarekat Dagang Islam": "✕ SALAH: Didirikan oleh H. Samanhudi pada tahun 1911 di Surakarta.",
+        "Indische Partij": "✕ SALAH: Didirikan oleh Tiga Serangkai pada tahun 1912 sebagai organisasi politik pertama.",
+        "Perhimpunan Indonesia": "✕ SALAH: Didirikan oleh mahasiswa Indonesia di Belanda (awalnya Indische Vereeniging pada 1908, berganti nama 1925).",
+      },
+      correctAnswer: "Budi Utomo",
+      explanationText:
+        "Kelahiran Budi Utomo pada 20 Mei 1908 menjadi pelopor pergerakan modern pertama dengan cita-cita memajukan pengajaran dan kebudayaan bangsa.",
+      knownWrongPatterns: {
+        "Sarekat Dagang Islam": {
+          misconceptionCode: "MASS_ORG_CONFUSION",
+          hint: "Sarekat Islam adalah organisasi massa pertama, namun organisasi modern perintis Kebangkitan Nasional (20 Mei 1908) adalah Budi Utomo.",
+        },
+      },
+    },
+  ],
+  "mat-lanjut-11": [
+    {
+      id: "q-matlan11-1",
+      conceptName: "Teorema Sisa Polinomial",
+      topic: "Matematika Tingkat Lanjut XI - Polinomial",
+      questionText: "Jika suku banyak P(x) = 2x³ - 3x² + 4x - 5 dibagi oleh (x - 2), berapakah sisa pembagiannya?",
+      type: "numeric",
+      correctAnswer: "7",
+      explanationText:
+        "Berdasarkan Teorema Sisa: Sisa = P(2). P(2) = 2(2)³ - 3(2)² + 4(2) - 5 = 2(8) - 3(4) + 8 - 5 = 16 - 12 + 8 - 5 = 7.",
+      knownWrongPatterns: {
+        "5": {
+          misconceptionCode: "ARITHMETIC_CALC_SLIP",
+          hint: "Gunakan Teorema Sisa: substitusikan x = 2 ke P(x): 2(8) - 3(4) + 4(2) - 5 = 16 - 12 + 8 - 5.",
+        },
+      },
+    },
+  ],
+  "fisika-11": [
+    {
+      id: "q-fis11-1",
+      conceptName: "Persamaan Kontinuitas Fluida",
+      topic: "Fisika XI - Fluida Dinamis",
+      questionText: "Air mengalir melalui pipa berdiameter besar dengan kelajuan 2 m/s. Jika pipa menyempit sehingga luas penampangnya menjadi setengah dari semula, berapakah kelajuan air di pipa sempit tersebut (dalam m/s)?",
+      type: "numeric",
+      correctAnswer: "4",
+      explanationText:
+        "Berdasarkan hukum kontinuitas fluida tak termampatkan: A1 · v1 = A2 · v2. Karena A2 = 0.5 · A1, maka v2 = (A1 / 0.5 A1) · 2 = 2 × 2 = 4 m/s.",
+      knownWrongPatterns: {
+        "1": {
+          misconceptionCode: "INVERSE_PROPORTIONAL_SPEED_ERROR",
+          hint: "Ingat persamaan kontinuitas A1·v1 = A2·v2. Ketika pipa menyempit, laju air harus bertambah cepat secara berbanding terbalik, bukan melambat.",
+        },
+      },
+    },
+  ],
+  "kimia-11": [
+    {
+      id: "q-kim11-1",
+      conceptName: "Ciri Reaksi Eksoterm & Entalpi",
+      topic: "Kimia XI - Termokimia",
+      questionText: "Reaksi kimia yang melepaskan kalor dari sistem ke lingkungan dan mengakibatkan perubahan entalpi bernilai negatif (ΔH < 0) disebut...",
+      type: "mcq",
+      options: [
+        "Reaksi Eksoterm",
+        "Reaksi Endoterm",
+        "Reaksi Adisi",
+        "Reaksi Sublimasi",
+      ],
+      optionDetails: {
+        "Reaksi Eksoterm": "✓ BENAR: Reaksi eksoterm melepaskan kalor ke lingkungan sehingga entalpi akhir lebih kecil daripada entalpi awal (ΔH bernilai negatif).",
+        "Reaksi Endoterm": "✕ SALAH: Reaksi endoterm justru menyerap kalor dari lingkungan (ΔH bertanda positif).",
+        "Reaksi Adisi": "✕ SALAH: Reaksi adisi adalah pemutusan ikatan rangkap pada senyawa organik.",
+        "Reaksi Sublimasi": "✕ SALAH: Sublimasi adalah perubahan wujud padat ke gas.",
+      },
+      correctAnswer: "Reaksi Eksoterm",
+      explanationText:
+        "Pada reaksi eksoterm, sistem membebaskan kalor ke lingkungan sekitar. Akibatnya energi sistem berkurang sehingga nilai entalpi ΔH < 0.",
+      knownWrongPatterns: {
+        "Reaksi Endoterm": {
+          misconceptionCode: "EXO_ENDO_SIGN_CONFUSION",
+          hint: "Reaksi yang 'melepaskan' (keluar/ekso) kalor menghasilkan ΔH bertanda negatif. Reaksi endoterm adalah yang menyerap kalor (ΔH positif).",
+        },
+      },
+    },
+  ],
+  "biologi-11": [
+    {
+      id: "q-bio11-1",
+      conceptName: "Fungsi Organel Sel",
+      topic: "Biologi XI - Struktur & Organel Sel",
+      questionText: "Organel sel yang memiliki membran ganda dan berfungsi sebagai tempat respirasi seluler untuk menghasilkan molekul energi (ATP) adalah...",
+      type: "mcq",
+      options: [
+        "Mitokondria",
+        "Ribosom",
+        "Aparatus Golgi",
+        "Lisosom",
+      ],
+      optionDetails: {
+        "Mitokondria": "✓ BENAR: Mitokondria adalah pusat penghasil energi sel (powerhouse of cell) melalui siklus Krebs dan fosforilasi oksidatif.",
+        "Ribosom": "✕ SALAH: Ribosom berfungsi untuk sintesis protein.",
+        "Aparatus Golgi": "✕ SALAH: Aparatus Golgi berperan dalam modifikasi dan sekresi protein.",
+        "Lisosom": "✕ SALAH: Lisosom mengandung enzim hidrolitik untuk pencernaan intraseluler.",
+      },
+      correctAnswer: "Mitokondria",
+      explanationText:
+        "Mitokondria memiliki membran luar dan membran dalam yang berlekuk-lekuk (krista). Fungsi utamanya adalah menghasilkan ATP melalui respirasi aerob.",
+      knownWrongPatterns: {
+        "Ribosom": {
+          misconceptionCode: "ORGANELLE_FUNCTION_SLIP",
+          hint: "Ribosom berfungsi mensintesis protein. Organel penghasil energi (ATP) melalui respirasi aerob adalah Mitokondria.",
+        },
+      },
+    },
+  ],
+  "informatika-11": [
+    {
+      id: "q-inf11-1",
+      conceptName: "Kompleksitas Binary Search",
+      topic: "Informatika XI - Logika Algoritma & Struktur Data",
+      questionText: "Berapa jumlah perbandingan maksimum yang dibutuhkan algoritma Binary Search untuk menemukan angka dalam daftar terurut yang berisi 16 elemen?",
+      type: "numeric",
+      correctAnswer: "4",
+      explanationText:
+        "Binary Search membagi ruang pencarian menjadi setengah pada setiap langkah: log₂(16) = 4 perbandingan maksimal.",
+      knownWrongPatterns: {
+        "16": {
+          misconceptionCode: "LINEAR_SEARCH_CONFUSION",
+          hint: "16 kali adalah perbandingan maksimal pada Linear Search. Binary Search membagi data terurut dua bagian tiap langkah: log₂(16) = 4.",
+        },
+      },
+    },
+  ],
+  "ekonomi-11": [
+    {
+      id: "q-eko11-1",
+      conceptName: "Konsep Pendapatan Nasional PDB vs PNB",
+      topic: "Ekonomi XI - Pendapatan Nasional",
+      questionText: "Total nilai barang dan jasa akhir yang dihasilkan oleh semua faktor produksi yang beroperasi di dalam wilayah geografis suatu negara, tanpa memandang kewarganegaraan, disebut...",
+      type: "mcq",
+      options: [
+        "Produk Domestik Bruto (PDB / GDP)",
+        "Produk Nasional Bruto (PNB / GNP)",
+        "Pendapatan Nasional Bersih (NNI)",
+        "Pendapatan Perseorangan (PI)",
+      ],
+      optionDetails: {
+        "Produk Domestik Bruto (PDB / GDP)": "✓ BENAR: Prinsip teritorial / domestik mengukur semua output yang diproduksi di dalam batas wilayah negara tersebut.",
+        "Produk Nasional Bruto (PNB / GNP)": "✕ SALAH: PNB mengukur output berdasarkan kewarganegaraan, baik di dalam maupun di luar negeri.",
+        "Pendapatan Nasional Bersih (NNI)": "✕ SALAH: NNI adalah NNP dikurangi pajak tidak langsung ditambah subsidi.",
+        "Pendapatan Perseorangan (PI)": "✕ SALAH: PI adalah total pendapatan yang benar-benar diterima oleh masyarakat.",
+      },
+      correctAnswer: "Produk Domestik Bruto (PDB / GDP)",
+      explanationText:
+        "PDB (Produk Domestik Bruto) berdasar pada konsep wilayah/teritorial domestik. Seluruh penghasilan WNA maupun WNI di dalam negeri masuk ke dalam PDB.",
+      knownWrongPatterns: {
+        "Produk Nasional Bruto (PNB / GNP)": {
+          misconceptionCode: "DOMESTIC_TERRITORIAL_CONFUSION",
+          hint: "Perhatikan kata kuncinya: 'di dalam batas wilayah geografis'. Konsep berbasis batas wilayah adalah Domestik (PDB), bukan Nasional (PNB).",
+        },
+      },
+    },
+  ],
+  "sosiologi-11": [
+    {
+      id: "q-sos11-1",
+      conceptName: "Diferensiasi vs Stratifikasi Sosial",
+      topic: "Sosiologi XI - Struktur Sosial Masyarakat",
+      questionText: "Pengelompokan masyarakat secara horizontal/sejajar tanpa membentuk tingkatan hierarki tinggi-rendah (misalnya berdasarkan ras, agama, suku, dan klan) dinamakan...",
+      type: "mcq",
+      options: [
+        "Diferensiasi Sosial",
+        "Stratifikasi Sosial",
+        "Polarisasi Sosial",
+        "Mobilitas Sosial",
+      ],
+      optionDetails: {
+        "Diferensiasi Sosial": "✓ BENAR: Diferensiasi sosial bersifat horizontal tanpa menganggap kelompok satu lebih tinggi dari kelompok lainnya.",
+        "Stratifikasi Sosial": "✕ SALAH: Stratifikasi sosial adalah pelapisan masyarakat secara vertikal/hierarkis (kelas atas, menengah, bawah).",
+        "Polarisasi Sosial": "✕ SALAH: Polarisasi adalah pemisahan atau pembagian dua kubu yang saling berlawanan.",
+        "Mobilitas Sosial": "✕ SALAH: Mobilitas sosial adalah perpindahan posisi atau status sosial individu.",
+      },
+      correctAnswer: "Diferensiasi Sosial",
+      explanationText:
+        "Diferensiasi sosial adalah pembedaan masyarakat secara horizontal (setara). Sedangkan stratifikasi sosial membedakan secara vertikal (berjenjang).",
+      knownWrongPatterns: {
+        "Stratifikasi Sosial": {
+          misconceptionCode: "VERTICAL_HORIZONTAL_CONFUSION",
+          hint: "Stratifikasi berarti lapisan (bertingkat/vertikal). Sedangkan pembedaan yang posisinya setara/horizontal tanpa hierarki adalah Diferensiasi Sosial.",
+        },
+      },
+    },
+  ],
+  "geografi-11": [
+    {
+      id: "q-geo11-1",
+      conceptName: "Posisi Silang Strategis Indonesia",
+      topic: "Geografi XI - Letak Geografis Indonesia",
+      questionText: "Secara geografis, wilayah kepulauan Indonesia berada di antara posisi silang dunia, yaitu antara...",
+      type: "mcq",
+      options: [
+        "Benua Asia & Benua Australia, serta Samudra Hindia & Samudra Pasifik",
+        "Benua Asia & Benua Eropa, serta Samudra Hindia & Samudra Atlantik",
+        "Benua Amerika & Benua Australia, serta Samudra Pasifik & Samudra Atlantik",
+        "Benua Asia & Benua Afrika, serta Samudra Hindia & Samudra Arktik",
+      ],
+      optionDetails: {
+        "Benua Asia & Benua Australia, serta Samudra Hindia & Samudra Pasifik": "✓ BENAR: Letak geografis Indonesia berada di antara dua benua (Asia & Australia) dan dua samudra (Hindia & Pasifik).",
+        "Benua Asia & Benua Eropa, serta Samudra Hindia & Samudra Atlantik": "✕ SALAH: Indonesia tidak berbatasan dengan Benua Eropa maupun Samudra Atlantik.",
+        "Benua Amerika & Benua Australia, serta Samudra Pasifik & Samudra Atlantik": "✕ SALAH: Benua Amerika dan Atlantik berada jauh dari kawasan Nusantara.",
+        "Benua Asia & Benua Afrika, serta Samudra Hindia & Samudra Arktik": "✕ SALAH: Benua Afrika dan Arktik bukan posisi silang Indonesia.",
+      },
+      correctAnswer: "Benua Asia & Benua Australia, serta Samudra Hindia & Samudra Pasifik",
+      explanationText:
+        "Posisi silang Indonesia diapit oleh Benua Asia di barat laut dan Benua Australia di tenggara, serta Samudra Hindia di barat daya dan Samudra Pasifik di timur laut.",
+      knownWrongPatterns: {
+        "Benua Asia & Benua Eropa, serta Samudra Hindia & Samudra Atlantik": {
+          misconceptionCode: "OCEAN_CONTINENT_MISMATCH",
+          hint: "Dua samudera yang mengapit Indonesia adalah Samudra Hindia dan Samudra Pasifik. Benua di selatan Indonesia adalah Australia.",
+        },
+      },
+    },
+  ],
   "mat-12": [
     {
       id: "q-mat12-1",
@@ -577,6 +1093,13 @@ function StudentPortalContent() {
   const [studentGrade, setStudentGrade] = useState<string>("SMA Kelas 11 (Fase F)");
   const [isGraduated, setIsGraduated] = useState<boolean>(false);
 
+  // Subject Filter & Search State for Step 2
+  const [subjectCategoryFilter, setSubjectCategoryFilter] = useState<"all" | "umum" | "mipa" | "ips">("all");
+  const [subjectSearchQuery, setSubjectSearchQuery] = useState<string>("");
+
+  // Determine whether current student has official class assignment in school system
+  const isEnrolledStudent = Boolean(studentClass && studentGrade);
+
   // Read metadata from Supabase session & local storage
   React.useEffect(() => {
     const fetchSessionProfile = async () => {
@@ -589,6 +1112,20 @@ function StudentPortalContent() {
           if (meta.grade_level) setStudentGrade(meta.grade_level);
           if (meta.academic_status === "graduated") {
             setIsGraduated(true);
+          }
+
+          // Auto-sync official curriculum grade with student's enrolled grade
+          if (meta.grade_level || meta.class_name) {
+            const combinedText = `${meta.grade_level || ""} ${meta.class_name || ""}`.toLowerCase();
+            const matchedProg = CURRICULUM_PROGRAMS.find((p) => {
+              if (combinedText.includes("11") || combinedText.includes("xi")) return p.id === "sma-11";
+              if (combinedText.includes("10") || combinedText.includes("x")) return p.id === "sma-10";
+              if (combinedText.includes("12") || combinedText.includes("xii")) return p.id === "sma-12";
+              return false;
+            });
+            if (matchedProg) {
+              setSelectedGrade(matchedProg);
+            }
           }
         }
       } catch {
@@ -611,14 +1148,22 @@ function StudentPortalContent() {
     fetchSessionProfile();
   }, [studentEmail]);
 
-  // Hanya siswa Kelas 12 (Tingkat Akhir / Mau Lulus) atau yang telah Lulus (Alumni) yang relevan mengakses menu Beasiswa & Loker
-  const isFinalYearOrGraduated =
+  // Hak Akses Fitur Beasiswa & Loker: Terbuka untuk siswa SMA Kelas 11, Kelas 12, dan Alumni
+  const canAccessFuturePath =
+    studentGrade.toLowerCase().includes("11") ||
+    studentGrade.toLowerCase().includes("xi") ||
     studentGrade.toLowerCase().includes("12") ||
     studentGrade.toLowerCase().includes("xii") ||
-    studentGrade.toLowerCase().includes("kelas 3") ||
+    studentClass.toLowerCase().includes("xi") ||
     studentClass.toLowerCase().includes("xii") ||
-    studentClass.toLowerCase().includes("3-") ||
     isGraduated;
+
+  // RBAC Access Control State for Grade/Curriculum Selection
+  const [accessDeniedModal, setAccessDeniedModal] = useState<{
+    isOpen: boolean;
+    targetTitle: string;
+    reason: string;
+  } | null>(null);
 
   // Confirmation Modal State
   const [pendingSubject, setPendingSubject] = useState<SubjectOption | null>(null);
@@ -712,13 +1257,26 @@ function StudentPortalContent() {
     // Filter matching custom questions added by teacher for this grade & subject
     const matchedCustom: Question[] = customQuestions
       .filter((cq) => {
+        const sName = selectedSubject.name.toLowerCase();
+        const sId = selectedSubject.id.toLowerCase();
+        const cqSubj = (cq.subject || "").toLowerCase();
+
         const subjectMatch =
-          (cq.subject?.toLowerCase().includes("indonesia") && selectedSubject.id.includes("indo")) ||
-          (cq.subject?.toLowerCase().includes("matematika") && (selectedSubject.id.includes("mat") || selectedSubject.id.includes("pm"))) ||
-          (cq.subject?.toLowerCase().includes("fisika") && selectedSubject.id.includes("fisika")) ||
-          (cq.subject?.toLowerCase().includes("kimia") && selectedSubject.id.includes("kimia")) ||
-          (cq.subject?.toLowerCase().includes("ekonomi") && selectedSubject.id.includes("ekonomi")) ||
-          (cq.subject?.toLowerCase().includes("kedinasan") && selectedSubject.id.includes("sekdin"));
+          cqSubj.includes(sName) ||
+          sName.includes(cqSubj) ||
+          (cqSubj.includes("indonesia") && sId.includes("indo")) ||
+          (cqSubj.includes("inggris") && sId.includes("inggris")) ||
+          (cqSubj.includes("matematika") && (sId.includes("mat") || sId.includes("pm"))) ||
+          (cqSubj.includes("fisika") && sId.includes("fisika")) ||
+          (cqSubj.includes("kimia") && sId.includes("kimia")) ||
+          (cqSubj.includes("biologi") && sId.includes("bio")) ||
+          (cqSubj.includes("informatika") && sId.includes("inf")) ||
+          (cqSubj.includes("ekonomi") && sId.includes("eko")) ||
+          (cqSubj.includes("sosiologi") && sId.includes("sos")) ||
+          (cqSubj.includes("geografi") && sId.includes("geo")) ||
+          (cqSubj.includes("pancasila") && sId.includes("ppkn")) ||
+          (cqSubj.includes("sejarah") && sId.includes("sej")) ||
+          (cqSubj.includes("kedinasan") && sId.includes("sekdin"));
 
         const gradeMatch =
           ((cq.gradeLevel?.includes("XI") || cq.gradeLevel?.includes("11")) && (selectedGrade?.id.includes("11") || false)) ||
@@ -770,7 +1328,68 @@ function StudentPortalContent() {
   const currentQ = currentSubjectQuestions[currentIdx % currentSubjectQuestions.length];
   const isLastQuestion = currentIdx >= currentSubjectQuestions.length - 1;
 
+  // RBAC Access Rule: Enrolled students may only access their official assigned grade or external enrichment (UTBK / Sekdin)
+  const checkGradeAccess = (programId: string): { allowed: boolean; reason?: string } => {
+    if (!isEnrolledStudent) {
+      return { allowed: true };
+    }
+
+    // UTBK and Kedinasan are optional external enrichment modules accessible to any high schooler
+    if (programId === "utbk-snbt" || programId === "sekdin") {
+      return { allowed: true };
+    }
+
+    const classStr = `${studentGrade} ${studentClass}`.toLowerCase();
+    const isClass11 = classStr.includes("11") || classStr.includes("xi");
+    const isClass10 = (classStr.includes("10") || classStr.includes("x")) && !isClass11;
+    const isClass12 = classStr.includes("12") || classStr.includes("xii");
+
+    if (isClass11) {
+      if (programId === "sma-11") return { allowed: true };
+      if (programId === "sma-10") {
+        return {
+          allowed: false,
+          reason: `Hak akses ditolak. Anda terdaftar resmi sebagai siswa ${studentClass}. Kurikulum SMA Kelas 10 (Fase E) hanya diperuntukkan bagi siswa Kelas 10.`,
+        };
+      }
+      if (programId === "sma-12") {
+        return {
+          allowed: false,
+          reason: `Hak akses ditolak. Anda terdaftar resmi sebagai siswa ${studentClass}. Kurikulum SMA Kelas 12 (Fase F Lanjutan) hanya diperuntukkan bagi siswa tingkat akhir (Kelas 12).`,
+        };
+      }
+    }
+
+    if (isClass10) {
+      if (programId === "sma-10") return { allowed: true };
+      return {
+        allowed: false,
+        reason: `Hak akses ditolak. Anda terdaftar di Kelas 10 dan belum memiliki hak akses kurikulum tingkat atas.`,
+      };
+    }
+
+    if (isClass12) {
+      if (programId === "sma-12") return { allowed: true };
+      return {
+        allowed: false,
+        reason: `Hak akses ditolak. Anda terdaftar di Kelas 12.`,
+      };
+    }
+
+    return { allowed: true };
+  };
+
   const handleSelectGrade = (grade: GradeProgram) => {
+    const access = checkGradeAccess(grade.id);
+    if (!access.allowed) {
+      setAccessDeniedModal({
+        isOpen: true,
+        targetTitle: grade.title,
+        reason: access.reason || "Anda tidak memiliki hak akses ke jenjang kurikulum ini.",
+      });
+      return;
+    }
+    setAccessDeniedModal(null);
     setSelectedGrade(grade);
     setSelectedSubject(grade.subjects[0]);
     setActiveStep("choose_subject");
@@ -1146,8 +1765,8 @@ function StudentPortalContent() {
             <span>Mastery Score: <strong className="text-brand">{masteryScore}%</strong></span>
           </div>
 
-          {/* Menu Beasiswa & Loker hanya tampil jika siswa berada di Kelas 12 (Tingkat Akhir) atau telah Lulus */}
-          {isFinalYearOrGraduated && (
+          {/* Menu Beasiswa & Loker terbuka untuk siswa SMA (Kelas 11, Kelas 12, dan Alumni) */}
+          {canAccessFuturePath && (
             <>
               <Button
                 size="sm"
@@ -1190,15 +1809,23 @@ function StudentPortalContent() {
 
       {/* 2. Breadcrumb Navigation Bar */}
       <div className="flex items-center gap-2 text-xs font-semibold text-muted bg-surface2 p-3 rounded-xl border border-border overflow-x-auto">
-        <button
-          onClick={() => setActiveStep("choose_grade")}
-          className={`flex items-center gap-1.5 hover:text-text transition-colors ${
-            activeStep === "choose_grade" ? "text-brand font-bold" : ""
-          }`}
-        >
-          <GraduationCap size={15} />
-          <span>1. Jenjang ({selectedGrade ? selectedGrade.badge : "Pilih"})</span>
-        </button>
+        {isEnrolledStudent ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface/80 border border-border text-text font-medium text-xs whitespace-nowrap">
+            <Lock size={12} className="text-brand" />
+            <span className="text-muted">Jenjang Terdaftar:</span>
+            <strong className="text-brand font-semibold">{selectedGrade?.badge || studentClass}</strong>
+          </div>
+        ) : (
+          <button
+            onClick={() => setActiveStep("choose_grade")}
+            className={`flex items-center gap-1.5 hover:text-text transition-colors ${
+              activeStep === "choose_grade" ? "text-brand font-bold" : ""
+            }`}
+          >
+            <GraduationCap size={15} />
+            <span>1. Jenjang ({selectedGrade ? selectedGrade.badge : "Pilih"})</span>
+          </button>
+        )}
 
         <ChevronRight size={14} className="text-muted/60" />
 
@@ -1245,6 +1872,25 @@ function StudentPortalContent() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-8"
         >
+          {isEnrolledStudent && (
+            <div className="p-4 rounded-xl border border-brand/30 bg-brand/5 flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2.5 text-xs">
+                <span className="text-base">🔒</span>
+                <div>
+                  <p className="font-semibold text-text">
+                    Anda terdaftar resmi sebagai siswa <strong>{studentClass} ({selectedGrade?.badge || studentGrade})</strong>.
+                  </p>
+                  <p className="text-muted">
+                    Jenjang sekolah resmi Anda telah dikunci oleh sistem. Halaman ini digunakan khusus jika Anda ingin mengakses modul pengayaan mandiri (UTBK / Kedinasan).
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" variant="primary" onClick={() => setActiveStep("choose_subject")} className="text-xs">
+                ← Kembali ke Kurikulum Resmi ({studentClass})
+              </Button>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Badge variant="brand">Langkah 1</Badge>
             <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text">
@@ -1255,34 +1901,87 @@ function StudentPortalContent() {
             </p>
           </div>
 
-          {/* Cards Jenjang */}
+          {/* Cards Jenjang with RBAC Access Control */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {CURRICULUM_PROGRAMS.map((prog) => (
-              <Card
-                key={prog.id}
-                onClick={() => handleSelectGrade(prog)}
-                className={`p-6 space-y-4 border transition-all cursor-pointer hover:border-brand hover:scale-[1.01] ${
-                  selectedGrade?.id === prog.id ? "border-brand ring-1 ring-brand bg-brand/5" : "border-border"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-3xl">{prog.icon}</span>
-                  <Badge variant={selectedGrade?.id === prog.id ? "brand" : "neutral"} className="text-[10px]">
-                    {prog.subjects.length} Mata Pelajaran
-                  </Badge>
-                </div>
+            {CURRICULUM_PROGRAMS.map((prog) => {
+              const access = checkGradeAccess(prog.id);
+              const isLocked = !access.allowed;
+              const isCurrentOfficialGrade = isEnrolledStudent && prog.id === "sma-11";
+              const isExternalEnrichment = prog.id === "utbk-snbt" || prog.id === "sekdin";
 
-                <div>
-                  <h3 className="text-lg font-bold font-serif text-text">{prog.title}</h3>
-                  <p className="text-xs text-muted mt-1 leading-relaxed">{prog.description}</p>
-                </div>
+              return (
+                <Card
+                  key={prog.id}
+                  onClick={() => handleSelectGrade(prog)}
+                  className={`p-6 space-y-4 border transition-all relative overflow-hidden ${
+                    isLocked
+                      ? "opacity-55 grayscale-[0.6] bg-surface2/40 border-dashed border-red-500/20 hover:border-red-500/40 cursor-not-allowed"
+                      : isCurrentOfficialGrade
+                      ? "border-brand ring-1 ring-brand bg-brand/5 cursor-pointer hover:border-brand hover:scale-[1.01]"
+                      : "border-border cursor-pointer hover:border-brand hover:scale-[1.01]"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-3xl">{prog.icon}</span>
+                    {isLocked ? (
+                      <Badge variant="neutral" className="text-[10px] bg-red-950/40 text-red-400 border border-red-500/30 flex items-center gap-1 font-semibold">
+                        <Lock size={10} /> Akses Terkunci
+                      </Badge>
+                    ) : isCurrentOfficialGrade ? (
+                      <Badge variant="brand" className="text-[10px] flex items-center gap-1 font-semibold">
+                        <CheckCircle2 size={10} /> Kelas Resmi Anda
+                      </Badge>
+                    ) : isExternalEnrichment ? (
+                      <Badge variant="accent" className="text-[10px] font-semibold">
+                        🎯 Pengayaan Terbuka
+                      </Badge>
+                    ) : (
+                      <Badge variant={selectedGrade?.id === prog.id ? "brand" : "neutral"} className="text-[10px]">
+                        {prog.subjects.length} Mata Pelajaran
+                      </Badge>
+                    )}
+                  </div>
 
-                <div className="pt-2 flex items-center justify-between text-xs font-bold text-brand">
-                  <span>Pilih Jenjang Ini</span>
-                  <ArrowRight size={15} />
-                </div>
-              </Card>
-            ))}
+                  <div>
+                    <h3 className="text-lg font-bold font-serif text-text flex items-center gap-2">
+                      <span>{prog.title}</span>
+                      {isLocked && <Lock size={14} className="text-red-400" />}
+                    </h3>
+                    <p className="text-xs text-muted mt-1 leading-relaxed">
+                      {isLocked ? (
+                        <span className="text-red-400/90 font-medium">{access.reason}</span>
+                      ) : (
+                        prog.description
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between text-xs font-bold">
+                    {isLocked ? (
+                      <span className="text-red-400 flex items-center gap-1">
+                        <Lock size={13} />
+                        <span>Akses Ditolak ({prog.id === "sma-10" ? "Khusus Kelas X" : "Khusus Kelas XII"})</span>
+                      </span>
+                    ) : isCurrentOfficialGrade ? (
+                      <span className="text-brand flex items-center gap-1">
+                        <span>Buka Mapel Kelas Saya</span>
+                        <ArrowRight size={15} />
+                      </span>
+                    ) : isExternalEnrichment ? (
+                      <span className="text-emerald-400 flex items-center gap-1">
+                        <span>Mulai Latihan Pengayaan</span>
+                        <ArrowRight size={15} />
+                      </span>
+                    ) : (
+                      <span className="text-brand flex items-center gap-1">
+                        <span>Pilih Jenjang Ini</span>
+                        <ArrowRight size={15} />
+                      </span>
+                    )}
+                  </div>
+                </Card>
+              );
+            })}
           </div>
 
           {/* Prominent Dual Banner: Beasiswa Kuliah S1 & Rekomendasi Karir */}
@@ -1353,6 +2052,80 @@ function StudentPortalContent() {
         </motion.div>
       )}
 
+      {/* RBAC Access Denied Modal Popup */}
+      <AnimatePresence>
+        {accessDeniedModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="max-w-md w-full bg-surface border border-red-500/40 rounded-2xl p-6 shadow-2xl space-y-4"
+            >
+              <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 mx-auto shadow-inner">
+                <Lock size={24} />
+              </div>
+
+              <div className="text-center space-y-2">
+                <Badge variant="neutral" className="bg-red-950/40 text-red-300 border border-red-500/30 text-[10px]">
+                  Hak Akses Terbatas (RBAC Sekolah)
+                </Badge>
+                <h3 className="text-lg font-bold font-serif text-text">
+                  Akses Kurikulum Ditolak
+                </h3>
+                <p className="text-xs text-muted leading-relaxed">
+                  {accessDeniedModal.reason}
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-surface2 border border-border text-xs text-muted space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span>Nama Siswa:</span>
+                  <strong className="text-text">{studentName}</strong>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Kelas Terdaftar Resmi:</span>
+                  <strong className="text-emerald-400 font-bold">{studentClass} ({studentGrade})</strong>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Kurikulum Diminta:</span>
+                  <strong className="text-red-400 font-semibold">{accessDeniedModal.targetTitle}</strong>
+                </div>
+                <div className="pt-1 border-t border-border/60 text-[11px] text-muted-foreground flex items-center gap-1">
+                  <span>💡</span>
+                  <span>Anda diizinkan mengakses modul <strong>{studentClass}</strong>, <strong>UTBK/SNBT</strong>, dan <strong>Kedinasan</strong>.</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2.5 pt-2">
+                <Button
+                  variant="primary"
+                  className="w-full text-xs font-bold"
+                  onClick={() => {
+                    const myProg = CURRICULUM_PROGRAMS.find((p) => p.id === "sma-11") || CURRICULUM_PROGRAMS[1];
+                    setAccessDeniedModal(null);
+                    if (myProg) {
+                      setSelectedGrade(myProg);
+                      setSelectedSubject(myProg.subjects[0]);
+                      setActiveStep("choose_subject");
+                    }
+                  }}
+                >
+                  Buka Kurikulum Resmi ({studentClass})
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="text-xs"
+                  onClick={() => setAccessDeniedModal(null)}
+                >
+                  Tutup
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* 4. STEP 2: CHOOSE SUBJECT */}
       {activeStep === "choose_subject" && selectedGrade && (
         <motion.div
@@ -1364,65 +2137,218 @@ function StudentPortalContent() {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <Badge variant="accent">Langkah 2</Badge>
-                <span className="text-xs text-muted">Jenjang: <strong className="text-text">{selectedGrade.title}</strong></span>
+                <span className="text-xs text-muted">
+                  {isEnrolledStudent ? (
+                    <>Kurikulum Kelas Resmi: <strong className="text-text">{studentClass}</strong> ({selectedGrade.badge})</>
+                  ) : (
+                    <>Jenjang: <strong className="text-text">{selectedGrade.title}</strong></>
+                  )}
+                </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text">
-                Pilih Mata Pelajaran / Subjek Materi
+                Pilih Mata Pelajaran ({selectedGrade.subjects.length} Mapel)
               </h2>
               <p className="text-xs sm:text-sm text-muted">
-                Pilih mata pelajaran yang ingin kamu perdalam pemahaman konsep dan latihannya.
+                {isEnrolledStudent
+                  ? `Mata pelajaran kurikulum resmi kelas Anda telah disinkronkan. Pilih materi untuk latihan adaptif & analisis nalar AI.`
+                  : `Pilih mata pelajaran yang ingin kamu perdalam pemahaman konsep dan latihannya hari ini.`}
               </p>
             </div>
 
-            <Button size="sm" variant="secondary" onClick={() => setActiveStep("choose_grade")}>
-              ← Ganti Jenjang
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {selectedGrade.subjects.map((subj) => (
-              <GlowCard
-                key={subj.id}
-                onClick={() => handleRequestSubject(subj)}
-                className="p-6 space-y-3 cursor-pointer transition-all hover:border-brand hover:scale-[1.01] border-border"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl p-2 rounded-xl bg-surface2 border border-border">{subj.icon}</span>
-                    <div>
-                      <h3 className="text-base font-bold font-serif text-text">{subj.name}</h3>
-                      <span className="text-[11px] text-brand font-medium">{subj.conceptCount} Konsep Materi</span>
-                    </div>
-                  </div>
-                  <Badge variant="brand" className="text-[10px]">Pilih</Badge>
-                </div>
-
-                <p className="text-xs text-muted leading-relaxed pt-1">
-                  {subj.description}
-                </p>
-
-                {/* Teacher In-Charge Indicator */}
-                {subj.teacherName && (
-                  <div className="pt-1">
-                    <span className="text-[11px] text-muted inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface2 border border-border">
-                      <span>👨‍🏫</span>
-                      <span>Guru Pengampu: <strong className="text-text">{subj.teacherName}</strong></span>
-                      {subj.teacherRole?.includes("Wali") && (
-                        <span className="ml-1 px-1.5 py-0.2 rounded text-[10px] bg-brand/20 text-brand font-bold border border-brand/30">
-                          Wali Kelas XI-A
-                        </span>
-                      )}
+            <div className="flex items-center gap-2 flex-wrap">
+              {isEnrolledStudent ? (
+                <>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-emerald-300 font-semibold flex items-center gap-1">
+                      <Lock size={12} /> {studentClass} Terkunci
                     </span>
                   </div>
-                )}
-
-                <div className="pt-2 flex items-center justify-between text-xs font-semibold text-brand border-t border-border/50">
-                  <span>Mulai Latihan Soal</span>
-                  <ArrowRight size={14} />
-                </div>
-              </GlowCard>
-            ))}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setActiveStep("choose_grade")}
+                    className="text-xs text-muted hover:text-brand border border-dashed border-border hover:border-brand/40"
+                    title="Buka modul persiapan ujian luar sekolah"
+                  >
+                    <GraduationCap size={14} className="mr-1.5" />
+                    <span>Latihan UTBK / Sekdin</span>
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" variant="secondary" onClick={() => setActiveStep("choose_grade")}>
+                  ← Ganti Jenjang
+                </Button>
+              )}
+            </div>
           </div>
+
+          {/* Filter Category Tabs & Search Bar */}
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between pt-1">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              <button
+                type="button"
+                onClick={() => setSubjectCategoryFilter("all")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                  subjectCategoryFilter === "all"
+                    ? "bg-brand text-bg shadow-sm"
+                    : "bg-surface2 text-muted hover:text-text border border-border"
+                }`}
+              >
+                Semua Mapel ({selectedGrade.subjects.length})
+              </button>
+              {selectedGrade.subjects.some((s) => s.category === "umum") && (
+                <button
+                  type="button"
+                  onClick={() => setSubjectCategoryFilter("umum")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                    subjectCategoryFilter === "umum"
+                      ? "bg-brand text-bg shadow-sm"
+                      : "bg-surface2 text-muted hover:text-text border border-border"
+                  }`}
+                >
+                  Mapel Umum (Wajib) ({selectedGrade.subjects.filter((s) => s.category === "umum").length})
+                </button>
+              )}
+              {selectedGrade.subjects.some((s) => s.category === "mipa") && (
+                <button
+                  type="button"
+                  onClick={() => setSubjectCategoryFilter("mipa")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                    subjectCategoryFilter === "mipa"
+                      ? "bg-brand text-bg shadow-sm"
+                      : "bg-surface2 text-muted hover:text-text border border-border"
+                  }`}
+                >
+                  MIPA / Saintek ({selectedGrade.subjects.filter((s) => s.category === "mipa").length})
+                </button>
+              )}
+              {selectedGrade.subjects.some((s) => s.category === "ips") && (
+                <button
+                  type="button"
+                  onClick={() => setSubjectCategoryFilter("ips")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                    subjectCategoryFilter === "ips"
+                      ? "bg-brand text-bg shadow-sm"
+                      : "bg-surface2 text-muted hover:text-text border border-border"
+                  }`}
+                >
+                  IPS / Soshum ({selectedGrade.subjects.filter((s) => s.category === "ips").length})
+                </button>
+              )}
+            </div>
+
+            <div className="relative min-w-[200px] sm:w-64">
+              <input
+                type="text"
+                placeholder="Cari mapel atau topik..."
+                value={subjectSearchQuery}
+                onChange={(e) => setSubjectSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg bg-surface border border-border focus:border-brand focus:outline-none text-text"
+              />
+              <Search size={13} className="absolute left-2.5 top-2.5 text-muted pointer-events-none" />
+              {subjectSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSubjectSearchQuery("")}
+                  className="absolute right-2.5 top-2.5 text-muted hover:text-text"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Grid of Subject Cards */}
+          {(() => {
+            const filteredSubjects = selectedGrade.subjects.filter((subj) => {
+              const matchesCat =
+                subjectCategoryFilter === "all" ||
+                subj.category === subjectCategoryFilter;
+              const q = subjectSearchQuery.toLowerCase().trim();
+              const matchesSearch =
+                !q ||
+                subj.name.toLowerCase().includes(q) ||
+                subj.description.toLowerCase().includes(q) ||
+                (subj.teacherName && subj.teacherName.toLowerCase().includes(q));
+              return matchesCat && matchesSearch;
+            });
+
+            if (filteredSubjects.length === 0) {
+              return (
+                <div className="p-8 text-center border border-dashed border-border rounded-xl text-muted text-xs space-y-2">
+                  <p>Tidak ada mata pelajaran yang cocok dengan pencarian &ldquo;{subjectSearchQuery}&rdquo;.</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setSubjectSearchQuery("");
+                      setSubjectCategoryFilter("all");
+                    }}
+                  >
+                    Reset Filter Pencarian
+                  </Button>
+                </div>
+              );
+            }
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredSubjects.map((subj) => (
+                  <GlowCard
+                    key={subj.id}
+                    onClick={() => handleRequestSubject(subj)}
+                    className="p-5 space-y-3 cursor-pointer transition-all hover:border-brand hover:scale-[1.01] border-border flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl p-2 rounded-xl bg-surface2 border border-border">{subj.icon}</span>
+                          <div>
+                            <h3 className="text-sm font-bold font-serif text-text">{subj.name}</h3>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[11px] text-brand font-medium">{subj.conceptCount} Konsep</span>
+                              {subj.category && (
+                                <Badge variant="neutral" className="text-[9px] uppercase tracking-wider py-0 px-1.5">
+                                  {subj.category}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant="brand" className="text-[10px]">Pilih</Badge>
+                      </div>
+
+                      <p className="text-xs text-muted leading-relaxed line-clamp-2">
+                        {subj.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-border/50">
+                      {subj.teacherName && (
+                        <div className="text-[11px] text-muted flex items-center justify-between flex-wrap gap-1">
+                          <span className="inline-flex items-center gap-1">
+                            <span>👨‍🏫</span>
+                            <span className="truncate max-w-[150px]">{subj.teacherName}</span>
+                          </span>
+                          {subj.teacherRole?.includes("Wali") && (
+                            <span className="px-1.5 py-0.2 rounded text-[10px] bg-brand/20 text-brand font-bold border border-brand/30">
+                              Wali Kelas
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between text-xs font-semibold text-brand">
+                        <span>Mulai Latihan Soal</span>
+                        <ArrowRight size={14} />
+                      </div>
+                    </div>
+                  </GlowCard>
+                ))}
+              </div>
+            );
+          })()}
         </motion.div>
       )}
 
@@ -1641,9 +2567,11 @@ function StudentPortalContent() {
               <Button size="sm" variant="secondary" onClick={() => setActiveStep("choose_subject")}>
                 Ganti Mapel
               </Button>
-              <Button size="sm" variant="secondary" onClick={() => setActiveStep("choose_grade")}>
-                Ganti Jenjang
-              </Button>
+              {!isEnrolledStudent && (
+                <Button size="sm" variant="secondary" onClick={() => setActiveStep("choose_grade")}>
+                  Ganti Jenjang
+                </Button>
+              )}
             </div>
           </div>
 
@@ -2130,15 +3058,17 @@ function StudentPortalContent() {
                 <span>Ulangi Topik Ini (Remedial)</span>
               </Button>
 
-              <Button onClick={() => setActiveStep("choose_subject")} variant="secondary" size="sm">
+              <Button onClick={() => setActiveStep("choose_subject")} variant="primary" size="sm" className="font-bold">
                 <BookOpen size={14} />
-                <span>Pilih Mapel Lain</span>
+                <span>Pilih Mapel Lain ({studentClass})</span>
               </Button>
 
-              <Button onClick={() => setActiveStep("choose_grade")} variant="primary" size="sm" className="font-bold">
-                <GraduationCap size={14} />
-                <span>Ganti Jenjang / Target</span>
-              </Button>
+              {!isEnrolledStudent && (
+                <Button onClick={() => setActiveStep("choose_grade")} variant="secondary" size="sm">
+                  <GraduationCap size={14} />
+                  <span>Ganti Jenjang / Target</span>
+                </Button>
+              )}
             </div>
           </Card>
         </motion.div>

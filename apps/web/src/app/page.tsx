@@ -96,6 +96,7 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0); // First FAQ opened by default for preview
+  const [faqCategory, setFaqCategory] = useState<"all" | "method" | "curriculum" | "school">("all");
   const [demoStep, setDemoStep] = useState<"question" | "hint" | "resolved">("question");
 
   const programScrollRef = useRef<HTMLDivElement>(null);
@@ -401,6 +402,14 @@ export default function LandingPage() {
           2. HERO SECTION: SLIDE FROM LEFT & RIGHT
           ------------------------------------------------------------- */}
       <section className="relative pt-6 sm:pt-10 pb-12 sm:pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full overflow-hidden">
+        {/* Subtle Ambient Radial Spotlight Beam */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] sm:w-[900px] h-[350px] pointer-events-none -z-10 blur-3xl opacity-30"
+          style={{
+            background: "radial-gradient(circle at 50% 10%, var(--brand) 0%, transparent 70%)",
+          }}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* LEFT COLUMN: Slide in from Left */}
           <motion.div
@@ -506,7 +515,7 @@ export default function LandingPage() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="w-full border-y border-border/70 py-3 overflow-hidden select-none"
+        className="w-full border-y border-border/70 py-3 overflow-hidden select-none marquee-mask"
         style={{ background: "var(--surface2)" }}
       >
         <div className="flex w-max animate-marquee space-x-5 items-center">
@@ -1184,30 +1193,62 @@ export default function LandingPage() {
           </p>
         </motion.div>
 
+        {/* Category Filter Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-1 pb-1">
+          {[
+            { id: "all", label: "Semua Pertanyaan" },
+            { id: "method", label: "💡 Metode Socrates AI" },
+            { id: "curriculum", label: "📚 Materi & Jenjang" },
+            { id: "school", label: "🏫 Guru & Akun" },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => {
+                setFaqCategory(cat.id as any);
+                setOpenFaq(null);
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                faqCategory === cat.id
+                  ? "bg-brand text-bg shadow-sm font-bold"
+                  : "bg-surface2 text-text-muted hover:text-text hover:bg-surface3"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
         {/* FAQ List with Alternating Slide Entrance */}
         <div className="space-y-3">
           {[
             {
               q: "Apakah AI di NALARA akan langsung membocorkan kunci jawaban?",
               a: "Tidak sama sekali. NALARA dirancang dengan prinsip 'Think First Mode'. Ketika siswa meminta bantuan, AI bertindak sebagai mentor Sokrates yang memberikan petunjuk logika, menanyakan konsep dasar terkait, dan menuntun siswa menemukan jawaban sendiri.",
+              category: "method",
             },
             {
               q: "Mata pelajaran apa saja yang didukung oleh sistem?",
               a: "NALARA mendukung mata pelajaran SMA (Matematika Wajib/Peminatan, Bahasa Indonesia, IPA, IPS), materi UTBK/SNBT (Penalaran Umum, Pengetahuan Kuantitatif, Literasi), serta materi Sekolah Kedinasan (TIU SKD: deret, silogisme, hitung cepat, figural).",
+              category: "curriculum",
             },
             {
               q: "Bagaimana cara guru dan admin sekolah menggunakan platform ini?",
               a: "Admin sekolah dapat mendaftarkan guru untuk mata pelajaran dan jenjang tertentu melalui Dashboard Admin. Guru yang terdaftar kemudian dapat login di Dashboard Guru untuk menginput bank soal baru dan memantau perkembangan siswa.",
+              category: "school",
             },
             {
               q: "Apakah NALARA dapat digunakan untuk persiapan ujian Sekolah Kedinasan (STAN/STIS)?",
               a: "Ya, NALARA memiliki modul khusus Sekolah Kedinasan (SEKDIN) dengan bank soal standar Seleksi Kompetensi Dasar (SKD) TIU dan latihan manajemen waktu pengerjaan.",
+              category: "curriculum",
             },
             {
               q: "Bagaimana sistem menentukan apakah siswa sudah 'Menguasai' (Mastered) suatu materi?",
               a: "Tingkat penguasaan dihitung secara matematis melalui formula Mastery Score deterministik (≥85% = Mastered, 60-84% = Practicing, <60% = Needs Focus) berdasarkan riwayat pengerjaan soal dan pemahaman konsep prasyarat.",
+              category: "method",
             },
-          ].map((item, idx) => {
+          ]
+            .filter((item) => faqCategory === "all" || item.category === faqCategory)
+            .map((item, idx) => {
             const isOpen = openFaq === idx;
             const isEven = idx % 2 === 0;
 
@@ -1296,142 +1337,295 @@ export default function LandingPage() {
       </section>
 
       {/* -------------------------------------------------------------
-          9. GRAND CLOSING CTA BANNER: REFINED & SCALE-IN
+          9. GRAND CLOSING CTA SHOWCASE (SPLIT HUD CARD & SOCIAL PROOF)
           ------------------------------------------------------------- */}
-      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full overflow-hidden">
+      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full overflow-hidden">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 25 }}
+          initial={{ opacity: 0, scale: 0.96, y: 25 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="p-7 sm:p-11 text-center space-y-5 border border-brand/40 relative overflow-hidden rounded-3xl shadow-2xl"
+          className="relative p-6 sm:p-10 lg:p-12 border border-brand/50 rounded-3xl shadow-2xl overflow-hidden"
           style={{
-            background: "radial-gradient(ellipse at top, rgba(var(--brand-rgb), 0.22), transparent 70%), var(--surface2)",
+            background: "radial-gradient(ellipse at top left, rgba(var(--brand-rgb), 0.20), transparent 70%), var(--surface2)",
           }}
         >
-          {/* Ambient Decorative Glow Circles */}
-          <div className="absolute -top-16 -left-16 w-44 h-44 rounded-full blur-3xl opacity-20 bg-brand pointer-events-none" />
-          <div className="absolute -bottom-16 -right-16 w-44 h-44 rounded-full blur-3xl opacity-20 bg-accent pointer-events-none" />
+          {/* Subtle Background Tech Grid Pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.07] pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(var(--brand) 1px, transparent 1px)",
+              backgroundSize: "20px 20px",
+            }}
+          />
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-brand/35 bg-brand/10 text-brand text-xs font-semibold shadow-sm">
-            ✨ Mulai Perjalanan Belajar Adaptif Hari Ini
-          </div>
+          {/* Ambient Corner Glows */}
+          <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-25 bg-brand pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-25 bg-accent pointer-events-none" />
 
-          {/* Balanced Proportional Headline */}
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif text-text max-w-xl mx-auto leading-snug">
-            Siap Tingkatkan Nilai &amp;{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, var(--brand), var(--brand-light))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Lolos Ujian Impian Anda?
-            </span>
-          </h2>
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* LEFT COLUMN (7 cols): Main Conversion Copy & Social Proof */}
+            <div className="lg:col-span-7 space-y-5 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand/40 bg-brand/10 text-brand text-xs font-semibold shadow-sm">
+                <Sparkles size={13} className="text-brand-light" />
+                <span>Pilot Sekolah 2026 · Terbuka untuk Siswa &amp; Pendidik</span>
+              </div>
 
-          <p className="text-xs sm:text-sm text-text-muted max-w-lg mx-auto leading-relaxed">
-            Akses ribuan simulasi soal adaptif, bimbingan AI interaktif, dan peta penguasaan konsep yang dipersonalisasi khusus untuk Anda.
-          </p>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-serif text-text tracking-tight leading-tight">
+                Siap Tingkatkan Nilai &amp;{" "}
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, var(--brand), var(--brand-light))",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  Lolos Ujian Impian Anda?
+                </span>
+              </h2>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
-            <a href="/login" className="w-full sm:w-auto">
-              <Button size="md" variant="primary" className="w-full sm:w-auto shadow-xl px-6 py-2.5 font-bold flex items-center justify-center gap-2">
-                <LogIn size={16} />
-                <span>Masuk ke Portal NALARA</span>
-              </Button>
-            </a>
-            <a href="/quiz" className="w-full sm:w-auto">
-              <Button size="md" variant="secondary" className="w-full sm:w-auto border-brand/40 px-6 py-2.5 flex items-center justify-center gap-2">
-                <Sparkles size={16} className="text-brand" />
-                <span>Coba Simulasi Ujian Langsung</span>
-              </Button>
-            </a>
-          </div>
+              <p className="text-xs sm:text-sm text-text-muted max-w-xl leading-relaxed">
+                Tinggalkan hafalan kunci instan yang mudah lupa. Rasakan bimbingan nalar Sokrates 24/7 yang merunut kelemahan materi prasyarat secara presisi untuk persiapan SMA, SNBT PTN, hingga Sekolah Kedinasan.
+              </p>
 
-          {/* Mini Trust Pillars Row */}
-          <div className="pt-4 border-t border-border/50 flex flex-wrap items-center justify-center gap-4 text-[11px] text-text-muted">
-            <span className="flex items-center gap-1">
-              <ShieldCheck size={13} className="text-brand" /> Zero AI Hallucination
-            </span>
-            <span className="flex items-center gap-1">
-              <CheckCircle2 size={13} className="text-accent" /> Kurikulum Validated
-            </span>
-            <span className="flex items-center gap-1">
-              <Award size={13} className="text-emerald-400" /> Pilot Sekolah 2026
-            </span>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+                <a href="/login" className="w-full sm:w-auto">
+                  <Button size="md" variant="primary" className="w-full sm:w-auto shadow-xl px-6 py-2.5 font-bold flex items-center justify-center gap-2 text-sm">
+                    <LogIn size={16} />
+                    <span>Masuk ke Portal NALARA</span>
+                  </Button>
+                </a>
+                <a href="/quiz" className="w-full sm:w-auto">
+                  <Button size="md" variant="secondary" className="w-full sm:w-auto border-brand/40 px-5 py-2.5 flex items-center justify-center gap-2 text-sm">
+                    <Sparkles size={16} className="text-brand" />
+                    <span>Coba Simulasi Ujian Langsung</span>
+                  </Button>
+                </a>
+              </div>
+
+              {/* Social Proof Avatar Stack & Trust Metrics */}
+              <div className="pt-4 border-t border-border/60 flex flex-wrap items-center gap-4 text-xs text-text-muted">
+                {/* Avatar Circles */}
+                <div className="flex items-center -space-x-2">
+                  {["#10B981", "#6366F1", "#38BDF8", "#F97316"].map((bg, idx) => (
+                    <div
+                      key={idx}
+                      className="w-7 h-7 rounded-full border-2 border-surface2 flex items-center justify-center text-[10px] font-bold text-white shadow-sm"
+                      style={{ backgroundColor: bg }}
+                    >
+                      {["R", "S", "D", "A"][idx]}
+                    </div>
+                  ))}
+                  <div className="w-7 h-7 rounded-full border-2 border-surface2 bg-brand text-bg flex items-center justify-center text-[9px] font-extrabold shadow-sm">
+                    +1.2k
+                  </div>
+                </div>
+
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1 text-amber-400 font-bold text-xs">
+                    <span>★★★★★</span>
+                    <span className="text-text font-bold ml-1">4.9 / 5.0</span>
+                  </div>
+                  <div className="text-[11px] text-text-muted">
+                    Dipercaya 48+ Guru &amp; 1.250+ Siswa Pilot Sekolah
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN (5 cols): Live Interactive Diagnostic HUD Card Mockup */}
+            <div className="lg:col-span-5">
+              <div
+                className="p-5 rounded-2xl border border-brand/40 shadow-xl space-y-4 relative overflow-hidden backdrop-blur-md"
+                style={{ background: "rgba(var(--surface-rgb), 0.88)" }}
+              >
+                {/* HUD Top Bar */}
+                <div className="flex items-center justify-between border-b border-border/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-xs font-mono font-bold text-text">Socrates AI · Live Session</span>
+                  </div>
+                  <Badge variant="brand" className="text-[9px]">
+                    Siswa Aktif
+                  </Badge>
+                </div>
+
+                {/* Student Mini Profile */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-bold text-text">Rian Pratama</div>
+                    <div className="text-[11px] text-text-muted">Kelas XII SMA · Target: TIU STAN / SNBT</div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-brand/15 text-brand-light text-[10px] font-mono font-bold border border-brand/30">
+                    Mastery: 88.5%
+                  </span>
+                </div>
+
+                {/* Live Progress Meter */}
+                <div className="space-y-1.5 p-3 rounded-xl bg-surface2/80 border border-border">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-text-muted">Topik: Teorema Pythagoras &amp; Trigonometri</span>
+                    <span className="text-emerald-400 font-bold">Terverifikasi ✓</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-surface3 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-brand to-emerald-400 w-[88.5%]" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic pt-0.5">
+                    "AI Socrates mendeteksi pemahaman nalar mandiri telah tercapai."
+                  </p>
+                </div>
+
+                {/* 2 Micro Trust Badges */}
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2 rounded-lg bg-surface2/60 border border-border flex items-center gap-1.5">
+                    <ShieldCheck size={14} className="text-brand shrink-0" />
+                    <span className="text-text font-medium text-[10px]">Zero Hallucination</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-surface2/60 border border-border flex items-center gap-1.5">
+                    <CheckCircle2 size={14} className="text-accent shrink-0" />
+                    <span className="text-text font-medium text-[10px]">100% Kurasi Guru</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </motion.div>
       </section>
 
       {/* -------------------------------------------------------------
-          10. CLEAN SAAS FOOTER
+          10. ENTERPRISE SAAS FOOTER (5-COLUMN DETAILED DIRECTORY)
           ------------------------------------------------------------- */}
-      <footer className="pt-10 pb-8 border-t border-border text-xs text-text-muted max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-7">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-7">
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-brand flex items-center justify-center">
-                <Sparkles size={13} className="text-bg" />
-              </div>
-              <span className="font-bold font-serif text-sm text-text">NALARA</span>
+      <footer className="pt-12 pb-8 border-t border-border/80 text-xs text-text-muted max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-10">
+        {/* Top Footer: Brand, System Status & Accreditation */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-border/60 pb-6">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center shadow-md"
+              style={{ background: "linear-gradient(135deg, var(--brand), var(--brand-light))" }}
+            >
+              <Sparkles size={16} className="text-bg" />
             </div>
-            <p className="text-[11px] leading-relaxed">
-              Personalized AI Learning Intelligence untuk pilot sekolah, persiapan UTBK SNBT, dan Sekolah Kedinasan.
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold font-serif text-lg text-text tracking-wide">NALARA</span>
+                <span className="px-2 py-0.5 rounded-full bg-brand/15 text-brand text-[10px] font-bold border border-brand/30">
+                  Pilot v2.0
+                </span>
+              </div>
+              <p className="text-[11px] text-text-muted">
+                Personalized AI Learning Intelligence
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-2">
+          {/* Operational Status Pill & Badge */}
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Semua Sistem Normal · 99.9% Uptime</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface2 text-text-muted border border-border text-[11px]">
+              <ShieldCheck size={13} className="text-brand" />
+              <span>Standar Kurikulum Merdeka</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Footer Directory: 5 Clean Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+          {/* Col 1: Visi & Platform */}
+          <div className="space-y-3 col-span-2 md:col-span-1">
+            <h4 className="font-bold text-text text-xs uppercase tracking-wider">Tentang Platform</h4>
+            <p className="text-[11px] text-text-muted leading-relaxed">
+              Platform e-learning cerdas berbasis AI Sokrates yang menuntun nalar mandiri siswa tanpa contekan instan. Dirancang untuk efisiensi guru dan kemajuan mutu sekolah.
+            </p>
+            <div className="pt-1 flex items-center gap-2 text-[11px] text-brand font-semibold">
+              <CheckCircle2 size={13} />
+              <span>Kurasi Guru 100%</span>
+            </div>
+          </div>
+
+          {/* Col 2: Program Belajar */}
+          <div className="space-y-2.5">
             <h4 className="font-bold text-text text-xs uppercase tracking-wider">Program Belajar</h4>
-            <ul className="space-y-1.5 text-[11px]">
-              <li><a href="/quiz" className="hover:text-text transition-colors">SMA Kelas 10, 11, 12</a></li>
+            <ul className="space-y-2 text-[11px]">
+              <li><a href="/quiz" className="hover:text-text transition-colors">SMA Fase E (Kelas 10)</a></li>
+              <li><a href="/quiz" className="hover:text-text transition-colors">SMA Fase F (Kelas 11 &amp; 12)</a></li>
               <li><a href="/quiz" className="hover:text-text transition-colors">Persiapan UTBK / SNBT</a></li>
               <li><a href="/quiz" className="hover:text-text transition-colors">Sekolah Kedinasan (SEKDIN)</a></li>
-              <li><a href="/quiz" className="hover:text-text transition-colors">Tes Inteligensi Umum (TIU)</a></li>
+              <li><a href="/quiz" className="hover:text-text transition-colors">SKD Tes Inteligensi Umum (TIU)</a></li>
             </ul>
           </div>
 
-          <div className="space-y-2">
+          {/* Col 3: Fitur & AI Engine */}
+          <div className="space-y-2.5">
+            <h4 className="font-bold text-text text-xs uppercase tracking-wider">Teknologi Cerdas</h4>
+            <ul className="space-y-2 text-[11px]">
+              <li><a href="#perbandingan" className="hover:text-text transition-colors">Think First Socratic Tutor</a></li>
+              <li><a href="#perbandingan" className="hover:text-text transition-colors">Peta Graf Prasyarat (DAG)</a></li>
+              <li><a href="#perbandingan" className="hover:text-text transition-colors">Mastery Score Deterministik</a></li>
+              <li><a href="/login" className="hover:text-text transition-colors">Pelacakan Pasca Lulus (Tracer)</a></li>
+              <li><a href="/login" className="hover:text-text transition-colors">Bank Soal Terkurasi Pendidik</a></li>
+            </ul>
+          </div>
+
+          {/* Col 4: Portal Pengguna */}
+          <div className="space-y-2.5">
             <h4 className="font-bold text-text text-xs uppercase tracking-wider">Portal Akses</h4>
-            <ul className="space-y-1.5 text-[11px]">
-              <li><a href="/login" className="hover:text-text transition-colors">Login Siswa</a></li>
-              <li><a href="/login" className="hover:text-text transition-colors">Dashboard Guru Mapel</a></li>
-              <li><a href="/login" className="hover:text-text transition-colors">Dashboard Admin Sekolah</a></li>
+            <ul className="space-y-2 text-[11px]">
+              <li><a href="/login" className="hover:text-text transition-colors">Portal Masuk Siswa</a></li>
+              <li><a href="/login" className="hover:text-text transition-colors">Dashboard Guru Mata Pelajaran</a></li>
+              <li><a href="/login" className="hover:text-text transition-colors">Dashboard Wali Kelas &amp; Rombel</a></li>
+              <li><a href="/login" className="hover:text-text transition-colors">Portal Administrator Sekolah</a></li>
               <li><a href="/quiz" className="hover:text-text transition-colors">Simulasi Ujian Adaptif</a></li>
             </ul>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="font-bold text-text text-xs uppercase tracking-wider">Keamanan &amp; Standar</h4>
-            <div className="space-y-1.5 text-[11px]">
-              <div className="flex items-center gap-1.5 text-brand">
-                <ShieldCheck size={13} />
-                <span>Zero AI Hallucination</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-accent">
-                <CheckCircle2 size={13} />
-                <span>Deterministic Scoring</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-text">
-                <FileCheck size={13} />
-                <span>Kurikulum Merdeka Validated</span>
-              </div>
-            </div>
+          {/* Col 5: Keamanan & Integritas */}
+          <div className="space-y-2.5">
+            <h4 className="font-bold text-text text-xs uppercase tracking-wider">Standar &amp; Bantuan</h4>
+            <ul className="space-y-2 text-[11px]">
+              <li><a href="#faq" className="hover:text-text transition-colors">Pusat Bantuan &amp; FAQ</a></li>
+              <li><a href="/login" className="hover:text-text transition-colors">Panduan Registrasi Siswa</a></li>
+              <li><a href="#alur" className="hover:text-text transition-colors">Alur Penilaian Sokrates</a></li>
+              <li><a href="#" className="hover:text-text transition-colors">Zero AI Hallucination Policy</a></li>
+              <li><a href="#" className="hover:text-text transition-colors">Perlindungan Data Pribadi Siswa</a></li>
+            </ul>
           </div>
         </div>
 
-        <div className="pt-5 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
+        {/* Bottom Legal & Copyright Bar */}
+        <div className="pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-text-muted">
           <div>
-            NALARA © 2026 — Platform E-Learning Cerdas Berbasis AI. Hak Cipta Dilindungi.
+            © 2026 <strong>NALARA AI Intelligence</strong>. Seluruh Hak Cipta Dilindungi.
+          </div>
+          <div className="flex items-center gap-2 text-text font-medium">
+            <span>🇮🇩 Dikembangkan untuk Masa Depan Pendidikan Indonesia</span>
           </div>
           <div className="flex items-center gap-5">
             <a href="/login" className="hover:text-text transition-colors">Masuk Portal</a>
-            <a href="/quiz" className="hover:text-text transition-colors">Mulai Latihan</a>
-            <a href="#faq" className="hover:text-text transition-colors">Bantuan / FAQ</a>
+            <a href="/quiz" className="hover:text-text transition-colors">Latihan Soal</a>
+            <a href="#faq" className="hover:text-text transition-colors">FAQ</a>
+            <a href="#program" className="hover:text-text transition-colors">Program</a>
           </div>
         </div>
       </footer>
+
+      {/* Floating Back to Top Button */}
+      {scrolled && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-40 w-10 h-10 rounded-full border border-border/80 shadow-2xl bg-surface/90 backdrop-blur-md flex items-center justify-center text-text-muted hover:text-brand hover:border-brand/50 transition-all hover:scale-110 cursor-pointer"
+          aria-label="Kembali ke atas"
+          title="Kembali ke atas"
+        >
+          <ChevronUp size={20} />
+        </motion.button>
+      )}
     </div>
   );
 }
