@@ -2036,10 +2036,10 @@ function StudentPortalContent() {
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
               Status Resmi: Alumni / Telah Lulus
             </span>
-            <h1 className="text-3xl font-extrabold font-serif text-text">
+            <h1 className="t-h2 font-serif text-text">
               Selamat Atas Kelulusan Anda!
             </h1>
-            <p className="text-xs sm:text-sm text-muted leading-relaxed">
+            <p className="t-body">
               Akun Anda telah berstatus <strong>Alumni (Graduated)</strong>. Anda telah menyelesaikan seluruh rangkaian kegiatan belajar mengajar aktif di {studentClass}.
             </p>
           </div>
@@ -2112,9 +2112,9 @@ function StudentPortalContent() {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold font-serif text-text">{studentName}</h1>
-              <Badge variant="brand" className="text-[11px] font-bold">{studentClass}</Badge>
-              <Badge variant="accent" className="text-[11px] font-bold">{studentGrade}</Badge>
+              <h1 className="t-h3 font-serif text-text">{studentName}</h1>
+              <Badge variant="brand" className="text-xs font-bold">{studentClass}</Badge>
+              <Badge variant="accent" className="text-xs font-bold">{studentGrade}</Badge>
             </div>
             <p className="text-xs text-muted flex items-center gap-1.5 mt-0.5">
               <span>Portal Belajar Siswa</span>
@@ -2185,11 +2185,11 @@ function StudentPortalContent() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm text-text font-serif">Kenaikan Kelas Resmi Diterbitkan!</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                   Disetujui Wali Kelas
                 </span>
               </div>
-              <p className="text-muted text-[11px] mt-0.5">
+              <p className="text-muted text-xs mt-0.5">
                 Selamat <strong className="text-text">{studentProfileName}</strong>! Wali Kelas <strong className="text-emerald-300">{promotedNotification.homeroomTeacher}</strong> telah menyetujui kenaikan kelas Anda dari <strong className="text-text">{promotedNotification.previousClass}</strong> ke <strong className="text-emerald-400 font-bold">{promotedNotification.newClass}</strong>.
               </p>
             </div>
@@ -2286,7 +2286,7 @@ function StudentPortalContent() {
 
           <div className="space-y-2">
             <Badge variant="brand">Langkah 1</Badge>
-            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text">
+            <h2 className="t-h2 font-serif text-text">
               Pilih Jenjang / Target Pembelajaran
             </h2>
             <p className="text-xs sm:text-sm text-muted">
@@ -2317,30 +2317,30 @@ function StudentPortalContent() {
                   <div className="flex items-center justify-between">
                     <span className="text-3xl">{prog.icon}</span>
                     {isLocked ? (
-                      <Badge variant="neutral" className="text-[10px] bg-red-950/40 text-red-400 border border-red-500/30 flex items-center gap-1 font-semibold">
+                      <Badge variant="neutral" className="text-xs bg-red-950/40 text-red-400 border border-red-500/30 flex items-center gap-1 font-semibold">
                         <Lock size={10} /> Akses Terkunci
                       </Badge>
                     ) : isCurrentOfficialGrade ? (
-                      <Badge variant="brand" className="text-[10px] flex items-center gap-1 font-semibold">
+                      <Badge variant="brand" className="text-xs flex items-center gap-1 font-semibold">
                         <CheckCircle2 size={10} /> Kelas Resmi Anda
                       </Badge>
                     ) : isExternalEnrichment ? (
-                      <Badge variant="accent" className="text-[10px] font-semibold">
+                      <Badge variant="accent" className="text-xs font-semibold">
                         🎯 Pengayaan Terbuka
                       </Badge>
                     ) : (
-                      <Badge variant={selectedGrade?.id === prog.id ? "brand" : "neutral"} className="text-[10px]">
+                      <Badge variant={selectedGrade?.id === prog.id ? "brand" : "neutral"} className="text-xs">
                         {prog.subjects.length} Mata Pelajaran
                       </Badge>
                     )}
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-bold font-serif text-text flex items-center gap-2">
+                    <h3 className="text-lg font-semibold font-serif text-text flex items-center gap-2">
                       <span>{prog.title}</span>
                       {isLocked && <Lock size={14} className="text-red-400" />}
                     </h3>
-                    <p className="text-xs text-muted mt-1 leading-relaxed">
+                    <p className="t-body mt-1">
                       {isLocked ? (
                         <span className="text-red-400/90 font-medium">{access.reason}</span>
                       ) : (
@@ -2381,7 +2381,7 @@ function StudentPortalContent() {
           <div className="pt-6 border-t border-border/80 space-y-4">
             <div className="flex items-center gap-2">
               <Sparkles size={18} className="text-brand" />
-              <h3 className="text-lg font-bold font-serif text-text">
+              <h3 className="text-lg font-semibold font-serif text-text">
                 Pusat Beasiswa Kuliah &amp; Peluang Karir Siswa
               </h3>
             </div>
@@ -2400,10 +2400,10 @@ function StudentPortalContent() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-bold font-serif text-emerald-300 group-hover:text-emerald-200">
+                  <h4 className="text-lg font-semibold font-serif text-emerald-300 group-hover:text-emerald-200">
                     Ingin Cari Beasiswa Kuliah S1?
                   </h4>
-                  <p className="text-xs text-muted mt-1.5 leading-relaxed">
+                  <p className="t-body mt-1.5">
                     Temukan beasiswa KIP Kuliah Merdeka, BCA, Djarum, &amp; Beasiswa Unggulan dengan pembebasan biaya kuliah 100% + tunjangan uang saku bulanan.
                   </p>
                 </div>
@@ -2427,10 +2427,10 @@ function StudentPortalContent() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-bold font-serif text-text group-hover:text-brand">
+                  <h4 className="text-lg font-semibold font-serif text-text group-hover:text-brand">
                     Ingin Bekerja tapi Bingung Mau Kerja Apa?
                   </h4>
-                  <p className="text-xs text-muted mt-1.5 leading-relaxed">
+                  <p className="t-body mt-1.5">
                     Ikuti tes minat bakat AI (4 soal cepat) untuk mendeteksi keahlianmu, lalu temukan lowongan kerja real-time yang cocok untuk lulusan SMA/SMK.
                   </p>
                 </div>
@@ -2460,13 +2460,13 @@ function StudentPortalContent() {
               </div>
 
               <div className="text-center space-y-2">
-                <Badge variant="neutral" className="bg-red-950/40 text-red-300 border border-red-500/30 text-[10px]">
+                <Badge variant="neutral" className="bg-red-950/40 text-red-300 border border-red-500/30 text-xs">
                   Hak Akses Terbatas (RBAC Sekolah)
                 </Badge>
-                <h3 className="text-lg font-bold font-serif text-text">
+                <h3 className="text-lg font-semibold font-serif text-text">
                   Akses Kurikulum Ditolak
                 </h3>
-                <p className="text-xs text-muted leading-relaxed">
+                <p className="t-body">
                   {accessDeniedModal.reason}
                 </p>
               </div>
@@ -2484,7 +2484,7 @@ function StudentPortalContent() {
                   <span>Kurikulum Diminta:</span>
                   <strong className="text-red-400 font-semibold">{accessDeniedModal.targetTitle}</strong>
                 </div>
-                <div className="pt-1 border-t border-border/60 text-[11px] text-muted-foreground flex items-center gap-1">
+                <div className="pt-1 border-t border-border/60 text-xs text-muted-foreground flex items-center gap-1">
                   <span>💡</span>
                   <span>Anda diizinkan mengakses modul <strong>{studentClass}</strong>, <strong>UTBK/SNBT</strong>, dan <strong>Kedinasan</strong>.</span>
                 </div>
@@ -2538,7 +2538,7 @@ function StudentPortalContent() {
                   )}
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text">
+              <h2 className="t-h2 font-serif text-text">
                 Pilih Mata Pelajaran ({selectedGrade.subjects.length} Mapel)
               </h2>
               <p className="text-xs sm:text-sm text-muted">
@@ -2708,11 +2708,11 @@ function StudentPortalContent() {
                           <div className="flex items-center gap-3">
                             <span className="text-2xl p-2 rounded-xl bg-surface2 border border-border">{subj.icon}</span>
                             <div>
-                              <h3 className="text-sm font-bold font-serif text-text">{subj.name}</h3>
+                              <h3 className="t-h3 font-serif text-text">{subj.name}</h3>
                               <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="text-[11px] text-brand font-medium">{subj.conceptCount} Konsep</span>
+                                <span className="text-xs text-brand font-medium">{subj.conceptCount} Konsep</span>
                                 {subj.category && (
-                                  <Badge variant="neutral" className="text-[9px] uppercase tracking-wider py-0 px-1.5">
+                                  <Badge variant="neutral" className="text-xs uppercase tracking-wider py-0 px-1.5">
                                     {subj.category}
                                   </Badge>
                                 )}
@@ -2720,32 +2720,32 @@ function StudentPortalContent() {
                             </div>
                           </div>
                           {isSubjCompleted && !hasSubjRemedial ? (
-                            <Badge variant="accent" className="text-[10px] bg-amber-500/15 text-amber-300 border-amber-500/40">
+                            <Badge variant="accent" className="text-xs bg-amber-500/15 text-amber-300 border-amber-500/40">
                               🔒 Selesai (1x)
                             </Badge>
                           ) : isSubjCompleted && hasSubjRemedial ? (
-                            <Badge variant="brand" className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                            <Badge variant="brand" className="text-xs bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
                               ✨ Remedial
                             </Badge>
                           ) : (
-                            <Badge variant="brand" className="text-[10px]">Tersedia</Badge>
+                            <Badge variant="brand" className="text-xs">Tersedia</Badge>
                           )}
                         </div>
 
-                        <p className="text-xs text-muted leading-relaxed line-clamp-2">
+                        <p className="t-body line-clamp-2">
                           {subj.description}
                         </p>
                       </div>
 
                       <div className="space-y-2 pt-2 border-t border-border/50">
                         {subj.teacherName && (
-                          <div className="text-[11px] text-muted flex items-center justify-between flex-wrap gap-1">
+                          <div className="text-xs text-muted flex items-center justify-between flex-wrap gap-1">
                             <span className="inline-flex items-center gap-1">
                               <span>👨‍🏫</span>
                               <span className="truncate max-w-[150px]">{subj.teacherName}</span>
                             </span>
                             {subj.teacherRole?.includes("Wali") && (
-                              <span className="px-1.5 py-0.2 rounded text-[10px] bg-brand/20 text-brand font-bold border border-brand/30">
+                              <span className="px-1.5 py-0.2 rounded text-xs bg-brand/20 text-brand font-bold border border-brand/30">
                                 Wali Kelas
                               </span>
                             )}
@@ -2794,10 +2794,10 @@ function StudentPortalContent() {
                   <Badge variant="accent" className="text-xs">
                     Sesi Terkunci • 1x Kesempatan
                   </Badge>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold font-serif text-text">
+                  <h2 className="t-h2 font-serif text-text">
                     Sesi Latihan Sudah Selesai Dikerjakan
                   </h2>
-                  <p className="text-xs text-muted leading-relaxed max-w-md mx-auto">
+                  <p className="t-body max-w-md mx-auto">
                     Kamu telah menyelesaikan seluruh soal pada mata pelajaran <strong className="text-brand">{pendingSubject.name}</strong>. Nilai dan rekap pembahasan telah tersimpan secara resmi.
                   </p>
                 </div>
@@ -2854,10 +2854,10 @@ function StudentPortalContent() {
                   <Badge variant="brand" className="text-xs bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
                     Izin Remedial Diberikan Guru
                   </Badge>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold font-serif text-text">
+                  <h2 className="t-h2 font-serif text-text">
                     Kesempatan Remedial Telah Aktif!
                   </h2>
-                  <p className="text-xs text-muted leading-relaxed max-w-md mx-auto">
+                  <p className="t-body max-w-md mx-auto">
                     Guru kamu telah mengaktifkan kesempatan remedial untuk <strong className="text-brand">{pendingSubject.name}</strong>. Kamu dapat mengerjakan kembali seluruh soal untuk memperbaiki nilai dan pemahaman konsep.
                   </p>
                 </div>
@@ -2910,7 +2910,7 @@ function StudentPortalContent() {
                 <Badge variant="brand" className="text-xs">
                   Konfirmasi Mulai Latihan (1x Kesempatan)
                 </Badge>
-                <h2 className="text-2xl sm:text-3xl font-extrabold font-serif text-text">
+                <h2 className="t-h2 font-serif text-text">
                   Yakin Ingin Mulai Mengerjakan Soal Sekarang?
                 </h2>
                 <p className="text-xs text-muted">
@@ -2982,8 +2982,8 @@ function StudentPortalContent() {
               <span className="text-2xl p-2 rounded-xl bg-surface border border-border">{selectedSubject.icon}</span>
               <div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="brand" className="text-[10px]">{selectedGrade.badge}</Badge>
-                  <h2 className="text-base font-bold font-serif text-text">{selectedSubject.name}</h2>
+                  <Badge variant="brand" className="text-xs">{selectedGrade.badge}</Badge>
+                  <h2 className="t-h3 font-serif text-text">{selectedSubject.name}</h2>
                 </div>
                 <p className="text-xs text-muted">{currentQ.topic}</p>
               </div>
@@ -3035,13 +3035,13 @@ function StudentPortalContent() {
                 >
                   <Clock size={14} className={timeLeft <= 120 ? "text-red-400 animate-spin" : "text-brand"} />
                   <span className="font-mono text-sm tracking-wider">{formatTime(timeLeft)}</span>
-                  <span className="text-[10px] text-muted font-normal hidden sm:inline">Sisa Waktu</span>
+                  <span className="text-xs text-muted font-normal hidden sm:inline">Sisa Waktu</span>
                 </div>
                 <span className="text-xs font-mono text-muted hidden md:inline">Mode: Adaptif AI</span>
               </div>
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-bold font-serif text-text leading-snug">
+            <h3 className="t-h3 font-serif text-text">
               {currentQ.questionText}
             </h3>
 
@@ -3092,17 +3092,17 @@ function StudentPortalContent() {
 
                         <div className="flex items-center gap-2 shrink-0 sm:ml-2 self-start sm:self-auto">
                           {hasAnswered && isCorrectAnswer && (
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1 border border-emerald-500/40 whitespace-nowrap">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1 border border-emerald-500/40 whitespace-nowrap">
                               <CheckCircle2 size={12} /> Kunci Jawaban Benar
                             </span>
                           )}
                           {hasAnswered && isSelected && !isCorrectAnswer && (
-                            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold flex items-center gap-1 border border-rose-500/40 whitespace-nowrap">
+                            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold flex items-center gap-1 border border-rose-500/40 whitespace-nowrap">
                               <AlertTriangle size={12} /> Jawaban Kamu (Salah)
                             </span>
                           )}
                           {!hasAnswered && isSelected && (
-                            <span className="px-2 py-0.5 rounded-full bg-brand/20 text-brand text-[10px] font-bold flex items-center gap-1 border border-brand/40 whitespace-nowrap">
+                            <span className="px-2 py-0.5 rounded-full bg-brand/20 text-brand text-xs font-bold flex items-center gap-1 border border-brand/40 whitespace-nowrap">
                               <Check size={12} className="text-brand shrink-0" /> Dipilih
                             </span>
                           )}
@@ -3169,7 +3169,7 @@ function StudentPortalContent() {
                   <Send size={15} />
                 </Button>
               ) : (
-                <Button onClick={handleNextQuestion} variant="primary" className="w-full sm:w-auto font-bold px-6 py-2.5 flex items-center justify-center gap-2">
+                <Button onClick={handleNextQuestion} variant="primary" className="w-full sm:w-auto font-semibold px-6 py-2.5 flex items-center justify-center gap-2">
                   <span className="text-center">{isLastQuestion ? "Selesaikan & Lihat Hasil Evaluasi" : "Lanjut ke Soal Berikutnya"}</span>
                   <ArrowRight size={15} className="shrink-0" />
                 </Button>
@@ -3230,7 +3230,7 @@ function StudentPortalContent() {
                           <span>Jawaban Belum Tepat — Evaluasi & Cara Kerja:</span>
                         </div>
                         {result.misconceptionCode && (
-                          <span className="inline-block px-2.5 py-0.5 rounded-full bg-surface text-[11px] font-mono text-accent border border-border">
+                          <span className="inline-block px-2.5 py-0.5 rounded-full bg-surface text-xs font-mono text-accent border border-border">
                             Pola Miskonsepsi: {result.misconceptionCode}
                           </span>
                         )}
@@ -3239,7 +3239,7 @@ function StudentPortalContent() {
                       {/* Kotak Jawaban Benar */}
                       <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/40 flex items-center justify-between gap-3 text-xs">
                         <div>
-                          <span className="text-emerald-400 font-bold block uppercase tracking-wider text-[10px]">
+                          <span className="text-emerald-400 font-bold block uppercase tracking-wider text-xs">
                             Kunci Jawaban yang Benar:
                           </span>
                           <span className="text-emerald-300 font-extrabold text-sm sm:text-base">
@@ -3257,7 +3257,7 @@ function StudentPortalContent() {
                           <BrainCircuit size={16} />
                           <span>Cara Kerja & Langkah Penyelesaian (AI):</span>
                         </div>
-                        <p className="text-text leading-relaxed whitespace-pre-line text-xs sm:text-sm">
+                        <p className="t-body whitespace-pre-line">
                           {result.stepByStepSolution || currentQ.explanationText || "Pahami kembali kaidah materi untuk menyelesaikan soal ini."}
                         </p>
                       </div>
@@ -3295,7 +3295,7 @@ function StudentPortalContent() {
               <Badge variant="brand" className="px-3 py-1 text-xs">
                 Sesi Pembelajaran Selesai
               </Badge>
-              <h2 className="text-2xl sm:text-4xl font-extrabold font-serif text-text">
+              <h2 className="t-h2 font-serif text-text">
                 Rapor Evaluasi Belajar: {selectedSubject.name}
               </h2>
               <p className="text-xs sm:text-sm text-muted">
@@ -3310,7 +3310,7 @@ function StudentPortalContent() {
                 <div className="text-3xl font-extrabold font-serif text-emerald-400 font-mono">
                   {accuracyPercentage}%
                 </div>
-                <span className="text-[11px] text-muted">{correctCount} dari {totalSessionQuestions} Benar</span>
+                <span className="text-xs text-muted">{correctCount} dari {totalSessionQuestions} Benar</span>
               </Card>
 
               <Card className="p-4 text-center space-y-1 border-brand/30 bg-brand/5">
@@ -3318,7 +3318,7 @@ function StudentPortalContent() {
                 <div className="text-3xl font-extrabold font-serif text-brand font-mono">
                   {masteryScore}%
                 </div>
-                <span className="text-[11px] text-brand font-bold">
+                <span className="text-xs text-brand font-bold">
                   {masteryScore >= 85 ? "🟢 Mastered" : masteryScore >= 60 ? "🟡 Practicing" : "🔴 Needs Focus"}
                 </span>
               </Card>
@@ -3328,7 +3328,7 @@ function StudentPortalContent() {
                 <div className="text-3xl font-extrabold font-serif text-accent font-mono">
                   {wrongAttempts.length === 0 ? "Optimal" : `${wrongAttempts.length} Catatan`}
                 </div>
-                <span className="text-[11px] text-muted">Pola Nalar Terpetakan</span>
+                <span className="text-xs text-muted">Pola Nalar Terpetakan</span>
               </Card>
             </div>
           </GlowCard>
@@ -3349,7 +3349,7 @@ function StudentPortalContent() {
                     <li key={idx} className="p-3 rounded-xl bg-surface border border-border space-y-1">
                       <div className="font-bold text-text flex items-center justify-between">
                         <span>• {item.conceptName}</span>
-                        <Badge variant="brand" className="text-[10px]">Tuntas</Badge>
+                        <Badge variant="brand" className="text-xs">Tuntas</Badge>
                       </div>
                       <p className="text-muted leading-relaxed">{item.questionText}</p>
                     </li>
@@ -3374,7 +3374,7 @@ function StudentPortalContent() {
                     <div key={idx} className="p-3 rounded-xl bg-surface border border-border space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-text">• {item.conceptName}</span>
-                        <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 text-[10px] font-mono">
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 text-xs font-mono">
                           {item.misconceptionCode || "Perlu Review"}
                         </span>
                       </div>
@@ -3399,7 +3399,7 @@ function StudentPortalContent() {
           <Card className="p-6 space-y-4 border-border">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
               <div>
-                <h3 className="text-base font-bold font-serif text-text flex items-center gap-2">
+                <h3 className="text-base font-semibold font-serif text-text flex items-center gap-2">
                   <BookOpen size={18} className="text-brand" />
                   <span>Rekap Detail Soal &amp; Pembahasan Konsep</span>
                 </h3>
@@ -3431,7 +3431,7 @@ function StudentPortalContent() {
                         <span className="w-6 h-6 rounded-lg bg-surface2 border border-border flex items-center justify-center font-mono font-bold text-xs">
                           {idx + 1}
                         </span>
-                        <Badge variant="accent" className="text-[10px]">{q.conceptName}</Badge>
+                        <Badge variant="accent" className="text-xs">{q.conceptName}</Badge>
                         <span className="text-xs text-muted">{q.topic}</span>
                       </div>
 
@@ -3446,20 +3446,20 @@ function StudentPortalContent() {
                       )}
                     </div>
 
-                    <p className="text-sm font-semibold text-text leading-relaxed">
+                    <p className="t-body font-semibold">
                       {q.questionText}
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-border/60">
                       <div className="p-2.5 rounded-lg bg-surface border border-border space-y-1">
-                        <span className="text-[10px] uppercase font-bold text-muted block">Jawaban Kamu:</span>
+                        <span className="text-xs uppercase font-bold text-muted block">Jawaban Kamu:</span>
                         <p className={`font-bold ${wasAnsweredCorrectly ? "text-emerald-400" : "text-amber-300"}`}>
                           {userAttempt?.userAnswer || q.correctAnswer}
                         </p>
                       </div>
 
                       <div className="p-2.5 rounded-lg bg-surface border border-brand/30 space-y-1">
-                        <span className="text-[10px] uppercase font-bold text-brand block">Kunci Jawaban Benar:</span>
+                        <span className="text-xs uppercase font-bold text-brand block">Kunci Jawaban Benar:</span>
                         <p className="font-bold text-brand">
                           {q.correctAnswer}
                         </p>
@@ -3491,7 +3491,7 @@ function StudentPortalContent() {
           {/* Action Navigation Footer */}
           <Card className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-border">
             <div className="space-y-0.5 text-center sm:text-left">
-              <h3 className="text-base font-bold font-serif text-text">Mau Lanjut Belajar Apa Sekarang?</h3>
+              <h3 className="text-base font-semibold font-serif text-text">Mau Lanjut Belajar Apa Sekarang?</h3>
               <p className="text-xs text-muted">Pilih langkah berikutnya untuk melanjutkan penguatan kompetensi kamu.</p>
             </div>
 
@@ -3500,7 +3500,7 @@ function StudentPortalContent() {
                 const canRemedial = !!remedialPermissions[studentEmail] || !!remedialPermissions[`${studentEmail}_${selectedSubject.id}`];
                 if (canRemedial) {
                   return (
-                    <Button onClick={handleRestartQuiz} variant="primary" size="sm" className="font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md">
+                    <Button onClick={handleRestartQuiz} variant="primary" size="sm" className="font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md">
                       <Sparkles size={14} />
                       <span>Kerjakan Ulang (Remedial Aktif)</span>
                     </Button>
@@ -3523,7 +3523,7 @@ function StudentPortalContent() {
                 );
               })()}
 
-              <Button onClick={() => setActiveStep("choose_subject")} variant="primary" size="sm" className="font-bold">
+              <Button onClick={() => setActiveStep("choose_subject")} variant="primary" size="sm" className="font-semibold">
                 <BookOpen size={14} />
                 <span>Pilih Mapel Lain ({studentClass})</span>
               </Button>

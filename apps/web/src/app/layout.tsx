@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const dmSans = DM_Sans({
+// next/font requires literal option values, so the fallback stack is repeated per font.
+// Heading font: H1 (800), H2 (700), H3 (600)
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-dm-sans",
+  weight: ["600", "700", "800"],
+  variable: "--font-jakarta",
   display: "swap",
+  fallback: ["system-ui", "-apple-system", "sans-serif"],
 });
 
-const fraunces = Fraunces({
+// Body font: Regular (400), Medium (500), SemiBold (600) for buttons/labels, Bold (700) for emphasis
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
-  variable: "--font-fraunces",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
   display: "swap",
+  fallback: ["system-ui", "-apple-system", "sans-serif"],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" data-theme="emerald" className={`${dmSans.variable} ${fraunces.variable}`}>
+    <html lang="id" data-theme="emerald" className={`${inter.variable} ${plusJakartaSans.variable}`}>
       <body className="min-h-screen antialiased selection:bg-brand/20 overflow-x-hidden">
         {/* Ambient Glows from DESIGN.md */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">

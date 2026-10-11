@@ -66,7 +66,7 @@ export const Button: React.FC<ButtonProps> = ({
       whileTap={!disabled && !loading ? { scale: 0.98 } : undefined}
       disabled={disabled || loading}
       className={clsx(
-        "inline-flex items-center justify-center font-medium transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none",
+        "inline-flex items-center justify-center font-semibold transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none cursor-pointer select-none",
         sizeClasses[size],
         className
       )}

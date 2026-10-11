@@ -300,10 +300,10 @@ export function DigitalBookVisual() {
           <Target size={12} className="sm:w-[13px] sm:h-[13px]" />
         </div>
         <div className="flex flex-col">
-          <span className="text-[10px] sm:text-[11px] font-bold text-text leading-tight whitespace-nowrap">
+          <span className="text-xs font-bold text-text leading-tight whitespace-nowrap">
             Diagnosis Konsep
           </span>
-          <span className="text-[8px] sm:text-[9px] text-muted whitespace-nowrap">Akurasi 98.4%</span>
+          <span className="text-xs text-muted whitespace-nowrap">Akurasi 98.4%</span>
         </div>
       </div>
 
@@ -319,10 +319,10 @@ export function DigitalBookVisual() {
           <Lightbulb size={12} className="sm:w-[13px] sm:h-[13px]" />
         </div>
         <div className="flex flex-col">
-          <span className="text-[10px] sm:text-[11px] font-bold text-text leading-tight whitespace-nowrap">
+          <span className="text-xs font-bold text-text leading-tight whitespace-nowrap">
             Think First Mode
           </span>
-          <span className="text-[8px] sm:text-[9px] text-amber-300/90 whitespace-nowrap">Tanpa Bocor Kunci</span>
+          <span className="text-xs text-amber-300/90 whitespace-nowrap">Tanpa Bocor Kunci</span>
         </div>
       </div>
 
@@ -338,10 +338,10 @@ export function DigitalBookVisual() {
           <Zap size={13} />
         </div>
         <div className="flex flex-col">
-          <span className="text-[11px] font-bold text-text leading-tight whitespace-nowrap">
+          <span className="text-xs font-bold text-text leading-tight whitespace-nowrap">
             Langkah demi Langkah
           </span>
-          <span className="text-[9px] text-emerald-300/90 whitespace-nowrap">Penalaran Mandiri</span>
+          <span className="text-xs text-emerald-300/90 whitespace-nowrap">Penalaran Mandiri</span>
         </div>
       </div>
     </div>

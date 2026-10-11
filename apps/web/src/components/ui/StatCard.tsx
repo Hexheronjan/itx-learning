@@ -109,13 +109,13 @@ export const StatCard: React.FC<StatCardProps> = ({
 
         <div className="mt-4">
           <h3
-            className="text-2xl font-bold font-serif"
+            className="text-2xl font-extrabold tabular-nums font-serif"
             style={{ color: "var(--text)" }}
           >
             <AnimatedCounter value={value} suffix={suffix} />
           </h3>
           <p className="text-xs font-medium mt-1 text-muted">{label}</p>
-          {subtext && <p className="text-[11px] mt-0.5 text-dim">{subtext}</p>}
+          {subtext && <p className="text-xs mt-0.5 text-dim">{subtext}</p>}
         </div>
       </div>
     </motion.div>

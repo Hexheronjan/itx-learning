@@ -14,6 +14,15 @@
   --color-accent: var(--accent);
   --color-error: var(--error);
   --color-success: var(--success);
+  --color-heading: var(--text-heading);
+  --color-body: var(--text-body);
+  --color-caption: var(--text-caption);
+
+  /* Typography: max 2 families (heading + body) */
+  --font-sans: var(--font-body-stack);
+  --font-heading: var(--font-heading-stack);
+  --font-serif: var(--font-heading-stack);
+  --font-mono: var(--font-body-stack);
 }
 
 /* -------------------------------------------------------------------------
@@ -52,7 +61,10 @@ html, body {
   --surface3: #E2E8F0;
   --text: #0F172A;
   --text-muted: #475569;
-  --text-dim: #94A3B8;
+  --text-dim: #475569;
+  --text-heading: #0F172A;
+  --text-body: #334155;
+  --text-caption: #475569;
   --border: rgba(0, 0, 0, 0.12);
   --brand: #0D9488;
   --brand-light: #14B8A6;
@@ -129,15 +141,58 @@ html, body {
   --backdrop: rgba(0, 0, 0, 0.6);
 }
 
+:root {
+  --font-heading-stack: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --font-body-stack: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* Text hierarchy for dark themes (light theme overrides these with slate-900/700/600).
+     Heading = brightest, body = ~88% of it, caption = theme's --text-dim (>= 6:1 on all dark surfaces). */
+  --text-heading: var(--text);
+  --text-body: color-mix(in srgb, var(--text) 88%, var(--bg));
+  --text-caption: var(--text-dim);
+}
+
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-dm-sans), sans-serif;
+  font-family: var(--font-body-stack);
+  font-weight: 400;
+  line-height: 1.6;
   overflow-x: hidden;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading-stack);
+    color: var(--text-heading);
+    text-wrap: balance;
+  }
+
+  /* Emphasised text inside paragraphs must be clearly heavier than its surroundings */
+  strong,
+  b {
+    font-weight: 700;
+    color: var(--text-heading);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
 }
 
 /* Gradient Mask for Smooth Marquee Edge Fades */
@@ -159,8 +214,73 @@ body {
   border-radius: 99px;
 }
 
-.font-serif {
-  font-family: var(--font-fraunces), serif;
+/* Legacy alias: `font-serif` is used across the codebase for headings and now
+   resolves to the heading font (Plus Jakarta Sans). Prefer `font-heading`. */
+.font-serif,
+.font-heading {
+  font-family: var(--font-heading-stack);
+}
+
+/* font-mono resolves to the body font (max 2 families); keep digits aligned */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   TYPE SCALE (headings: Plus Jakarta Sans, body: Inter)
+   Semantic classes so sizes/weights are defined in one place.
+   ------------------------------------------------------------------------- */
+@layer components {
+  .t-h1 {
+    font-family: var(--font-heading-stack);
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text-heading);
+    text-wrap: balance;
+  }
+
+  .t-h2 {
+    font-family: var(--font-heading-stack);
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--text-heading);
+    text-wrap: balance;
+  }
+
+  .t-h3 {
+    font-family: var(--font-heading-stack);
+    font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--text-heading);
+    text-wrap: balance;
+  }
+
+  .t-body {
+    font-size: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--text-body);
+    max-width: 65ch;
+  }
+
+  .t-caption {
+    font-weight: 500;
+    color: var(--text-caption);
+  }
+
+  /* Statistic numbers: ExtraBold + tabular figures */
+  .t-stat {
+    font-family: var(--font-heading-stack);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
 }
 
 /* -------------------------------------------------------------------------

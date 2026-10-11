@@ -154,10 +154,10 @@ export default function LoginPage() {
 
           <div className="space-y-3">
             <Badge variant="brand">Personalized AI Learning Intelligence</Badge>
-            <h1 className="text-4xl sm:text-5xl font-extrabold font-serif tracking-tight leading-[1.15] text-text">
+            <h1 className="t-h1 font-serif text-text">
               Belajar Presisi, Temukan Potensi Sejati.
             </h1>
-            <p className="text-base text-muted leading-relaxed">
+            <p className="t-body">
               Platform e-learning adaptif dengan bimbingan Think First, deteksi miskonsepsi konsep prasyarat, dan integrasi penuh untuk Siswa, Guru Mapel, Wali Kelas, serta Admin Sekolah.
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function LoginPage() {
                 <Compass size={18} />
                 <span className="font-bold text-xs uppercase tracking-wider">Think First</span>
               </div>
-              <p className="text-xs text-muted">Bimbingan bertahap tanpa membocorkan jawaban langsung.</p>
+              <p className="t-body">Bimbingan bertahap tanpa membocorkan jawaban langsung.</p>
             </Card>
 
             <Card className="p-4 space-y-1 border-border/80">
@@ -176,7 +176,7 @@ export default function LoginPage() {
                 <Award size={18} />
                 <span className="font-bold text-xs uppercase tracking-wider">Digital Twin</span>
               </div>
-              <p className="text-xs text-muted">Mastery per konsep terpantau secara real-time.</p>
+              <p className="t-body">Mastery per konsep terpantau secara real-time.</p>
             </Card>
           </div>
         </motion.div>
@@ -190,8 +190,8 @@ export default function LoginPage() {
         >
           <Card className="p-4 sm:p-8 space-y-6 border-border/80 shadow-2xl">
             <div>
-              <h2 className="text-2xl font-bold font-serif text-text">Sign In</h2>
-              <p className="text-xs text-muted mt-1">Masukkan email dan password akun Anda untuk masuk ke sistem.</p>
+              <h2 className="t-h3 font-serif text-text">Sign In</h2>
+              <p className="t-body mt-1">Masukkan email dan password akun Anda untuk masuk ke sistem.</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
@@ -216,7 +216,7 @@ export default function LoginPage() {
                 required
               />
 
-              <Button type="submit" variant="primary" loading={loading} className="w-full font-bold shadow-lg py-3">
+              <Button type="submit" variant="primary" loading={loading} className="w-full font-semibold shadow-lg py-3">
                 <span>Sign In</span>
                 <ArrowRight size={16} />
               </Button>
@@ -230,7 +230,7 @@ export default function LoginPage() {
                   Pilihan Akun Demo Cepat
                 </span>
                 {seedSuccess && (
-                  <span className="text-[10px] text-brand font-semibold flex items-center gap-1">
+                  <span className="text-xs text-brand font-semibold flex items-center gap-1">
                     <CheckCircle2 size={12} /> 4 Akun Siap
                   </span>
                 )}
@@ -240,56 +240,56 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("andi@sekolah.sch.id")}
-                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-xs font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
                 >
                   <span>🎓</span>
                   <div className="truncate">
                     <div className="font-semibold text-text truncate">Siswa (Andi)</div>
-                    <div className="text-[10px] text-muted truncate">Kelas XI-A</div>
+                    <div className="text-xs text-muted truncate">Kelas XI-A</div>
                   </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("guru@sekolah.sch.id")}
-                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-xs font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
                 >
                   <span>📐</span>
                   <div className="truncate">
                     <div className="font-semibold text-text truncate">Guru Mapel</div>
-                    <div className="text-[10px] text-muted truncate">Dra. Sri (Mat)</div>
+                    <div className="text-xs text-muted truncate">Dra. Sri (Mat)</div>
                   </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("brio@gmail.com")}
-                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-xs font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
                 >
                   <span>🏫</span>
                   <div className="truncate">
                     <div className="font-semibold text-text truncate">Wali Kelas</div>
-                    <div className="text-[10px] text-muted truncate">Pak Brio (XI-A)</div>
+                    <div className="text-xs text-muted truncate">Pak Brio (XI-A)</div>
                   </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => fillQuickPreset("admin@sekolah.sch.id")}
-                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-[11px] font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
+                  className="px-2.5 py-2 rounded-lg border border-border bg-surface text-xs font-medium text-muted hover:text-text hover:border-brand/40 transition-all text-left flex items-center gap-1.5"
                 >
                   <span>🛡️</span>
                   <div className="truncate">
                     <div className="font-semibold text-text truncate">Admin</div>
-                    <div className="text-[10px] text-muted truncate">Administrator</div>
+                    <div className="text-xs text-muted truncate">Administrator</div>
                   </div>
                 </button>
               </div>
 
               <div className="pt-2 border-t border-border/50 flex items-center justify-between">
-                <span className="text-[10px] text-muted">Password: <code>password123</code></span>
+                <span className="text-xs text-muted">Password: <code>password123</code></span>
                 <button
                   type="button"
                   onClick={handleSeedDemoAccounts}
                   disabled={seeding}
-                  className="text-[10px] text-brand hover:underline font-semibold flex items-center gap-1"
+                  className="text-xs text-brand hover:underline font-semibold flex items-center gap-1"
                 >
                   <KeyRound size={11} />
                   <span>{seeding ? "Menyinkronkan..." : "Sinkronkan Akun Demo"}</span>
@@ -301,7 +301,7 @@ export default function LoginPage() {
               <a href="/" className="hover:text-text transition-colors">
                 ← Kembali ke Beranda
               </a>
-              <span className="flex items-center gap-1 text-[11px]">
+              <span className="flex items-center gap-1 text-xs">
                 <ShieldCheck size={13} className="text-brand" />
                 Sistem Terautentikasi Supabase
               </span>

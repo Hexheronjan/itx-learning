@@ -36,6 +36,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, GlowCard } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { DigitalBookVisual } from "@/components/landing/DigitalBookVisual";
+import { FaqIllustration } from "@/components/landing/FaqIllustration";
 
 type ThemeType = "emerald" | "royal" | "midnight" | "sunset" | "light";
 
@@ -147,17 +148,27 @@ export default function LandingPage() {
 
   const scrollProgram = (direction: "left" | "right") => {
     if (!programScrollRef.current) return;
-    const cardWidth = 340;
-    const scrollAmount = direction === "left" ? -cardWidth : cardWidth;
-    programScrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    const container = programScrollRef.current;
+    const firstCard = container.querySelector(":scope > div") as HTMLElement;
+    const step = firstCard ? firstCard.offsetWidth + 24 : 524;
+    const scrollAmount = direction === "left" ? -step : step;
+    container.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
   const handleProgramScroll = () => {
     if (!programScrollRef.current) return;
-    const scrollLeft = programScrollRef.current.scrollLeft;
-    const cardWidth = 340;
-    const idx = Math.round(scrollLeft / cardWidth);
-    setProgramActiveIdx(Math.max(0, Math.min(2, idx)));
+    const container = programScrollRef.current;
+    const firstCard = container.querySelector(":scope > div") as HTMLElement;
+    const step = firstCard ? firstCard.offsetWidth + 24 : 524;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    const scrollLeft = container.scrollLeft;
+
+    if (maxScroll > 0 && scrollLeft >= maxScroll - 30) {
+      setProgramActiveIdx(2);
+    } else {
+      const idx = Math.round(scrollLeft / step);
+      setProgramActiveIdx(Math.max(0, Math.min(2, idx)));
+    }
   };
 
   return (
@@ -200,14 +211,14 @@ export default function LandingPage() {
               >
                 NALARA
               </span>
-              <Badge variant="brand" className="hidden sm:inline-flex text-[10px] py-0.5 px-1.5 uppercase font-semibold">
+              <Badge variant="brand" className="max-sm:hidden text-xs py-0.5 px-1.5">
                 Pilot 2026
               </Badge>
             </div>
           </a>
 
           {/* Desktop Navigation Links (Single line, whitespace-nowrap) */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs font-semibold text-text-muted whitespace-nowrap">
+          <nav className="hidden lg:flex items-center gap-6 lg:gap-8 text-xs font-semibold text-text-muted whitespace-nowrap">
             <a href="#program" className="hover:text-text transition-colors">
               Program Belajar
             </a>
@@ -246,7 +257,7 @@ export default function LandingPage() {
                   className="absolute right-0 mt-2 w-56 p-2 rounded-2xl border border-border shadow-2xl backdrop-blur-xl z-50 animate-fadeIn"
                   style={{ background: "var(--surface)" }}
                 >
-                  <div className="px-2.5 py-1.5 text-[11px] font-bold text-text-muted uppercase tracking-wider border-b border-border/60">
+                  <div className="px-2.5 py-1.5 text-xs font-bold text-text-muted uppercase tracking-wider border-b border-border/60">
                     Pilih Tema Warna
                   </div>
                   <div className="mt-1 space-y-1">
@@ -277,7 +288,7 @@ export default function LandingPage() {
 
             {/* Primary Sign In Button */}
             <a href="/login" className="whitespace-nowrap">
-              <Button size="sm" variant="primary" className="shadow-md px-3.5 sm:px-4 font-bold flex items-center gap-2">
+              <Button size="sm" variant="primary" className="shadow-md px-3.5 sm:px-4 font-semibold flex items-center gap-2">
                 <LogIn size={15} />
                 <span>Sign In</span>
               </Button>
@@ -287,7 +298,7 @@ export default function LandingPage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden w-9 h-9 rounded-xl border border-border flex items-center justify-center text-text-muted hover:text-text hover:border-brand/40 transition-all"
+              className="lg:hidden w-9 h-9 rounded-xl border border-border flex items-center justify-center text-text-muted hover:text-text hover:border-brand/40 transition-all"
               style={{ background: "var(--surface2)" }}
               aria-label="Buka Menu"
             >
@@ -301,7 +312,7 @@ export default function LandingPage() {
           MOBILE DRAWER (Slide from Right)
           ------------------------------------------------------------- */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex justify-end">
+        <div className="fixed inset-0 z-50 lg:hidden flex justify-end">
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
@@ -354,7 +365,7 @@ export default function LandingPage() {
 
               {/* Quick Theme Switcher in Drawer */}
               <div className="pt-4 border-t border-border/80 space-y-2">
-                <div className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                <div className="text-xs font-bold text-text-muted uppercase tracking-wider">
                   Pilihan Tema
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -382,7 +393,7 @@ export default function LandingPage() {
             {/* Bottom Drawer CTA */}
             <div className="pt-6 border-t border-border/80 space-y-2">
               <a href="/login" className="block w-full">
-                <Button size="md" variant="primary" className="w-full font-bold flex items-center justify-center gap-2">
+                <Button size="md" variant="primary" className="w-full font-semibold flex items-center justify-center gap-2">
                   <LogIn size={16} />
                   <span>Masuk Portal</span>
                 </Button>
@@ -425,7 +436,7 @@ export default function LandingPage() {
             </div>
 
             {/* Headline with elegant sizing */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-serif text-text tracking-tight leading-[1.15]">
+            <h1 className="t-h1 font-serif text-text">
               Revolusi Belajar dengan Bimbingan AI Presisi &amp;{" "}
               <span
                 style={{
@@ -439,14 +450,14 @@ export default function LandingPage() {
             </h1>
 
             {/* Balanced description */}
-            <p className="text-sm sm:text-base text-text/85 max-w-2xl leading-relaxed">
-              Bukan sekadar bank soal atau contekan instan. <strong className="text-text font-semibold">NALARA</strong> mendiagnosis pola pikir siswa, mengidentifikasi akar kelemahan materi prasyarat, dan menuntun langkah demi langkah lewat <strong className="text-brand-light font-semibold">Think First Mode</strong>.
+            <p className="t-body">
+              Bukan sekadar bank soal atau contekan instan. <strong className="text-text font-bold">NALARA</strong> mendiagnosis pola pikir siswa, mengidentifikasi akar kelemahan materi prasyarat, dan menuntun langkah demi langkah lewat <strong className="text-brand-light font-bold">Think First Mode</strong>.
             </p>
 
             {/* Dual CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <a href="/login" className="w-full sm:w-auto">
-                <Button size="md" variant="primary" className="w-full sm:w-auto shadow-xl text-sm px-6 py-3 font-bold flex items-center justify-center gap-2">
+                <Button size="md" variant="primary" className="w-full sm:w-auto shadow-xl text-sm px-6 py-3 font-semibold flex items-center justify-center gap-2">
                   <span>Mulai Belajar Sekarang</span>
                   <ArrowRight size={16} />
                 </Button>
@@ -465,32 +476,32 @@ export default function LandingPage() {
                 <div className="text-xl sm:text-2xl text-brand font-bold">
                   <StatCounter target={1250} suffix="+" />
                 </div>
-                <div className="text-[11px] font-bold text-text">Siswa Pilot</div>
-                <div className="text-[10px] text-text-muted">Aktif belajar</div>
+                <div className="text-xs font-bold text-text">Siswa Pilot</div>
+                <div className="text-xs text-text-muted">Aktif belajar</div>
               </div>
 
               <div className="space-y-0.5">
                 <div className="text-xl sm:text-2xl text-accent font-bold">
                   <StatCounter target={18} suffix="+" />
                 </div>
-                <div className="text-[11px] font-bold text-text">Mata Pelajaran</div>
-                <div className="text-[10px] text-text-muted">SMA &amp; Kedinasan</div>
+                <div className="text-xs font-bold text-text">Mata Pelajaran</div>
+                <div className="text-xs text-text-muted">SMA &amp; Kedinasan</div>
               </div>
 
               <div className="space-y-0.5">
                 <div className="text-xl sm:text-2xl text-emerald-400 font-bold">
                   <StatCounter target={98.4} suffix="%" decimals={1} />
                 </div>
-                <div className="text-[11px] font-bold text-text">Akurasi Diagnosis</div>
-                <div className="text-[10px] text-text-muted">Deteksi miskonsepsi</div>
+                <div className="text-xs font-bold text-text">Akurasi Diagnosis</div>
+                <div className="text-xs text-text-muted">Deteksi miskonsepsi</div>
               </div>
 
               <div className="space-y-0.5">
                 <div className="text-xl sm:text-2xl text-amber-400 font-bold">
                   <StatCounter target={100} suffix="%" />
                 </div>
-                <div className="text-[11px] font-bold text-text">Nalar Mandiri</div>
-                <div className="text-[10px] text-text-muted">Tanpa bocor kunci</div>
+                <div className="text-xs font-bold text-text">Nalar Mandiri</div>
+                <div className="text-xs text-text-muted">Tanpa bocor kunci</div>
               </div>
             </div>
           </motion.div>
@@ -560,10 +571,10 @@ export default function LandingPage() {
           className="text-center space-y-2 max-w-2xl mx-auto"
         >
           <Badge variant="brand">Mengapa NALARA Berbeda?</Badge>
-          <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text tracking-tight">
+          <h2 className="t-h2 font-serif text-text">
             Keunggulan AI Socrates vs Sistem E-Learning Konvensional
           </h2>
-          <p className="text-xs sm:text-sm text-text-muted">
+          <p className="t-body mx-auto">
             Transformasi dari menghafal kunci jawaban menjadi pemahaman logika bertahap dengan scaffolding terukur.
           </p>
         </motion.div>
@@ -586,11 +597,11 @@ export default function LandingPage() {
                       <BrainCircuit size={18} />
                     </div>
                     <div>
-                      <h3 className="text-sm sm:text-base font-bold font-serif text-text">Think First Socratic AI</h3>
-                      <p className="text-[10px] text-brand font-medium">Bimbingan Reflektif Tanpa Bocor Kunci</p>
+                      <h3 className="t-h3 font-serif text-text">Think First Socratic AI</h3>
+                      <p className="text-xs text-brand font-medium">Bimbingan Reflektif Tanpa Bocor Kunci</p>
                     </div>
                   </div>
-                  <Badge variant="accent" className="text-[9px]">
+                  <Badge variant="accent" className="text-xs">
                     Live Simulasi
                   </Badge>
                 </div>
@@ -602,8 +613,8 @@ export default function LandingPage() {
                 {/* Interactive Demo Box */}
                 <div className="p-3.5 rounded-xl border border-border" style={{ background: "var(--surface2)" }}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-mono font-bold text-text-muted uppercase">Contoh Soal Matematika:</span>
-                    <span className="text-[10px] text-brand-light font-bold">Pythagoras</span>
+                    <span className="text-xs font-mono font-bold text-text-muted uppercase">Contoh Soal Matematika:</span>
+                    <span className="text-xs text-brand-light font-bold">Pythagoras</span>
                   </div>
                   <p className="text-xs sm:text-sm font-serif font-bold text-text mb-2.5">
                     Jika sebuah segitiga siku-siku memiliki sisi tegak 3 cm dan 4 cm, berapakah panjang sisi miringnya ($c$)?
@@ -657,7 +668,7 @@ export default function LandingPage() {
                       </p>
                       <button
                         onClick={() => setDemoStep("question")}
-                        className="text-[11px] text-brand-light hover:underline font-bold pt-1 block"
+                        className="text-xs text-brand-light hover:underline font-bold pt-1 block"
                       >
                         ↺ Ulangi Simulasi Interaktif
                       </button>
@@ -667,7 +678,7 @@ export default function LandingPage() {
               </div>
 
               {/* Comparison Pill Badge */}
-              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px] text-text-muted border-t border-border/60">
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs text-text-muted border-t border-border/60">
                 <span className="flex items-center gap-1 text-red-400 font-medium">
                   <X size={13} /> Bimbel Biasa: Bocorkan Kunci Langsung
                 </span>
@@ -691,37 +702,37 @@ export default function LandingPage() {
                 <div className="w-8 h-8 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-bold mb-2.5 shadow-sm">
                   <Network size={18} />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold font-serif text-text">Peta Graf Prasyarat (DAG)</h3>
-                <p className="text-xs text-text/80 leading-relaxed mt-1.5">
+                <h3 className="t-h3 font-serif text-text">Peta Graf Prasyarat (DAG)</h3>
+                <p className="t-body mt-1.5">
                   Materi tidak berdiri sendiri. Sistem secara otomatis merunut kelemahan siswa hingga konsep dasar pendukungnya melalui Directed Acyclic Graph.
                 </p>
 
                 {/* Concept DAG Mini Graph Visualizer */}
                 <div className="mt-4 p-3 rounded-xl bg-surface2 border border-border space-y-2">
-                  <div className="text-[11px] font-bold text-text flex items-center justify-between">
+                  <div className="text-xs font-bold text-text flex items-center justify-between">
                     <span>Diagnosis Keterkaitan:</span>
-                    <Badge variant="accent" className="text-[8px]">Otomatis</Badge>
+                    <Badge variant="accent" className="text-xs">Otomatis</Badge>
                   </div>
                   <div className="flex items-center gap-1.5 text-xs">
-                    <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 font-mono text-[10px] border border-red-500/40 font-semibold">
+                    <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 font-mono text-xs border border-red-500/40 font-semibold">
                       Trigonometri ❌
                     </span>
                     <ArrowRight size={10} className="text-text-muted" />
-                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] border border-amber-500/40 font-semibold">
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-xs border border-amber-500/40 font-semibold">
                       Pythagoras ⚠️
                     </span>
                     <ArrowRight size={10} className="text-text-muted" />
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] border border-emerald-500/40 font-semibold">
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-xs border border-emerald-500/40 font-semibold">
                       Aljabar ✓
                     </span>
                   </div>
-                  <p className="text-[11px] text-text-muted italic">
+                  <p className="text-xs text-text-muted italic">
                     Akar masalah siswa ditemukan pada segitiga siku-siku, bukan pada rumus sin/cos.
                   </p>
                 </div>
               </div>
 
-              <div className="text-[11px] text-accent font-bold pt-1">
+              <div className="text-xs text-accent font-bold pt-1">
                 500+ Relasi Konsep Prasyarat Terhubung
               </div>
             </Card>
@@ -740,8 +751,8 @@ export default function LandingPage() {
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold mb-2.5 shadow-sm">
                   <BarChart3 size={18} />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold font-serif text-text">Real-Time Mastery Score</h3>
-                <p className="text-xs text-text/80 leading-relaxed mt-1.5">
+                <h3 className="t-h3 font-serif text-text">Real-Time Mastery Score</h3>
+                <p className="t-body mt-1.5">
                   Bukan tebakan acak. Status penguasaan materi dihitung secara deterministik: <strong className="text-emerald-300">Mastered (≥85%)</strong>, <strong className="text-amber-300">Practicing (60-84%)</strong>, dan <strong className="text-red-300">Needs Focus (&lt;60%)</strong>.
                 </p>
 
@@ -749,7 +760,7 @@ export default function LandingPage() {
                 <div className="mt-3.5 space-y-1.5">
                   <div className="flex justify-between text-xs font-semibold">
                     <span className="text-text">Indeks Penguasaan Kelas</span>
-                    <span className="text-emerald-400 font-bold">88.5% (Mastered)</span>
+                    <span className="text-emerald-400 font-extrabold tabular-nums">88.5% (Mastered)</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-surface3 overflow-hidden">
                     <div className="h-full rounded-full bg-gradient-to-r from-brand to-emerald-400 w-[88.5%]" />
@@ -757,7 +768,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <p className="text-[11px] text-text-muted">
+              <p className="text-xs text-text-muted">
                 Formula transparan tanpa black box, siap untuk laporan kurikulum sekolah.
               </p>
             </Card>
@@ -776,24 +787,24 @@ export default function LandingPage() {
                 <div className="w-8 h-8 rounded-lg bg-brand/15 text-brand flex items-center justify-center font-bold mb-2.5 shadow-sm">
                   <ShieldCheck size={18} />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold font-serif text-text">Kurasi Guru (Human-in-the-Loop)</h3>
-                <p className="text-xs text-text/80 leading-relaxed mt-1.5">
+                <h3 className="t-h3 font-serif text-text">Kurasi Guru (Human-in-the-Loop)</h3>
+                <p className="t-body mt-1.5">
                   Bebas halusinasi AI. 100% bank soal diverifikasi dan dikelola langsung oleh guru mata pelajaran sekolah, menjaga integritas kurikulum nasional dan standar ujian kedinasan.
                 </p>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2 rounded-lg bg-surface2 border border-border/80 flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-brand shrink-0" />
-                    <span className="text-text font-medium text-[11px]">Validasi Soal Guru</span>
+                    <span className="text-text font-medium text-xs">Validasi Soal Guru</span>
                   </div>
                   <div className="p-2 rounded-lg bg-surface2 border border-border/80 flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-brand shrink-0" />
-                    <span className="text-text font-medium text-[11px]">Zero AI Hallucination</span>
+                    <span className="text-text font-bold text-xs uppercase tracking-[0.05em]">Zero AI Hallucination</span>
                   </div>
                 </div>
               </div>
 
-              <p className="text-[11px] text-text-muted">
+              <p className="text-xs text-text-muted">
                 Guru memiliki kontrol penuh atas bank soal dan bobot kompetensi siswa.
               </p>
             </Card>
@@ -814,29 +825,39 @@ export default function LandingPage() {
         >
           <div className="space-y-1.5">
             <Badge variant="accent">Pilihan Jenjang &amp; Kurikulum</Badge>
-            <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text tracking-tight">
+            <h2 className="t-h2 font-serif text-text">
               Mencakup Seluruh Kebutuhan Akademik &amp; Karir
             </h2>
-            <p className="text-xs sm:text-sm text-text-muted max-w-xl">
+            <p className="t-body max-w-xl">
               Tingkat kesulitan soal disesuaikan otomatis dengan standar kompetensi nasional dan seleksi kedinasan.
             </p>
           </div>
 
-          {/* Desktop Arrow Nav Buttons */}
-          <div className="hidden sm:flex items-center gap-2 shrink-0">
+          {/* Arrow Nav Buttons (Available for Mobile, Tablet & Desktop) */}
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => scrollProgram("left")}
-              className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-text-muted hover:text-text hover:border-brand/40 bg-surface transition-all shadow-sm"
+              className={`w-9 h-9 rounded-xl border border-border flex items-center justify-center transition-all shadow-sm active:scale-95 ${
+                programActiveIdx === 0
+                  ? "text-text-muted/40 opacity-40 cursor-not-allowed bg-surface/50"
+                  : "text-text-muted hover:text-text hover:border-brand/40 bg-surface cursor-pointer"
+              }`}
+              disabled={programActiveIdx === 0}
               aria-label="Geser ke kiri"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => scrollProgram("right")}
-              className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-text-muted hover:text-text hover:border-brand/40 bg-surface transition-all shadow-sm"
+              className={`w-9 h-9 rounded-xl border border-border flex items-center justify-center transition-all shadow-sm active:scale-95 ${
+                programActiveIdx === 2
+                  ? "text-text-muted/40 opacity-40 cursor-not-allowed bg-surface/50"
+                  : "text-text-muted hover:text-text hover:border-brand/40 bg-surface cursor-pointer"
+              }`}
+              disabled={programActiveIdx === 2}
               aria-label="Geser ke kanan"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={18} />
             </button>
           </div>
         </motion.div>
@@ -849,26 +870,26 @@ export default function LandingPage() {
           transition={{ duration: 0.6 }}
           ref={programScrollRef}
           onScroll={handleProgramScroll}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-3 pt-1"
+          className="flex gap-5 sm:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-3 pt-1 scroll-smooth"
         >
           {/* Card 1: SMA Reguler */}
-          <div className="w-[82vw] sm:w-[330px] md:w-[360px] max-w-[360px] snap-center shrink-0">
-            <Card className="h-full p-5 sm:p-6 space-y-4 border-border/80 hover:border-brand/40 transition-all flex flex-col justify-between shadow-md">
+          <div className="w-[88vw] sm:w-[380px] md:w-[460px] lg:w-[500px] snap-start shrink-0">
+            <Card className="h-full p-5 sm:p-7 space-y-4 border-border/80 hover:border-brand/40 transition-all flex flex-col justify-between shadow-md">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-brand/10 text-brand">
                   🎓
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold font-serif text-text">SMA Reguler (Kelas 10, 11, 12)</h3>
-                  <p className="text-xs sm:text-sm text-text/80 leading-relaxed mt-1.5">
+                  <h3 className="t-h3 font-serif text-text">SMA Reguler (Kelas 10, 11, 12)</h3>
+                  <p className="t-body mt-1.5">
                     Penguatan materi kurikulum sekolah: Matematika Wajib &amp; Peminatan, Bahasa Indonesia, serta mata pelajaran IPA &amp; IPS.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  <Badge variant="neutral" className="text-[10px]">Aljabar</Badge>
-                  <Badge variant="neutral" className="text-[10px]">Trigonometri</Badge>
-                  <Badge variant="neutral" className="text-[10px]">Literasi Teks</Badge>
-                  <Badge variant="neutral" className="text-[10px]">EYD V</Badge>
+                  <Badge variant="neutral" className="text-xs">Aljabar</Badge>
+                  <Badge variant="neutral" className="text-xs">Trigonometri</Badge>
+                  <Badge variant="neutral" className="text-xs">Literasi Teks</Badge>
+                  <Badge variant="neutral" className="text-xs">EYD V</Badge>
                 </div>
               </div>
               <a href="/login" className="pt-2 block">
@@ -880,23 +901,23 @@ export default function LandingPage() {
           </div>
 
           {/* Card 2: UTBK / SNBT */}
-          <div className="w-[82vw] sm:w-[330px] md:w-[360px] max-w-[360px] snap-center shrink-0">
-            <Card className="h-full p-5 sm:p-6 space-y-4 border-border/80 hover:border-accent/40 transition-all flex flex-col justify-between shadow-md">
+          <div className="w-[88vw] sm:w-[380px] md:w-[460px] lg:w-[500px] snap-start shrink-0">
+            <Card className="h-full p-5 sm:p-7 space-y-4 border-border/80 hover:border-accent/40 transition-all flex flex-col justify-between shadow-md">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-accent/10 text-accent">
                   🏛️
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold font-serif text-text">Persiapan UTBK / SNBT (PTN)</h3>
-                  <p className="text-xs sm:text-sm text-text/80 leading-relaxed mt-1.5">
+                  <h3 className="t-h3 font-serif text-text">Persiapan UTBK / SNBT (PTN)</h3>
+                  <p className="t-body mt-1.5">
                     Latihan intensif penalaran matematika, pemahaman bacaan &amp; menulis (PBM), dan strategi pengerjaan soal HOTS berstandar nasional.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  <Badge variant="accent" className="text-[10px]">Penalaran MTK</Badge>
-                  <Badge variant="accent" className="text-[10px]">TPS Umum</Badge>
-                  <Badge variant="accent" className="text-[10px]">Literasi ID</Badge>
-                  <Badge variant="accent" className="text-[10px]">Literasi EN</Badge>
+                  <Badge variant="accent" className="text-xs">Penalaran MTK</Badge>
+                  <Badge variant="accent" className="text-xs">TPS Umum</Badge>
+                  <Badge variant="accent" className="text-xs">Literasi ID</Badge>
+                  <Badge variant="accent" className="text-xs">Literasi EN</Badge>
                 </div>
               </div>
               <a href="/login" className="pt-2 block">
@@ -908,27 +929,27 @@ export default function LandingPage() {
           </div>
 
           {/* Card 3: Sekolah Kedinasan */}
-          <div className="w-[82vw] sm:w-[330px] md:w-[360px] max-w-[360px] snap-center shrink-0">
-            <Card className="h-full p-5 sm:p-6 space-y-4 border-border/80 hover:border-brand/40 transition-all flex flex-col justify-between shadow-md">
+          <div className="w-[88vw] sm:w-[380px] md:w-[460px] lg:w-[500px] snap-start shrink-0">
+            <Card className="h-full p-5 sm:p-7 space-y-4 border-border/80 hover:border-brand/40 transition-all flex flex-col justify-between shadow-md">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-brand/10 text-brand">
                   🛡️
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold font-serif text-text">Sekolah Kedinasan (SEKDIN)</h3>
-                  <p className="text-xs sm:text-sm text-text/80 leading-relaxed mt-1.5">
+                  <h3 className="t-h3 font-serif text-text">Sekolah Kedinasan (SEKDIN)</h3>
+                  <p className="t-body mt-1.5">
                     Simulasi Seleksi Kompetensi Dasar (SKD), Tes Inteligensi Umum (TIU STAN/STIS), deret aritmatika, silogisme, serta hitung cepat.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  <Badge variant="brand" className="text-[10px]">SKD - TIU</Badge>
-                  <Badge variant="brand" className="text-[10px]">Deret Angka</Badge>
-                  <Badge variant="brand" className="text-[10px]">Silogisme</Badge>
-                  <Badge variant="brand" className="text-[10px]">Figural</Badge>
+                  <Badge variant="brand" className="text-xs">SKD - TIU</Badge>
+                  <Badge variant="brand" className="text-xs">Deret Angka</Badge>
+                  <Badge variant="brand" className="text-xs">Silogisme</Badge>
+                  <Badge variant="brand" className="text-xs">Figural</Badge>
                 </div>
               </div>
               <a href="/login" className="pt-2 block">
-                <Button size="sm" variant="primary" className="w-full text-xs font-bold py-2">
+                <Button size="sm" variant="primary" className="w-full text-xs font-semibold py-2">
                   Latihan Kedinasan
                 </Button>
               </a>
@@ -937,18 +958,22 @@ export default function LandingPage() {
         </motion.div>
 
         {/* Dots Indicator for Mobile & Desktop */}
-        <div className="flex items-center justify-center gap-1.5 pt-1">
+        <div className="flex items-center justify-center gap-2 pt-2">
           {[0, 1, 2].map((idx) => (
             <button
               key={idx}
               onClick={() => {
                 if (!programScrollRef.current) return;
-                const cardWidth = 340;
-                programScrollRef.current.scrollTo({ left: idx * cardWidth, behavior: "smooth" });
+                const container = programScrollRef.current;
+                const firstCard = container.querySelector(":scope > div") as HTMLElement;
+                const step = firstCard ? firstCard.offsetWidth + 24 : 524;
+                const maxScroll = container.scrollWidth - container.clientWidth;
+                const targetLeft = idx === 2 ? maxScroll : idx * step;
+                container.scrollTo({ left: targetLeft, behavior: "smooth" });
                 setProgramActiveIdx(idx);
               }}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                programActiveIdx === idx ? "w-5 bg-brand" : "w-1.5 bg-border"
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                programActiveIdx === idx ? "w-7 bg-brand shadow-sm shadow-brand/40" : "w-2 bg-border hover:bg-text-muted/50"
               }`}
               aria-label={`Pindah ke program ${idx + 1}`}
             />
@@ -968,10 +993,10 @@ export default function LandingPage() {
           className="text-center space-y-2 max-w-2xl mx-auto"
         >
           <Badge variant="accent">Alur Belajar Terarah</Badge>
-          <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text tracking-tight">
+          <h2 className="t-h2 font-serif text-text">
             Bagaimana NALARA Bekerja?
           </h2>
-          <p className="text-xs sm:text-sm text-text-muted">
+          <p className="t-body mx-auto">
             3 langkah sederhana dari asesmen awal hingga penguasaan kompetensi penuh.
           </p>
         </motion.div>
@@ -998,12 +1023,12 @@ export default function LandingPage() {
                 <div className="w-10 h-10 rounded-xl bg-brand text-bg flex items-center justify-center font-bold text-base shadow-md">
                   1
                 </div>
-                <h3 className="text-base font-bold font-serif text-text">Asesmen Diagnostik Awal</h3>
-                <p className="text-xs sm:text-sm text-text/80 leading-relaxed">
+                <h3 className="t-h3 font-serif text-text">Asesmen Diagnostik Awal</h3>
+                <p className="t-body">
                   Siswa memilih jenjang target (SMA, UTBK, Kedinasan) dan mengerjakan soal diagnostik untuk mengukur baseline pemahaman konsep.
                 </p>
                 <div className="pt-1">
-                  <Badge variant="brand" className="text-[9px]">
+                  <Badge variant="brand" className="text-xs">
                     Deteksi Pola Pikir
                   </Badge>
                 </div>
@@ -1021,12 +1046,12 @@ export default function LandingPage() {
                 <div className="w-10 h-10 rounded-xl bg-accent text-bg flex items-center justify-center font-bold text-base shadow-md">
                   2
                 </div>
-                <h3 className="text-base font-bold font-serif text-text">Bimbingan Nalar Socrates</h3>
-                <p className="text-xs sm:text-sm text-text/80 leading-relaxed">
+                <h3 className="t-h3 font-serif text-text">Bimbingan Nalar Socrates</h3>
+                <p className="t-body">
                   Jika menemui kesulitan, siswa dipandu AI mentor secara interaktif untuk memecahkan soal langkah demi langkah tanpa contekan kunci.
                 </p>
                 <div className="pt-1">
-                  <Badge variant="accent" className="text-[9px]">
+                  <Badge variant="accent" className="text-xs">
                     Scaffolding Sokrates
                   </Badge>
                 </div>
@@ -1044,12 +1069,12 @@ export default function LandingPage() {
                 <div className="w-10 h-10 rounded-xl bg-emerald-500 text-bg flex items-center justify-center font-bold text-base shadow-md">
                   3
                 </div>
-                <h3 className="text-base font-bold font-serif text-text">Penguasaan &amp; Laporan Guru</h3>
-                <p className="text-xs sm:text-sm text-text/80 leading-relaxed">
+                <h3 className="t-h3 font-serif text-text">Penguasaan &amp; Laporan Guru</h3>
+                <p className="t-body">
                   Skor penguasaan (*Mastery Score*) naik otomatis. Guru dapat melihat laporan peta kelemahan kelas secara agregat di portal pendidik.
                 </p>
                 <div className="pt-1">
-                  <Badge variant="neutral" className="text-[9px] text-emerald-400 border-emerald-500/30">
+                  <Badge variant="neutral" className="text-xs text-emerald-400 border-emerald-500/30">
                     Mastery ≥ 85%
                   </Badge>
                 </div>
@@ -1071,10 +1096,10 @@ export default function LandingPage() {
           className="text-center space-y-2 max-w-2xl mx-auto"
         >
           <Badge variant="brand">Ekosistem Kolaboratif</Badge>
-          <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text tracking-tight">
+          <h2 className="t-h2 font-serif text-text">
             Solusi Terpadu untuk Seluruh Pihak Sekolah
           </h2>
-          <p className="text-xs sm:text-sm text-text-muted">
+          <p className="t-body mx-auto">
             Menghubungkan siswa, guru mata pelajaran, dan manajemen sekolah dalam satu kesatuan sistem.
           </p>
         </motion.div>
@@ -1091,8 +1116,8 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center">
                 <GraduationCap size={22} />
               </div>
-              <h3 className="text-base font-bold font-serif text-text">Untuk Siswa</h3>
-              <ul className="text-xs sm:text-sm text-text/85 space-y-2 leading-relaxed">
+              <h3 className="t-h3 font-serif text-text">Untuk Siswa</h3>
+              <ul className="t-body space-y-2">
                 <li className="flex items-start gap-2">
                   <Check size={15} className="text-brand shrink-0 mt-0.5" />
                   <span>Belajar mandiri tanpa rasa takut salah dengan tutor AI ramah.</span>
@@ -1120,8 +1145,8 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
                 <Users size={22} />
               </div>
-              <h3 className="text-base font-bold font-serif text-text">Untuk Guru Mapel</h3>
-              <ul className="text-xs sm:text-sm text-text/85 space-y-2 leading-relaxed">
+              <h3 className="t-h3 font-serif text-text">Untuk Guru Mapel</h3>
+              <ul className="t-body space-y-2">
                 <li className="flex items-start gap-2">
                   <Check size={15} className="text-accent shrink-0 mt-0.5" />
                   <span>Input &amp; kelola bank soal sesuai bidang keahlian secara mudah.</span>
@@ -1149,8 +1174,8 @@ export default function LandingPage() {
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                 <School size={22} />
               </div>
-              <h3 className="text-base font-bold font-serif text-text">Untuk Admin &amp; Sekolah</h3>
-              <ul className="text-xs sm:text-sm text-text/85 space-y-2 leading-relaxed">
+              <h3 className="t-h3 font-serif text-text">Untuk Admin &amp; Sekolah</h3>
+              <ul className="t-body space-y-2">
                 <li className="flex items-start gap-2">
                   <Check size={15} className="text-emerald-400 shrink-0 mt-0.5" />
                   <span>Manajemen pendaftaran guru per mata pelajaran terpusat.</span>
@@ -1170,169 +1195,184 @@ export default function LandingPage() {
       </section>
 
       {/* -------------------------------------------------------------
-          8. FAQ ACCORDION (ELEGANT PROPORTIONS & ALTERNATING SLIDE-IN)
+          8. FAQ ACCORDION (2-KOLOM LAYOUT DENGAN ANIMATED ILUSTRASI)
           ------------------------------------------------------------- */}
-      <section id="faq" className="py-14 max-w-3xl mx-auto px-4 sm:px-6 w-full space-y-6 overflow-hidden">
-        {/* Header with balanced fonts */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center space-y-2"
-        >
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-accent/40 bg-accent/15 text-accent text-[11px] font-bold uppercase tracking-wider shadow-sm">
-            <HelpCircle size={13} className="text-accent shrink-0" />
-            <span>Pusat Bantuan &amp; FAQ</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold font-serif text-text tracking-tight">
-            Pertanyaan yang Sering Diajukan
-          </h2>
-          <p className="text-xs sm:text-sm text-text-muted max-w-md mx-auto leading-relaxed">
-            Jawaban lengkap seputar metodologi Think First, kurikulum, dan integrasi sekolah.
-          </p>
-        </motion.div>
-
-        {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-1 pb-1">
-          {[
-            { id: "all", label: "Semua Pertanyaan" },
-            { id: "method", label: "💡 Metode Socrates AI" },
-            { id: "curriculum", label: "📚 Materi & Jenjang" },
-            { id: "school", label: "🏫 Guru & Akun" },
-          ].map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => {
-                setFaqCategory(cat.id as any);
-                setOpenFaq(null);
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                faqCategory === cat.id
-                  ? "bg-brand text-bg shadow-sm font-bold"
-                  : "bg-surface2 text-text-muted hover:text-text hover:bg-surface3"
-              }`}
+      <section id="faq" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          {/* KOLOM KIRI (7 cols di desktop): Header, Filter Tabs, & Accordion FAQ */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Header with balanced fonts */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5 }}
+              className="space-y-2 text-left"
             >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-accent/40 bg-accent/15 text-accent text-xs font-bold uppercase tracking-wider shadow-sm">
+                <HelpCircle size={13} className="text-accent shrink-0" />
+                <span>Pusat Bantuan &amp; FAQ</span>
+              </div>
+              <h2 className="t-h2 font-serif text-text">
+                Pertanyaan yang Sering Diajukan
+              </h2>
+              <p className="t-body max-w-xl">
+                Jawaban lengkap seputar metodologi Think First, kurikulum, dan integrasi sekolah.
+              </p>
+            </motion.div>
 
-        {/* FAQ List with Alternating Slide Entrance */}
-        <div className="space-y-3">
-          {[
-            {
-              q: "Apakah AI di NALARA akan langsung membocorkan kunci jawaban?",
-              a: "Tidak sama sekali. NALARA dirancang dengan prinsip 'Think First Mode'. Ketika siswa meminta bantuan, AI bertindak sebagai mentor Sokrates yang memberikan petunjuk logika, menanyakan konsep dasar terkait, dan menuntun siswa menemukan jawaban sendiri.",
-              category: "method",
-            },
-            {
-              q: "Mata pelajaran apa saja yang didukung oleh sistem?",
-              a: "NALARA mendukung mata pelajaran SMA (Matematika Wajib/Peminatan, Bahasa Indonesia, IPA, IPS), materi UTBK/SNBT (Penalaran Umum, Pengetahuan Kuantitatif, Literasi), serta materi Sekolah Kedinasan (TIU SKD: deret, silogisme, hitung cepat, figural).",
-              category: "curriculum",
-            },
-            {
-              q: "Bagaimana cara guru dan admin sekolah menggunakan platform ini?",
-              a: "Admin sekolah dapat mendaftarkan guru untuk mata pelajaran dan jenjang tertentu melalui Dashboard Admin. Guru yang terdaftar kemudian dapat login di Dashboard Guru untuk menginput bank soal baru dan memantau perkembangan siswa.",
-              category: "school",
-            },
-            {
-              q: "Apakah NALARA dapat digunakan untuk persiapan ujian Sekolah Kedinasan (STAN/STIS)?",
-              a: "Ya, NALARA memiliki modul khusus Sekolah Kedinasan (SEKDIN) dengan bank soal standar Seleksi Kompetensi Dasar (SKD) TIU dan latihan manajemen waktu pengerjaan.",
-              category: "curriculum",
-            },
-            {
-              q: "Bagaimana sistem menentukan apakah siswa sudah 'Menguasai' (Mastered) suatu materi?",
-              a: "Tingkat penguasaan dihitung secara matematis melalui formula Mastery Score deterministik (≥85% = Mastered, 60-84% = Practicing, <60% = Needs Focus) berdasarkan riwayat pengerjaan soal dan pemahaman konsep prasyarat.",
-              category: "method",
-            },
-          ]
-            .filter((item) => faqCategory === "all" || item.category === faqCategory)
-            .map((item, idx) => {
-            const isOpen = openFaq === idx;
-            const isEven = idx % 2 === 0;
+            {/* Mobile / Tablet (<1024px) Illustration placement: DI ATAS daftar FAQ */}
+            <div className="block lg:hidden">
+              <FaqIllustration />
+            </div>
 
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: isEven ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.5, delay: idx * 0.07, ease: "easeOut" }}
-                className={`rounded-xl border transition-all duration-200 overflow-hidden ${
-                  isOpen
-                    ? "border-brand/60 shadow-lg shadow-brand/5 ring-1 ring-brand/30"
-                    : "border-border/70 hover:border-brand/40 shadow-sm"
-                }`}
-                style={{
-                  background: isOpen ? "var(--surface2)" : "rgba(var(--surface2-rgb, 25, 36, 30), 0.70)",
-                }}
-              >
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 pb-1">
+              {[
+                { id: "all", label: "Semua Pertanyaan" },
+                { id: "method", label: "💡 Metode Socrates AI" },
+                { id: "curriculum", label: "📚 Materi & Jenjang" },
+                { id: "school", label: "🏫 Guru & Akun" },
+              ].map((cat) => (
                 <button
-                  type="button"
-                  className="w-full py-3.5 px-4 sm:px-5 flex items-center justify-between gap-3 text-left transition-colors cursor-pointer group"
-                  onClick={() => toggleFaq(idx)}
-                  aria-expanded={isOpen}
+                  key={cat.id}
+                  onClick={() => {
+                    setFaqCategory(cat.id as any);
+                    setOpenFaq(null);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    faqCategory === cat.id
+                      ? "bg-brand text-bg shadow-sm font-bold"
+                      : "bg-surface2 text-text-muted hover:text-text hover:bg-surface3"
+                  }`}
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span
-                      className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-[11px] font-mono font-bold transition-all ${
-                        isOpen
-                          ? "bg-brand text-bg shadow-sm"
-                          : "bg-surface3 text-brand border border-border/80 group-hover:border-brand/40"
-                      }`}
-                    >
-                      {String(idx + 1).padStart(2, "0")}
-                    </span>
-                    <span
-                      className={`text-xs sm:text-sm font-semibold leading-snug transition-colors ${
-                        isOpen ? "text-brand" : "text-text group-hover:text-brand-light"
-                      }`}
-                    >
-                      {item.q}
-                    </span>
-                  </div>
-
-                  <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 ${
-                      isOpen
-                        ? "bg-brand/20 text-brand rotate-180"
-                        : "bg-surface3 text-text-muted group-hover:text-text"
-                    }`}
-                  >
-                    <ChevronDown size={15} />
-                  </div>
+                  {cat.label}
                 </button>
+              ))}
+            </div>
 
-                {/* Animated Height with AnimatePresence */}
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      key="content"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: "easeInOut" }}
+            {/* FAQ List with Alternating Slide Entrance */}
+            <div className="space-y-3">
+              {[
+                {
+                  q: "Apakah AI di NALARA akan langsung membocorkan kunci jawaban?",
+                  a: "Tidak sama sekali. NALARA dirancang dengan prinsip 'Think First Mode'. Ketika siswa meminta bantuan, AI bertindak sebagai mentor Sokrates yang memberikan petunjuk logika, menanyakan konsep dasar terkait, dan menuntun siswa menemukan jawaban sendiri.",
+                  category: "method",
+                },
+                {
+                  q: "Mata pelajaran apa saja yang didukung oleh sistem?",
+                  a: "NALARA mendukung mata pelajaran SMA (Matematika Wajib/Peminatan, Bahasa Indonesia, IPA, IPS), materi UTBK/SNBT (Penalaran Umum, Pengetahuan Kuantitatif, Literasi), serta materi Sekolah Kedinasan (TIU SKD: deret, silogisme, hitung cepat, figural).",
+                  category: "curriculum",
+                },
+                {
+                  q: "Bagaimana cara guru dan admin sekolah menggunakan platform ini?",
+                  a: "Admin sekolah dapat mendaftarkan guru untuk mata pelajaran dan jenjang tertentu melalui Dashboard Admin. Guru yang terdaftar kemudian dapat login di Dashboard Guru untuk menginput bank soal baru dan memantau perkembangan siswa.",
+                  category: "school",
+                },
+                {
+                  q: "Apakah NALARA dapat digunakan untuk persiapan ujian Sekolah Kedinasan (STAN/STIS)?",
+                  a: "Ya, NALARA memiliki modul khusus Sekolah Kedinasan (SEKDIN) dengan bank soal standar Seleksi Kompetensi Dasar (SKD) TIU dan latihan manajemen waktu pengerjaan.",
+                  category: "curriculum",
+                },
+                {
+                  q: "Bagaimana sistem menentukan apakah siswa sudah 'Menguasai' (Mastered) suatu materi?",
+                  a: "Tingkat penguasaan dihitung secara matematis melalui formula Mastery Score deterministik (≥85% = Mastered, 60-84% = Practicing, <60% = Needs Focus) berdasarkan riwayat pengerjaan soal dan pemahaman konsep prasyarat.",
+                  category: "method",
+                },
+              ]
+                .filter((item) => faqCategory === "all" || item.category === faqCategory)
+                .map((item, idx) => {
+                const isOpen = openFaq === idx;
+                const isEven = idx % 2 === 0;
+
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: isEven ? -20 : 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.5, delay: idx * 0.05, ease: "easeOut" }}
+                    className={`rounded-xl border transition-all duration-200 overflow-hidden ${
+                      isOpen
+                        ? "border-brand/60 shadow-lg shadow-brand/5 ring-1 ring-brand/30"
+                        : "border-border/70 hover:border-brand/40 shadow-sm"
+                    }`}
+                    style={{
+                      background: isOpen ? "var(--surface2)" : "rgba(var(--surface2-rgb, 25, 36, 30), 0.70)",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="w-full py-3.5 px-4 sm:px-5 flex items-center justify-between gap-3 text-left transition-colors cursor-pointer group"
+                      onClick={() => toggleFaq(idx)}
+                      aria-expanded={isOpen}
                     >
-                      <div className="px-4 pb-4 sm:px-5 sm:pb-4.5 pt-0">
-                        <div
-                          className="p-3.5 rounded-lg border text-xs sm:text-sm text-text-muted leading-relaxed font-normal shadow-inner"
-                          style={{
-                            background: "var(--surface)",
-                            borderColor: "rgba(var(--brand-rgb), 0.25)",
-                            borderLeftWidth: "3px",
-                            borderLeftColor: "var(--brand)",
-                          }}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span
+                          className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-xs font-mono font-bold transition-all ${
+                            isOpen
+                              ? "bg-brand text-bg shadow-sm"
+                              : "bg-surface3 text-brand border border-border/80 group-hover:border-brand/40"
+                          }`}
                         >
-                          {item.a}
-                        </div>
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
+                        <span
+                          className={`text-xs sm:text-sm font-semibold leading-snug transition-colors ${
+                            isOpen ? "text-brand" : "text-text group-hover:text-brand-light"
+                          }`}
+                        >
+                          {item.q}
+                        </span>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
+
+                      <div
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 ${
+                          isOpen
+                            ? "bg-brand/20 text-brand rotate-180"
+                            : "bg-surface3 text-text-muted group-hover:text-text"
+                        }`}
+                      >
+                        <ChevronDown size={15} />
+                      </div>
+                    </button>
+
+                    {/* Animated Height with AnimatePresence */}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="content"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease: "easeInOut" }}
+                        >
+                          <div className="px-4 pb-4 sm:px-5 sm:pb-4.5 pt-0">
+                            <div
+                              className="p-3.5 rounded-lg border text-xs sm:text-sm text-text-muted leading-relaxed font-normal shadow-inner"
+                              style={{
+                                background: "var(--surface)",
+                                borderColor: "rgba(var(--brand-rgb), 0.25)",
+                                borderLeftWidth: "3px",
+                                borderLeftColor: "var(--brand)",
+                              }}
+                            >
+                              {item.a}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* KOLOM KANAN (~45% / 5 cols di desktop): Sticky Animated Illustration sejajar dengan accordion */}
+          <div className="hidden lg:block lg:col-span-5 sticky top-28 lg:pt-[7.5rem]">
+            <FaqIllustration />
+          </div>
         </div>
       </section>
 
@@ -1371,7 +1411,7 @@ export default function LandingPage() {
                 <span>Pilot Sekolah 2026 · Terbuka untuk Siswa &amp; Pendidik</span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-serif text-text tracking-tight leading-tight">
+              <h2 className="t-h2 font-serif text-text">
                 Siap Tingkatkan Nilai &amp;{" "}
                 <span
                   style={{
@@ -1384,14 +1424,14 @@ export default function LandingPage() {
                 </span>
               </h2>
 
-              <p className="text-xs sm:text-sm text-text-muted max-w-xl leading-relaxed">
+              <p className="t-body max-w-xl">
                 Tinggalkan hafalan kunci instan yang mudah lupa. Rasakan bimbingan nalar Sokrates 24/7 yang merunut kelemahan materi prasyarat secara presisi untuk persiapan SMA, SNBT PTN, hingga Sekolah Kedinasan.
               </p>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
                 <a href="/login" className="w-full sm:w-auto">
-                  <Button size="md" variant="primary" className="w-full sm:w-auto shadow-xl px-6 py-2.5 font-bold flex items-center justify-center gap-2 text-sm">
+                  <Button size="md" variant="primary" className="w-full sm:w-auto shadow-xl px-6 py-2.5 font-semibold flex items-center justify-center gap-2 text-sm">
                     <LogIn size={16} />
                     <span>Masuk ke Portal NALARA</span>
                   </Button>
@@ -1411,13 +1451,13 @@ export default function LandingPage() {
                   {["#10B981", "#6366F1", "#38BDF8", "#F97316"].map((bg, idx) => (
                     <div
                       key={idx}
-                      className="w-7 h-7 rounded-full border-2 border-surface2 flex items-center justify-center text-[10px] font-bold text-white shadow-sm"
+                      className="w-7 h-7 rounded-full border-2 border-surface2 flex items-center justify-center text-xs font-bold text-white shadow-sm"
                       style={{ backgroundColor: bg }}
                     >
                       {["R", "S", "D", "A"][idx]}
                     </div>
                   ))}
-                  <div className="w-7 h-7 rounded-full border-2 border-surface2 bg-brand text-bg flex items-center justify-center text-[9px] font-extrabold shadow-sm">
+                  <div className="w-7 h-7 rounded-full border-2 border-surface2 bg-brand text-bg flex items-center justify-center text-xs font-extrabold shadow-sm">
                     +1.2k
                   </div>
                 </div>
@@ -1427,7 +1467,7 @@ export default function LandingPage() {
                     <span>★★★★★</span>
                     <span className="text-text font-bold ml-1">4.9 / 5.0</span>
                   </div>
-                  <div className="text-[11px] text-text-muted">
+                  <div className="text-xs text-text-muted">
                     Dipercaya 48+ Guru &amp; 1.250+ Siswa Pilot Sekolah
                   </div>
                 </div>
@@ -1446,7 +1486,7 @@ export default function LandingPage() {
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-xs font-mono font-bold text-text">Socrates AI · Live Session</span>
                   </div>
-                  <Badge variant="brand" className="text-[9px]">
+                  <Badge variant="brand" className="text-xs">
                     Siswa Aktif
                   </Badge>
                 </div>
@@ -1455,36 +1495,36 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <div className="text-xs font-bold text-text">Rian Pratama</div>
-                    <div className="text-[11px] text-text-muted">Kelas XII SMA · Target: TIU STAN / SNBT</div>
+                    <div className="text-xs text-text-muted">Kelas XII SMA · Target: TIU STAN / SNBT</div>
                   </div>
-                  <span className="px-2 py-0.5 rounded-md bg-brand/15 text-brand-light text-[10px] font-mono font-bold border border-brand/30">
+                  <span className="px-2 py-0.5 rounded-md bg-brand/15 text-brand-light text-xs font-mono font-extrabold tabular-nums border border-brand/30">
                     Mastery: 88.5%
                   </span>
                 </div>
 
                 {/* Live Progress Meter */}
                 <div className="space-y-1.5 p-3 rounded-xl bg-surface2/80 border border-border">
-                  <div className="flex justify-between text-[11px]">
+                  <div className="flex justify-between text-xs">
                     <span className="text-text-muted">Topik: Teorema Pythagoras &amp; Trigonometri</span>
                     <span className="text-emerald-400 font-bold">Terverifikasi ✓</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-surface3 overflow-hidden">
                     <div className="h-full rounded-full bg-gradient-to-r from-brand to-emerald-400 w-[88.5%]" />
                   </div>
-                  <p className="text-[10px] text-text-muted italic pt-0.5">
+                  <p className="text-xs text-text-muted italic pt-0.5">
                     "AI Socrates mendeteksi pemahaman nalar mandiri telah tercapai."
                   </p>
                 </div>
 
                 {/* 2 Micro Trust Badges */}
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2 rounded-lg bg-surface2/60 border border-border flex items-center gap-1.5">
                     <ShieldCheck size={14} className="text-brand shrink-0" />
-                    <span className="text-text font-medium text-[10px]">Zero Hallucination</span>
+                    <span className="text-text font-medium text-xs">Zero Hallucination</span>
                   </div>
                   <div className="p-2 rounded-lg bg-surface2/60 border border-border flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-accent shrink-0" />
-                    <span className="text-text font-medium text-[10px]">100% Kurasi Guru</span>
+                    <span className="text-text font-medium text-xs">100% Kurasi Guru</span>
                   </div>
                 </div>
               </div>
@@ -1509,11 +1549,11 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold font-serif text-lg text-text tracking-wide">NALARA</span>
-                <span className="px-2 py-0.5 rounded-full bg-brand/15 text-brand text-[10px] font-bold border border-brand/30">
+                <span className="px-2 py-0.5 rounded-full bg-brand/15 text-brand text-xs font-bold border border-brand/30">
                   Pilot v2.0
                 </span>
               </div>
-              <p className="text-[11px] text-text-muted">
+              <p className="text-xs text-text-muted">
                 Personalized AI Learning Intelligence
               </p>
             </div>
@@ -1521,11 +1561,11 @@ export default function LandingPage() {
 
           {/* Operational Status Pill & Badge */}
           <div className="flex flex-wrap items-center gap-3 text-xs">
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Semua Sistem Normal · 99.9% Uptime</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface2 text-text-muted border border-border text-[11px]">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface2 text-text-muted border border-border text-xs">
               <ShieldCheck size={13} className="text-brand" />
               <span>Standar Kurikulum Merdeka</span>
             </div>
@@ -1537,10 +1577,10 @@ export default function LandingPage() {
           {/* Col 1: Visi & Platform */}
           <div className="space-y-3 col-span-2 md:col-span-1">
             <h4 className="font-bold text-text text-xs uppercase tracking-wider">Tentang Platform</h4>
-            <p className="text-[11px] text-text-muted leading-relaxed">
+            <p className="text-xs text-text-muted leading-relaxed">
               Platform e-learning cerdas berbasis AI Sokrates yang menuntun nalar mandiri siswa tanpa contekan instan. Dirancang untuk efisiensi guru dan kemajuan mutu sekolah.
             </p>
-            <div className="pt-1 flex items-center gap-2 text-[11px] text-brand font-semibold">
+            <div className="pt-1 flex items-center gap-2 text-xs text-brand font-semibold">
               <CheckCircle2 size={13} />
               <span>Kurasi Guru 100%</span>
             </div>
@@ -1549,7 +1589,7 @@ export default function LandingPage() {
           {/* Col 2: Program Belajar */}
           <div className="space-y-2.5">
             <h4 className="font-bold text-text text-xs uppercase tracking-wider">Program Belajar</h4>
-            <ul className="space-y-2 text-[11px]">
+            <ul className="space-y-2 text-xs">
               <li><a href="/quiz" className="hover:text-text transition-colors">SMA Fase E (Kelas 10)</a></li>
               <li><a href="/quiz" className="hover:text-text transition-colors">SMA Fase F (Kelas 11 &amp; 12)</a></li>
               <li><a href="/quiz" className="hover:text-text transition-colors">Persiapan UTBK / SNBT</a></li>
@@ -1561,7 +1601,7 @@ export default function LandingPage() {
           {/* Col 3: Fitur & AI Engine */}
           <div className="space-y-2.5">
             <h4 className="font-bold text-text text-xs uppercase tracking-wider">Teknologi Cerdas</h4>
-            <ul className="space-y-2 text-[11px]">
+            <ul className="space-y-2 text-xs">
               <li><a href="#perbandingan" className="hover:text-text transition-colors">Think First Socratic Tutor</a></li>
               <li><a href="#perbandingan" className="hover:text-text transition-colors">Peta Graf Prasyarat (DAG)</a></li>
               <li><a href="#perbandingan" className="hover:text-text transition-colors">Mastery Score Deterministik</a></li>
@@ -1573,7 +1613,7 @@ export default function LandingPage() {
           {/* Col 4: Portal Pengguna */}
           <div className="space-y-2.5">
             <h4 className="font-bold text-text text-xs uppercase tracking-wider">Portal Akses</h4>
-            <ul className="space-y-2 text-[11px]">
+            <ul className="space-y-2 text-xs">
               <li><a href="/login" className="hover:text-text transition-colors">Portal Masuk Siswa</a></li>
               <li><a href="/login" className="hover:text-text transition-colors">Dashboard Guru Mata Pelajaran</a></li>
               <li><a href="/login" className="hover:text-text transition-colors">Dashboard Wali Kelas &amp; Rombel</a></li>
@@ -1585,7 +1625,7 @@ export default function LandingPage() {
           {/* Col 5: Keamanan & Integritas */}
           <div className="space-y-2.5">
             <h4 className="font-bold text-text text-xs uppercase tracking-wider">Standar &amp; Bantuan</h4>
-            <ul className="space-y-2 text-[11px]">
+            <ul className="space-y-2 text-xs">
               <li><a href="#faq" className="hover:text-text transition-colors">Pusat Bantuan &amp; FAQ</a></li>
               <li><a href="/login" className="hover:text-text transition-colors">Panduan Registrasi Siswa</a></li>
               <li><a href="#alur" className="hover:text-text transition-colors">Alur Penilaian Sokrates</a></li>
@@ -1596,7 +1636,7 @@ export default function LandingPage() {
         </div>
 
         {/* Bottom Legal & Copyright Bar */}
-        <div className="pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-text-muted">
+        <div className="pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
           <div>
             © 2026 <strong>NALARA AI Intelligence</strong>. Seluruh Hak Cipta Dilindungi.
           </div>
