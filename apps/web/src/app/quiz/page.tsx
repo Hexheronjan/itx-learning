@@ -637,6 +637,190 @@ const QUESTION_BANK: Record<string, Question[]> = {
         },
       },
     },
+    {
+      id: "q-mat10-3",
+      conceptName: "Sifat Perkalian Eksponen",
+      topic: "Matematika X - Sifat Bilangan Berpangkat",
+      questionText: "Berapakah bentuk sederhana dan nilai dari: 2³ × 2⁴ ?",
+      type: "mcq",
+      options: [
+        "2⁷ = 128",
+        "2¹² = 4096",
+        "4⁷ = 16384",
+        "2¹ = 2",
+      ],
+      optionDetails: {
+        "2⁷ = 128": "✓ BENAR: Pada perkalian bilangan berpangkat dengan basis sama (2), pangkatnya dijumlahkan: 2^(3+4) = 2⁷ = 128.",
+        "2¹² = 4096": "✕ SALAH: Miskonsepsi mengalikan pangkat (3 × 4 = 12), seharusnya pangkat dijumlahkan.",
+        "4⁷ = 16384": "✕ SALAH: Basis tidak dikalikan menjadi 4, basis tetap 2.",
+        "2¹ = 2": "✕ SALAH: Ini hasil pengurangan pangkat (pembagian), bukan perkalian.",
+      },
+      correctAnswer: "2⁷ = 128",
+      explanationText: "Sifat eksponen perkalian: aᵐ × aⁿ = aᵐ⁺ⁿ. Maka 2³ × 2⁴ = 2³⁺⁴ = 2⁷ = 128.",
+      knownWrongPatterns: {
+        "2¹² = 4096": {
+          misconceptionCode: "POWER_MULTIPLICATION_RULE_CONFUSION",
+          hint: "Ingat aturan eksponen: aᵐ × aⁿ = a^(m+n). Jumlahkan pangkatnya (3+4), jangan dikalikan.",
+        },
+      },
+    },
+    {
+      id: "q-mat10-4",
+      conceptName: "Merasionalkan Bentuk Akar",
+      topic: "Matematika X - Bentuk Akar",
+      questionText: "Bentuk rasional dari pecahan 6 / √3 adalah...",
+      type: "mcq",
+      options: [
+        "2√3",
+        "3√3",
+        "6√3",
+        "2",
+      ],
+      optionDetails: {
+        "2√3": "✓ BENAR: Kalikan pembilang dan penyebut dengan √3: (6 × √3) / 3 = 2√3.",
+        "3√3": "✕ SALAH: Kekeliruan pembagian 6 ÷ 3, seharusnya menghasilkan 2 bukan 3.",
+        "6√3": "✕ SALAH: Lupa membagi pembilang dengan penyebut akar kuadrat (√3 × √3 = 3).",
+        "2": "✕ SALAH: Faktor bentuk akar √3 tidak boleh dihilangkan tanpa dikalikan.",
+      },
+      correctAnswer: "2√3",
+      explanationText: "Untuk merasionalkan: kalikan dengan sekawan penyebut (√3/√3). Hasil = (6√3) / 3 = 2√3.",
+      knownWrongPatterns: {
+        "6√3": {
+          misconceptionCode: "FORGOT_DENOMINATOR_DIVISION",
+          hint: "Ingat bahwa penyebut (√3 × √3) menjadi 3. Bagilah pembilang 6 dengan 3.",
+        },
+      },
+    },
+    {
+      id: "q-mat10-5",
+      conceptName: "Sifat Logaritma Dasar",
+      topic: "Matematika X - Logaritma",
+      questionText: "Hitunglah nilai dari: ²log(16) + ²log(4)",
+      type: "numeric",
+      correctAnswer: "6",
+      explanationText: "²log(16) = 4 (karena 2⁴ = 16) dan ²log(4) = 2 (karena 2² = 4). Jumlah: 4 + 2 = 6. Atau ²log(16 × 4) = ²log(64) = 6.",
+      knownWrongPatterns: {
+        "8": {
+          misconceptionCode: "LOG_ADDITION_AS_MULTIPLICATION",
+          hint: "Nilai ²log(16) = 4 dan ²log(4) = 2. Jumlahkan nilai logaritma tersebut (4 + 2).",
+        },
+        "20": {
+          misconceptionCode: "ADDED_ARGUMENTS_DIRECTLY",
+          hint: "Ingat definisi logaritma: ᵃlog(b) adalah pangkat c sedemikian sehingga aᶜ = b. 2⁴=16 dan 2²=4.",
+        },
+      },
+    },
+    {
+      id: "q-mat10-6",
+      conceptName: "Akar Persamaan Kuadrat",
+      topic: "Matematika X - Persamaan & Fungsi Kuadrat",
+      questionText: "Tentukan himpunan penyelesaian (akar-akar) dari persamaan kuadrat: x² - 5x + 6 = 0",
+      type: "mcq",
+      options: [
+        "x = 2 atau x = 3",
+        "x = -2 atau x = -3",
+        "x = 1 atau x = 6",
+        "x = -1 atau x = -6",
+      ],
+      optionDetails: {
+        "x = 2 atau x = 3": "✓ BENAR: Difaktorkan menjadi (x - 2)(x - 3) = 0, sehingga pembuat nol adalah x = 2 atau x = 3.",
+        "x = -2 atau x = -3": "✕ SALAH: Tanda terbalik, jika (x + 2)(x + 3) maka koefisien x adalah +5x bukan -5x.",
+        "x = 1 atau x = 6": "✕ SALAH: Faktor 1 × 6 menghasilkan selisih 5 jika tandanya berbeda, tapi konstanta +6 membutuhkan tanda yang sama.",
+        "x = -1 atau x = -6": "✕ SALAH: Perkaliannya +6 namun jumlahnya -7x bukan -5x.",
+      },
+      correctAnswer: "x = 2 atau x = 3",
+      explanationText: "Cari dua bilangan yang jika dikalikan menghasilkan +6 dan jika dijumlahkan menghasilkan -5. Bilangan tersebut adalah -2 dan -3. (x - 2)(x - 3) = 0 → x = 2 atau x = 3.",
+      knownWrongPatterns: {
+        "x = -2 atau x = -3": {
+          misconceptionCode: "SIGN_REVERSAL_IN_ROOTS",
+          hint: "Hati-hati dengan tanda pada pembuat nol: (x - a) = 0 menghasilkan x = +a.",
+        },
+      },
+    },
+    {
+      id: "q-mat10-7",
+      conceptName: "Sistem Persamaan Linear Dua Variabel (SPLDV)",
+      topic: "Matematika X - SPLDV",
+      questionText: "Diketahui sistem persamaan: x + y = 10 dan x - y = 4. Berapakah nilai x?",
+      type: "numeric",
+      correctAnswer: "7",
+      explanationText: "Jumlahkan kedua persamaan: (x + y) + (x - y) = 10 + 4 → 2x = 14 → x = 7.",
+      knownWrongPatterns: {
+        "3": {
+          misconceptionCode: "CALCULATED_Y_INSTEAD_OF_X",
+          hint: "Nilai 3 adalah nilai y (10 - 7 = 3). Yang ditanyakan pada soal adalah nilai x.",
+        },
+        "14": {
+          misconceptionCode: "FORGOT_TO_DIVIDE_BY_TWO",
+          hint: "Hasil penjumlahan adalah 2x = 14. Jangan lupa membagi 14 dengan 2 untuk mendapatkan nilai x.",
+        },
+      },
+    },
+    {
+      id: "q-mat10-8",
+      conceptName: "Barisan & Deret Aritmatika",
+      topic: "Matematika X - Barisan Bilangan",
+      questionText: "Tentukan suku ke-10 (U₁₀) dari barisan aritmatika: 3, 7, 11, 15, ...",
+      type: "numeric",
+      correctAnswer: "39",
+      explanationText: "Suku pertama a = 3, beda b = 7 - 3 = 4. Rumus Un = a + (n - 1)b. U₁₀ = 3 + (10 - 1) × 4 = 3 + 36 = 39.",
+      knownWrongPatterns: {
+        "40": {
+          misconceptionCode: "USED_N_INSTEAD_OF_N_MINUS_ONE",
+          hint: "Rumus suku ke-n adalah a + (n - 1)b. Gunakan (10 - 1) = 9, bukan langsung mengalikan dengan 10.",
+        },
+        "43": {
+          misconceptionCode: "OFF_BY_ONE_TERM",
+          hint: "Periksa kembali perkalian suku: a = 3, b = 4. U₁₀ = 3 + 9 × 4 = 39.",
+        },
+      },
+    },
+    {
+      id: "q-mat10-9",
+      conceptName: "Trigonometri Segitiga Siku-siku",
+      topic: "Matematika X - Rasio Trigonometri",
+      questionText: "Pada segitiga siku-siku ABC dengan sudut A = 30°, diketahui panjang sisi miring (hipotenusa) = 20 cm. Berapakah panjang sisi di depan sudut A (dalam cm)?",
+      type: "numeric",
+      correctAnswer: "10",
+      explanationText: "sin(A) = sisi depan / hipotenusa. sin(30°) = 1/2. Maka sisi depan = 20 × sin(30°) = 20 × 0.5 = 10 cm.",
+      knownWrongPatterns: {
+        "20": {
+          misconceptionCode: "CONFUSED_HYPOTENUSE_WITH_SIDE",
+          hint: "Sisi depan tidak sama dengan sisi miring. Gunakan perbandingan sin(30°) = 1/2.",
+        },
+        "17": {
+          misconceptionCode: "USED_COSINE_APPROXIMATION",
+          hint: "Ingat definisi sinus: sin(θ) = depan / miring. sin(30°) = 1/2.",
+        },
+      },
+    },
+    {
+      id: "q-mat10-10",
+      conceptName: "Peluang Kejadian Majemuk",
+      topic: "Matematika X - Teori Peluang",
+      questionText: "Dua keping uang koin dilempar undi secara bersamaan sebanyak satu kali. Berapakah peluang munculnya minimal 1 sisi angka?",
+      type: "mcq",
+      options: [
+        "3/4 (75%)",
+        "1/2 (50%)",
+        "1/4 (25%)",
+        "1 (100%)",
+      ],
+      optionDetails: {
+        "3/4 (75%)": "✓ BENAR: Ruang sampel S = {(A,A), (A,G), (G,A), (G,G)} ada 4 titik. Titik sampel minimal 1 angka = {(A,A), (A,G), (G,A)} ada 3. Peluang = 3/4.",
+        "1/2 (50%)": "✕ SALAH: Ini peluang jika hanya ada 1 koin atau tepat 1 sisi angka.",
+        "1/4 (25%)": "✕ SALAH: Ini adalah peluang keduanya angka (A,A) atau keduanya gambar (G,G).",
+        "1 (100%)": "✕ SALAH: Masih ada kemungkinan muncul keduanya gambar (G,G).",
+      },
+      correctAnswer: "3/4 (75%)",
+      explanationText: "Ruang sampel pelemparan 2 koin: n(S) = 4 {(A,A), (A,G), (G,A), (G,G)}. Kejadian minimal 1 sisi angka: n(K) = 3 {(A,A), (A,G), (G,A)}. Maka P(K) = 3/4 = 75%.",
+      knownWrongPatterns: {
+        "1/2 (50%)": {
+          misconceptionCode: "SAMPLE_SPACE_MISCOUNT",
+          hint: "Daftar ruang sampel dari 2 koin adalah (A,A), (A,G), (G,A), dan (G,G). Ada 3 dari 4 kejadian yang memuat minimal 1 angka.",
+        },
+      },
+    },
   ],
   "indo-11": [
     {
@@ -1165,13 +1349,52 @@ function StudentPortalContent() {
     reason: string;
   } | null>(null);
 
+  // Student Profile Names & Class Group State
+  const [studentProfileName, setStudentProfileName] = useState("Andi Pratama");
+  const [studentClassGroup, setStudentClassGroup] = useState("Kelas XI-A");
+
+  // Load Supabase Session and Check Graduation Status
+  React.useEffect(() => {
+    async function loadStudentSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user) {
+        const u = data.session.user;
+        const meta = u.user_metadata || {};
+        
+        if (meta.full_name) setStudentProfileName(meta.full_name);
+        if (meta.class_group || meta.classGroup) setStudentClassGroup(meta.class_group || meta.classGroup);
+
+        const status = meta.academic_status || (meta.is_graduated ? "graduated" : "active");
+        if (status === "graduated" || meta.is_graduated === true) {
+          setIsGraduated(true);
+        }
+      }
+    }
+    loadStudentSession();
+  }, []);
+
   // Confirmation Modal State
   const [pendingSubject, setPendingSubject] = useState<SubjectOption | null>(null);
   const [completedQuizzes, setCompletedQuizzes] = useState<Record<string, boolean>>({});
   const [remedialPermissions, setRemedialPermissions] = useState<Record<string, boolean>>({});
   const [customQuestions, setCustomQuestions] = useState<any[]>([]);
 
-  // Real-Time Live Sync: Completed Quizzes and Remedial Permissions
+  // Timer States (Default 15 Menit = 900 Detik untuk 10 Soal)
+  const DEFAULT_QUIZ_DURATION = 900;
+  const [timeLeft, setTimeLeft] = useState<number>(DEFAULT_QUIZ_DURATION);
+  const [isTimerActive, setIsTimerActive] = useState<boolean>(false);
+  const [timeExpiredToast, setTimeExpiredToast] = useState<string | null>(null);
+
+  // Homeroom Promotion Notification State
+  const [promotedNotification, setPromotedNotification] = useState<{
+    previousClass: string;
+    newClass: string;
+    homeroomTeacher: string;
+    promotedAt: string;
+    newGradeId?: string;
+  } | null>(null);
+
+  // Real-Time Live Sync: Completed Quizzes, Remedial Permissions, and Homeroom Promotions
   React.useEffect(() => {
     const syncQuizState = () => {
       if (typeof window === "undefined") return;
@@ -1193,6 +1416,34 @@ function StudentPortalContent() {
             setCustomQuestions(parsed);
           }
         }
+
+        // Live Homeroom Promotion Sync for this student
+        const promoRaw = localStorage.getItem("nalara_student_promotions");
+        if (promoRaw) {
+          const promoMap = JSON.parse(promoRaw);
+          const studentKey = studentEmail.trim().toLowerCase();
+          const myPromo = promoMap[studentKey];
+          if (myPromo && myPromo.status === "approved") {
+            setStudentClassGroup(myPromo.newClass);
+            setPromotedNotification(myPromo);
+            // Sync with Supabase session metadata if available
+            supabase.auth.getSession().then(({ data }) => {
+              if (data?.session?.user) {
+                const meta = data.session.user.user_metadata || {};
+                if (meta.class_group !== myPromo.newClass) {
+                  supabase.auth.updateUser({
+                    data: {
+                      ...meta,
+                      class_group: myPromo.newClass,
+                      classGroup: myPromo.newClass,
+                      grade_level: myPromo.newGradeTitle || meta.grade_level,
+                    },
+                  }).catch(() => {});
+                }
+              }
+            });
+          }
+        }
       } catch (err) {
         console.error("Error syncing quiz status:", err);
       }
@@ -1206,7 +1457,8 @@ function StudentPortalContent() {
       if (
         e.key === "nalara_completed_quizzes" ||
         e.key === "nalara_remedial_permissions" ||
-        e.key === "nalara_custom_questions"
+        e.key === "nalara_custom_questions" ||
+        e.key === "nalara_student_promotions"
       ) {
         syncQuizState();
       }
@@ -1220,7 +1472,7 @@ function StudentPortalContent() {
       window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
     };
-  }, []);
+  }, [studentEmail]);
 
   // Quiz State
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -1414,8 +1666,92 @@ function StudentPortalContent() {
     setAiThinkFirstHint(null);
     setIsLoadingAiHint(false);
     setSessionAttempts([]);
+    setTimeLeft(DEFAULT_QUIZ_DURATION);
+    setIsTimerActive(true);
+    setTimeExpiredToast(null);
     setActiveStep("quiz");
   };
+
+  // Helper format MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Auto-submit when timer expires
+  const handleTimeExpired = () => {
+    setIsTimerActive(false);
+    setTimeExpiredToast("⏰ Waktu pengerjaan telah habis (15:00)! Jawaban yang telah Anda isi otomatis dikumpulkan.");
+
+    if (selectedGrade && selectedSubject) {
+      const correctAttempts = sessionAttempts.filter((a) => a.isCorrect);
+      const wrongAttemptsList = sessionAttempts.filter((a) => !a.isCorrect);
+      const total = Math.max(sessionAttempts.length, currentSubjectQuestions.length);
+      const accuracy = Math.round((correctAttempts.length / total) * 100);
+      const status = masteryScore >= 85 ? "mastered" : masteryScore >= 60 ? "practicing" : "needs_attention";
+
+      const studentName = studentEmail.toLowerCase().includes("andi")
+        ? "Andi Pratama"
+        : studentEmail.split("@")[0].replace(".", " ");
+
+      const newSubmission = {
+        id: `sub-${studentEmail}-${selectedSubject.id}`,
+        studentId: `std-${studentEmail}`,
+        name: studentName.charAt(0).toUpperCase() + studentName.slice(1),
+        email: studentEmail,
+        classGroup: studentClassGroup,
+        gradeLevel: selectedGrade.title,
+        subjectId: selectedSubject.id,
+        subjectName: selectedSubject.name,
+        totalAnswered: sessionAttempts.length,
+        correctCount: correctAttempts.length,
+        accuracyRate: accuracy,
+        masteryScore: masteryScore,
+        status,
+        frequentMisconceptions: wrongAttemptsList.map((w) => w.misconceptionCode || "Kekeliruan nalar konsep"),
+        lastActive: "Baru saja (Waktu Habis)",
+        timestamp: Date.now(),
+      };
+
+      try {
+        const existingRaw = localStorage.getItem("nalara_student_submissions");
+        const existing: any[] = existingRaw ? JSON.parse(existingRaw) : [];
+        const filtered = existing.filter((e) => !(e.email === studentEmail && e.subjectId === selectedSubject.id));
+        filtered.unshift(newSubmission);
+        localStorage.setItem("nalara_student_submissions", JSON.stringify(filtered));
+
+        // Strict Lock: Mark completed in localStorage
+        const completedRaw = localStorage.getItem("nalara_completed_quizzes");
+        const completedMap = completedRaw ? JSON.parse(completedRaw) : {};
+        completedMap[`${studentEmail}_${selectedSubject.id}`] = true;
+        localStorage.setItem("nalara_completed_quizzes", JSON.stringify(completedMap));
+        setCompletedQuizzes(completedMap);
+      } catch (err) {
+        console.error("Failed to auto-submit on time expiry:", err);
+      }
+    }
+
+    setActiveStep("completed");
+  };
+
+  // Timer Countdown Effect
+  React.useEffect(() => {
+    if (activeStep !== "quiz" || !isTimerActive) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleTimeExpired();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeStep, isTimerActive, sessionAttempts, selectedGrade, selectedSubject, masteryScore]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -1614,6 +1950,13 @@ function StudentPortalContent() {
           const filtered = existing.filter((e) => !(e.email === studentEmail && e.subjectId === selectedSubject.id));
           filtered.unshift(newSubmission);
           localStorage.setItem("nalara_student_submissions", JSON.stringify(filtered));
+
+          // Strict Lock 1x Attempt: Mark completed in localStorage
+          const completedRaw = localStorage.getItem("nalara_completed_quizzes");
+          const completedMap = completedRaw ? JSON.parse(completedRaw) : {};
+          completedMap[`${studentEmail}_${selectedSubject.id}`] = true;
+          localStorage.setItem("nalara_completed_quizzes", JSON.stringify(completedMap));
+          setCompletedQuizzes(completedMap);
         } catch (err) {
           console.error("Failed to save student submission:", err);
         }
@@ -1635,6 +1978,25 @@ function StudentPortalContent() {
   };
 
   const handleRestartQuiz = () => {
+    if (!selectedSubject) return;
+    const canRemedial = !!remedialPermissions[studentEmail] || !!remedialPermissions[`${studentEmail}_${selectedSubject.id}`];
+
+    if (!canRemedial) {
+      alert("🔒 Sesi Terkunci (1x Kesempatan): Anda hanya dapat mengulang kuis jika guru pengampu telah memberikan izin Remedial melalui Portal Guru.");
+      return;
+    }
+
+    // Unblock this subject from completed quizzes for the remedial attempt
+    try {
+      const completedRaw = localStorage.getItem("nalara_completed_quizzes");
+      const completedMap = completedRaw ? JSON.parse(completedRaw) : {};
+      delete completedMap[`${studentEmail}_${selectedSubject.id}`];
+      localStorage.setItem("nalara_completed_quizzes", JSON.stringify(completedMap));
+      setCompletedQuizzes(completedMap);
+    } catch (e) {
+      console.error(e);
+    }
+
     setCurrentIdx(0);
     setUserAnswer("");
     setResult(null);
@@ -1644,6 +2006,9 @@ function StudentPortalContent() {
     setAiThinkFirstHint(null);
     setIsLoadingAiHint(false);
     setSessionAttempts([]);
+    setTimeLeft(DEFAULT_QUIZ_DURATION);
+    setIsTimerActive(true);
+    setTimeExpiredToast(null);
     setActiveStep("quiz");
   };
 
@@ -1809,6 +2174,31 @@ function StudentPortalContent() {
           </Button>
         </div>
       </header>
+
+      {/* Homeroom Promotion Celebration Banner */}
+      {promotedNotification && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-surface2 to-brand/10 border border-emerald-500/50 text-emerald-200 text-xs shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl shrink-0">
+              🎓
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-text font-serif">Kenaikan Kelas Resmi Diterbitkan!</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  Disetujui Wali Kelas
+                </span>
+              </div>
+              <p className="text-muted text-[11px] mt-0.5">
+                Selamat <strong className="text-text">{studentProfileName}</strong>! Wali Kelas <strong className="text-emerald-300">{promotedNotification.homeroomTeacher}</strong> telah menyetujui kenaikan kelas Anda dari <strong className="text-text">{promotedNotification.previousClass}</strong> ke <strong className="text-emerald-400 font-bold">{promotedNotification.newClass}</strong>.
+              </p>
+            </div>
+          </div>
+          <Badge variant="brand" className="shrink-0 text-xs font-bold py-1 px-3 bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+            Kelas Aktif: {promotedNotification.newClass}
+          </Badge>
+        </div>
+      )}
 
       {/* 2. Breadcrumb Navigation Bar */}
       <div className="flex items-center gap-2 text-xs font-semibold text-muted bg-surface2 p-3 rounded-xl border border-border overflow-x-auto">
@@ -2297,58 +2687,85 @@ function StudentPortalContent() {
 
             return (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredSubjects.map((subj) => (
-                  <GlowCard
-                    key={subj.id}
-                    onClick={() => handleRequestSubject(subj)}
-                    className="p-5 space-y-3 cursor-pointer transition-all hover:border-brand hover:scale-[1.01] border-border flex flex-col justify-between"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl p-2 rounded-xl bg-surface2 border border-border">{subj.icon}</span>
-                          <div>
-                            <h3 className="text-sm font-bold font-serif text-text">{subj.name}</h3>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="text-[11px] text-brand font-medium">{subj.conceptCount} Konsep</span>
-                              {subj.category && (
-                                <Badge variant="neutral" className="text-[9px] uppercase tracking-wider py-0 px-1.5">
-                                  {subj.category}
-                                </Badge>
-                              )}
+                {filteredSubjects.map((subj) => {
+                  const isSubjCompleted = !!completedQuizzes[`${studentEmail}_${subj.id}`];
+                  const hasSubjRemedial = !!remedialPermissions[studentEmail] || !!remedialPermissions[`${studentEmail}_${subj.id}`];
+
+                  return (
+                    <GlowCard
+                      key={subj.id}
+                      onClick={() => handleRequestSubject(subj)}
+                      className={`p-5 space-y-3 cursor-pointer transition-all hover:scale-[1.01] flex flex-col justify-between border ${
+                        isSubjCompleted && !hasSubjRemedial
+                          ? "border-amber-500/30 bg-surface/80"
+                          : isSubjCompleted && hasSubjRemedial
+                          ? "border-emerald-500/40 bg-emerald-950/10"
+                          : "border-border hover:border-brand"
+                      }`}
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl p-2 rounded-xl bg-surface2 border border-border">{subj.icon}</span>
+                            <div>
+                              <h3 className="text-sm font-bold font-serif text-text">{subj.name}</h3>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[11px] text-brand font-medium">{subj.conceptCount} Konsep</span>
+                                {subj.category && (
+                                  <Badge variant="neutral" className="text-[9px] uppercase tracking-wider py-0 px-1.5">
+                                    {subj.category}
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <Badge variant="brand" className="text-[10px]">Pilih</Badge>
-                      </div>
-
-                      <p className="text-xs text-muted leading-relaxed line-clamp-2">
-                        {subj.description}
-                      </p>
-                    </div>
-
-                    <div className="space-y-2 pt-2 border-t border-border/50">
-                      {subj.teacherName && (
-                        <div className="text-[11px] text-muted flex items-center justify-between flex-wrap gap-1">
-                          <span className="inline-flex items-center gap-1">
-                            <span>👨‍🏫</span>
-                            <span className="truncate max-w-[150px]">{subj.teacherName}</span>
-                          </span>
-                          {subj.teacherRole?.includes("Wali") && (
-                            <span className="px-1.5 py-0.2 rounded text-[10px] bg-brand/20 text-brand font-bold border border-brand/30">
-                              Wali Kelas
-                            </span>
+                          {isSubjCompleted && !hasSubjRemedial ? (
+                            <Badge variant="accent" className="text-[10px] bg-amber-500/15 text-amber-300 border-amber-500/40">
+                              🔒 Selesai (1x)
+                            </Badge>
+                          ) : isSubjCompleted && hasSubjRemedial ? (
+                            <Badge variant="brand" className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                              ✨ Remedial
+                            </Badge>
+                          ) : (
+                            <Badge variant="brand" className="text-[10px]">Tersedia</Badge>
                           )}
                         </div>
-                      )}
 
-                      <div className="flex items-center justify-between text-xs font-semibold text-brand">
-                        <span>Mulai Latihan Soal</span>
-                        <ArrowRight size={14} />
+                        <p className="text-xs text-muted leading-relaxed line-clamp-2">
+                          {subj.description}
+                        </p>
                       </div>
-                    </div>
-                  </GlowCard>
-                ))}
+
+                      <div className="space-y-2 pt-2 border-t border-border/50">
+                        {subj.teacherName && (
+                          <div className="text-[11px] text-muted flex items-center justify-between flex-wrap gap-1">
+                            <span className="inline-flex items-center gap-1">
+                              <span>👨‍🏫</span>
+                              <span className="truncate max-w-[150px]">{subj.teacherName}</span>
+                            </span>
+                            {subj.teacherRole?.includes("Wali") && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] bg-brand/20 text-brand font-bold border border-brand/30">
+                                Wali Kelas
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between text-xs font-semibold text-brand">
+                          <span>
+                            {isSubjCompleted && !hasSubjRemedial
+                              ? "Lihat Rekap Nilai"
+                              : isSubjCompleted && hasSubjRemedial
+                              ? "Mulai Sesi Remedial"
+                              : "Mulai Latihan Soal (15 Menit)"}
+                          </span>
+                          <ArrowRight size={14} />
+                        </div>
+                      </div>
+                    </GlowCard>
+                  );
+                })}
               </div>
             );
           })()}
@@ -2516,6 +2933,12 @@ function StudentPortalContent() {
                     {(QUESTION_BANK[pendingSubject.id] || DEFAULT_FALLBACK_QUESTIONS).length} Soal
                   </span>
                 </div>
+                <div className="flex justify-between border-b border-border/60 pb-2">
+                  <span className="text-muted">Batas Waktu Pengerjaan:</span>
+                  <span className="font-bold text-amber-300 flex items-center gap-1.5">
+                    <Clock size={13} /> 15 Menit (Auto-Submit)
+                  </span>
+                </div>
                 <div className="flex justify-between items-center pt-1">
                   <span className="text-muted">Fitur Unggulan:</span>
                   <span className="font-bold text-accent flex items-center gap-1">
@@ -2599,7 +3022,23 @@ function StudentPortalContent() {
                   Soal {currentIdx + 1} dari {currentSubjectQuestions.length}
                 </span>
               </div>
-              <span className="text-xs font-mono text-muted">Mode: Adaptif AI</span>
+              <div className="flex items-center gap-3">
+                {/* Live Countdown Timer Badge */}
+                <div
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+                    timeLeft <= 120
+                      ? "bg-red-500/20 border-red-500/50 text-red-300 animate-pulse"
+                      : timeLeft <= 300
+                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                      : "bg-surface2 border-border text-brand"
+                  }`}
+                >
+                  <Clock size={14} className={timeLeft <= 120 ? "text-red-400 animate-spin" : "text-brand"} />
+                  <span className="font-mono text-sm tracking-wider">{formatTime(timeLeft)}</span>
+                  <span className="text-[10px] text-muted font-normal hidden sm:inline">Sisa Waktu</span>
+                </div>
+                <span className="text-xs font-mono text-muted hidden md:inline">Mode: Adaptif AI</span>
+              </div>
             </div>
 
             <h3 className="text-xl sm:text-2xl font-bold font-serif text-text leading-snug">
@@ -3057,10 +3496,32 @@ function StudentPortalContent() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Button onClick={handleRestartQuiz} variant="secondary" size="sm">
-                <RefreshCw size={14} />
-                <span>Ulangi Topik Ini (Remedial)</span>
-              </Button>
+              {(() => {
+                const canRemedial = !!remedialPermissions[studentEmail] || !!remedialPermissions[`${studentEmail}_${selectedSubject.id}`];
+                if (canRemedial) {
+                  return (
+                    <Button onClick={handleRestartQuiz} variant="primary" size="sm" className="font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md">
+                      <Sparkles size={14} />
+                      <span>Kerjakan Ulang (Remedial Aktif)</span>
+                    </Button>
+                  );
+                }
+                return (
+                  <Button
+                    onClick={() =>
+                      alert(
+                        "🔒 Sesi Terkunci: Anda telah menyelesaikan 1x pengerjaan kuis ini. Fitur Remedial baru dapat dibuka setelah Guru Pengampu memberikan izin melalui Portal Guru."
+                      )
+                    }
+                    variant="secondary"
+                    size="sm"
+                    className="border-amber-500/30 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+                  >
+                    <Lock size={14} />
+                    <span>Remedial Terkunci (Perlu Izin Guru)</span>
+                  </Button>
+                );
+              })()}
 
               <Button onClick={() => setActiveStep("choose_subject")} variant="primary" size="sm" className="font-bold">
                 <BookOpen size={14} />

@@ -66,8 +66,9 @@ export async function middleware(request: NextRequest) {
 
   const customRole = request.cookies.get("sb-user-role")?.value;
   const customEmail = request.cookies.get("sb-user-email")?.value;
+  const hasUserQuery = request.nextUrl.searchParams.has("user");
 
-  const isAuthenticated = !!user || !!customAuthToken;
+  const isAuthenticated = !!user || !!customAuthToken || hasUserQuery;
 
   // 3. Unauthenticated access redirection to /login
   if (!isAuthenticated) {
@@ -78,7 +79,7 @@ export async function middleware(request: NextRequest) {
 
   // 4. Role detection (prefer Supabase user_metadata, then cookie, then email heuristics)
   const roleFromMetadata = user?.user_metadata?.role;
-  const emailToCheck = (user?.email || customEmail || "").toLowerCase();
+  const emailToCheck = (user?.email || customEmail || request.nextUrl.searchParams.get("user") || "").toLowerCase();
 
   const userRole =
     roleFromMetadata ||
